@@ -9,7 +9,7 @@ export const HOME = {
   },
   hero: {
     eyebrow: "SkillUni WebApp",
-    title: "Free-forever Java preparation for ICSE Class 10.",
+    title: "Get Skilled",
     description:
       "Organized lectures, notes, and quizzes in one place so every student learns with clarity and confidence.",
     primaryCta: {

@@ -1,4 +1,16 @@
+/* ── Inter Variable (body typeface) ─────────────────────────── */
+
+/* ── Mona Sans (display typeface — GT Walsheim substitute) ── */
+@font-face {
+  font-family: 'Mona Sans';
+  src: url('https://github.com/github/mona-sans/raw/main/fonts/variable/Mona-Sans.woff2')
+    format('woff2-variations');
+  font-weight: 200 900;
+  font-display: swap;
+  font-style: normal;
+}
+
 :root {
-  --font-sans: "Satoshi", "General Sans", "Manrope", sans-serif;
-  --font-display: "Clash Display", "Satoshi", "General Sans", sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Mona Sans', 'Inter', sans-serif;
 }

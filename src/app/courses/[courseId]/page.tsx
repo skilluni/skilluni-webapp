@@ -31,47 +31,51 @@ export default async function CourseRoadmapPage({
   );
 
   return (
-    <main className="flex-1 bg-background text-foreground">
-      <section className="border-b border-foreground/10 py-20 md:py-28">
+    <main className="flex-1" style={{ background: 'var(--color-canvas)', color: 'var(--color-ink)' }}>
+      {/* Course Header */}
+      <section
+        className="py-20 md:py-28"
+        style={{ borderBottom: '1px solid var(--color-hairline-soft)' }}
+      >
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6">
           <SectionHeading
             eyebrow={ROADMAP_PAGE.header.eyebrow}
             title={course.title}
             description={course.description}
           />
-          <p className="text-sm text-foreground/60">
+          <p className="text-body" style={{ color: 'var(--color-ink-muted)' }}>
             {ROADMAP_PAGE.header.description}
           </p>
+
+          {/* Meta Cards */}
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-foreground/10 bg-background px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-foreground/60">
-                {ROADMAP_PAGE.meta.level}
-              </p>
-              <p className="mt-2 text-lg font-semibold text-foreground">
-                {course.level}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-foreground/10 bg-background px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-foreground/60">
-                {ROADMAP_PAGE.meta.lectures}
-              </p>
-              <p className="mt-2 text-lg font-semibold text-foreground">
-                {course.lectures.length} {ROADMAP_PAGE.lectureCountSuffix}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-foreground/10 bg-background px-4 py-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-foreground/60">
-                {ROADMAP_PAGE.meta.progress}
-              </p>
-              <p className="mt-2 text-lg font-semibold text-foreground">
-                {progress}
-                {ROADMAP_PAGE.progressSuffix}
-              </p>
-            </div>
+            {[
+              { label: ROADMAP_PAGE.meta.level, value: course.level },
+              { label: ROADMAP_PAGE.meta.lectures, value: `${course.lectures.length} ${ROADMAP_PAGE.lectureCountSuffix}` },
+              { label: ROADMAP_PAGE.meta.progress, value: `${progress}${ROADMAP_PAGE.progressSuffix}` },
+            ].map((meta) => (
+              <div
+                key={meta.label}
+                className="px-4 py-4"
+                style={{
+                  background: 'var(--color-surface-1)',
+                  borderRadius: 'var(--radius-xl)',
+                  border: '1px solid var(--color-hairline)',
+                }}
+              >
+                <p className="text-caption uppercase tracking-[0.2em]" style={{ color: 'var(--color-ink-muted)' }}>
+                  {meta.label}
+                </p>
+                <p className="mt-2 text-headline" style={{ color: 'var(--color-ink)' }}>
+                  {meta.value}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* Lecture Timeline */}
       <section className="py-20 md:py-28">
         <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6">
           <SectionHeading
@@ -79,10 +83,20 @@ export default async function CourseRoadmapPage({
             title={ROADMAP_PAGE.steps.title}
             description={ROADMAP_PAGE.steps.description}
           />
-          <div className="relative space-y-6 border-l border-dashed border-foreground/20 pl-8">
+          <div
+            className="relative space-y-6 pl-8"
+            style={{ borderLeft: '1px dashed var(--color-hairline)' }}
+          >
             {sortedLectures.map((lecture) => (
               <div key={lecture.id} className="relative">
-                <span className="absolute -left-[11px] top-8 h-5 w-5 rounded-full border border-foreground/20 bg-background" />
+                <span
+                  className="absolute -left-[11px] top-8 h-5 w-5"
+                  style={{
+                    borderRadius: 'var(--radius-full)',
+                    border: '2px solid var(--color-hairline)',
+                    background: 'var(--color-surface-1)',
+                  }}
+                />
                 <LectureCard
                   lecture={lecture}
                   labels={ROADMAP_PAGE.lecture}

@@ -13,20 +13,29 @@ export default function CourseCard({
   ctaHref,
 }: CourseCardProps) {
   return (
-    <div className="group flex h-full flex-col justify-between rounded-3xl border border-foreground/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.45)] backdrop-blur dark:bg-neutral-900/60">
+    <div
+      className="group card-hover flex h-full flex-col justify-between p-6"
+      style={{
+        background: 'var(--color-surface-1)',
+        borderRadius: 'var(--radius-xl)',
+        border: '1px solid var(--color-hairline)',
+      }}
+    >
       <div className="space-y-4">
-        <h3 className="text-xl font-semibold text-foreground">
+        <h3 className="text-display-md" style={{ color: 'var(--color-ink)' }}>
           {course.title}
         </h3>
-        <p className="text-sm leading-6 text-foreground/70">
+        <p className="text-body" style={{ color: 'var(--color-ink-muted)' }}>
           {course.description}
         </p>
       </div>
       <Link
         href={ctaHref}
-        className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-foreground/80 transition-colors group-hover:text-foreground"
+        className="mt-6 inline-flex items-center gap-2 text-body-sm transition-colors"
+        style={{ color: 'var(--color-accent-blue)' }}
       >
         {ctaLabel}
+        <span className="transition-transform group-hover:translate-x-1">→</span>
       </Link>
     </div>
   );

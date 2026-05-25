@@ -7,7 +7,7 @@ import Footer from "../components/layout/Footer";
 
 export default function Home() {
   return (
-    <main className="flex-1 bg-background text-foreground">
+    <main className="flex-1" style={{ background: 'var(--color-canvas)', color: 'var(--color-ink)' }}>
       <Hero />
       <Metrics />
       <AboutUs />

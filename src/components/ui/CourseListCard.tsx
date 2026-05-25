@@ -20,13 +20,20 @@ export default function CourseListCard({
   ctaHref,
 }: CourseListCardProps) {
   return (
-    <div className="flex h-full flex-col justify-between rounded-3xl border border-foreground/10 bg-white/80 p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.55)] backdrop-blur dark:bg-neutral-900/60">
+    <div
+      className="card-hover flex h-full flex-col justify-between p-6"
+      style={{
+        background: 'var(--color-surface-1)',
+        borderRadius: 'var(--radius-xl)',
+        border: '1px solid var(--color-hairline)',
+      }}
+    >
       <div className="space-y-5">
         <div className="space-y-2">
-          <h3 className="text-xl font-semibold text-foreground">
+          <h3 className="text-display-md" style={{ color: 'var(--color-ink)' }}>
             {course.title}
           </h3>
-          <p className="text-sm leading-6 text-foreground/70">
+          <p className="text-body" style={{ color: 'var(--color-ink-muted)' }}>
             {course.description}
           </p>
         </div>
@@ -34,10 +41,16 @@ export default function CourseListCard({
           {meta.map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-foreground/10 bg-background px-4 py-3 text-xs"
+              className="px-4 py-3"
+              style={{
+                background: 'var(--color-surface-2)',
+                borderRadius: 'var(--radius-md)',
+              }}
             >
-              <p className="text-foreground/60">{item.label}</p>
-              <p className="mt-1 text-sm font-semibold text-foreground">
+              <p className="text-micro" style={{ color: 'var(--color-ink-muted)' }}>
+                {item.label}
+              </p>
+              <p className="mt-1 text-body-sm" style={{ color: 'var(--color-ink)' }}>
                 {item.value}
               </p>
             </div>
@@ -46,9 +59,11 @@ export default function CourseListCard({
       </div>
       <Link
         href={ctaHref}
-        className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-foreground/80 transition-colors hover:text-foreground"
+        className="mt-6 inline-flex items-center gap-2 text-body-sm transition-colors"
+        style={{ color: 'var(--color-accent-blue)' }}
       >
         {ctaLabel}
+        <span className="transition-transform hover:translate-x-1">→</span>
       </Link>
     </div>
   );
