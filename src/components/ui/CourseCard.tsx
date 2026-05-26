@@ -13,7 +13,10 @@ export default function CourseCard({
   ctaHref,
 }: CourseCardProps) {
   return (
-    <div className="group flex h-full flex-col justify-between rounded-3xl border border-foreground/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.45)] backdrop-blur dark:bg-neutral-900/60">
+    <div
+      data-cursor="view"
+      className="group flex h-full flex-col justify-between rounded-3xl border border-foreground/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.45)] backdrop-blur dark:bg-neutral-900/60"
+    >
       <div className="space-y-4">
         <h3 className="text-xl font-semibold text-foreground">
           {course.title}
@@ -24,6 +27,8 @@ export default function CourseCard({
       </div>
       <Link
         href={ctaHref}
+        data-cursor="link"
+        data-cursor-text="View"
         className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-foreground/80 transition-colors group-hover:text-foreground"
       >
         {ctaLabel}

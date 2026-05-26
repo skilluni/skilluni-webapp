@@ -25,3 +25,133 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
 }
+
+body.has-custom-cursor,
+body.has-custom-cursor * {
+  cursor: none;
+}
+
+.cursor-dot,
+.cursor-ring,
+.cursor-label {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease;
+}
+
+.cursor-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cursor-ring {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.35);
+  background: rgba(255, 255, 255, 0.3);
+  transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+.cursor-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #0b0b0b;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+  text-transform: uppercase;
+  max-width: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+body.cursor-hidden .cursor-dot,
+body.cursor-hidden .cursor-ring,
+body.cursor-hidden .cursor-label {
+  opacity: 0;
+}
+
+body.cursor-magnetic .cursor-dot {
+  opacity: 0;
+}
+
+body.cursor-magnetic .cursor-ring {
+  width: 64px;
+  height: 64px;
+  background: rgba(15, 23, 42, 0.08);
+  border-color: rgba(15, 23, 42, 0.4);
+}
+
+body.cursor-link .cursor-dot {
+  opacity: 0;
+}
+
+body.cursor-link .cursor-ring {
+  width: 52px;
+  height: 52px;
+  background: #ffffff;
+  border-color: transparent;
+}
+
+body.cursor-link .cursor-label {
+  opacity: 1;
+  color: #0b0b0b;
+}
+
+body.cursor-view .cursor-dot {
+  opacity: 0;
+}
+
+body.cursor-view .cursor-ring {
+  width: 72px;
+  height: 72px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+body.cursor-view .cursor-label {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cursor-dot {
+    background: rgba(226, 232, 240, 0.95);
+  }
+
+  .cursor-ring {
+    border-color: rgba(226, 232, 240, 0.35);
+    background: rgba(15, 23, 42, 0.35);
+  }
+
+  .cursor-label {
+    color: #f8fafc;
+  }
+
+  body.cursor-link .cursor-ring {
+    background: #ffffff;
+  }
+
+  body.cursor-link .cursor-label {
+    color: #0b0b0b;
+  }
+
+  body.cursor-magnetic .cursor-ring,
+  body.cursor-view .cursor-ring {
+    background: rgba(226, 232, 240, 0.08);
+    border-color: rgba(226, 232, 240, 0.35);
+  }
+}

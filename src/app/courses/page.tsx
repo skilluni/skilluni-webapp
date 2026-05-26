@@ -18,6 +18,9 @@ export default function CoursesPage() {
             href={COURSES_PAGE.hero.primaryCta.href}
             label={COURSES_PAGE.hero.primaryCta.label}
             size="lg"
+            cursorText="Join"
+            dataCursor="link"
+            isMagnetic
           />
         </div>
       </section>

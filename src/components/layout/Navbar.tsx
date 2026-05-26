@@ -7,7 +7,12 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-foreground/10 bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link href={SITE.homeHref} className="text-lg font-semibold text-foreground">
+        <Link
+          href={SITE.homeHref}
+          className="text-lg font-semibold text-foreground"
+          data-cursor="link"
+          data-cursor-text="GO"
+        >
           {SITE.name}
         </Link>
         <nav className="hidden items-center gap-8 text-sm font-medium text-foreground/70 md:flex">
@@ -15,6 +20,8 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
+              data-cursor="link"
+              data-cursor-text="GO"
               className="transition-colors hover:text-foreground"
             >
               {link.label}
@@ -26,6 +33,9 @@ export default function Navbar() {
             href={HEADER.cta.href}
             label={HEADER.cta.label}
             size="md"
+            dataCursor="link"
+            cursorText="Join"
+            isMagnetic
           />
         </div>
       </div>
