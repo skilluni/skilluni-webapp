@@ -41,7 +41,7 @@ export default function CoursesPage() {
                 },
                 {
                   label: COURSES_PAGE.card.metaLabels.lectures,
-                  value: `${course.lectures.length} ${COURSES_PAGE.card.lectureCountSuffix}`,
+                  value: `${course.lectures.length}`,
                 },
                 {
                   label: COURSES_PAGE.card.metaLabels.access,

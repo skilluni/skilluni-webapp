@@ -9,4 +9,5 @@ export type Course = {
   thumbnail: string;
   isPremium: boolean;
   lectures: Lecture[];
+  tags?: string[];
 };

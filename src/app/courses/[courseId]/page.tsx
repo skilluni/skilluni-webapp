@@ -47,26 +47,26 @@ export default async function CourseRoadmapPage({
             {ROADMAP_PAGE.header.description}
           </p>
 
-          {/* Meta Cards */}
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {/* Meta Cards - Responsive Horizontal Row */}
+          <div className="mt-4 flex flex-row gap-3 md:gap-4 w-full">
             {[
               { label: ROADMAP_PAGE.meta.level, value: course.level },
-              { label: ROADMAP_PAGE.meta.lectures, value: `${course.lectures.length} ${ROADMAP_PAGE.lectureCountSuffix}` },
+              { label: ROADMAP_PAGE.meta.lectures, value: `${course.lectures.length}` },
               { label: ROADMAP_PAGE.meta.progress, value: `${progress}${ROADMAP_PAGE.progressSuffix}` },
             ].map((meta) => (
               <div
                 key={meta.label}
-                className="px-4 py-4"
+                className="flex-1 px-3 py-3 md:px-4 md:py-4 min-w-0 flex flex-col justify-between"
                 style={{
                   background: 'var(--color-surface-1)',
                   borderRadius: 'var(--radius-xl)',
                   border: '1px solid var(--color-hairline)',
                 }}
               >
-                <p className="text-caption uppercase tracking-[0.2em]" style={{ color: 'var(--color-ink-muted)' }}>
+                <p className="text-[10px] md:text-caption uppercase tracking-[0.2em] truncate" style={{ color: 'var(--color-ink-muted)' }}>
                   {meta.label}
                 </p>
-                <p className="mt-2 text-headline" style={{ color: 'var(--color-ink)' }}>
+                <p className="mt-2 text-sm md:text-headline truncate font-semibold" style={{ color: 'var(--color-ink)' }}>
                   {meta.value}
                 </p>
               </div>
