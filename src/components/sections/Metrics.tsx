@@ -6,6 +6,13 @@ import { METRICS } from "../../constants/metrics";
 import SectionHeading from "../ui/SectionHeading";
 import { gsap, registerGsapPlugins } from "../../lib/gsap";
 
+const SPOTLIGHT_VARIANTS = [
+  '', // surface-1
+  'gradient-spotlight-violet',
+  '', // surface-1
+  'gradient-spotlight-magenta',
+];
+
 export default function Metrics() {
   const sectionRef = useRef<HTMLElement | null>(null);
 

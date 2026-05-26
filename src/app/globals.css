@@ -1,29 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 @import "../styles/fonts.css";
 
+/* ══════════════════════════════════════════════════════════════
+   FRAMER DESIGN SYSTEM — CSS TOKENS
+   Based on DESIGN.md (Framer-design-analysis)
+   ══════════════════════════════════════════════════════════════ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ── Colors ───────────────────────────────────────────────── */
+  --color-primary: #ffffff;
+  --color-on-primary: #000000;
+  --color-accent-blue: #0099ff;
+
+  --color-ink: #ffffff;
+  --color-ink-muted: #999999;
+
+  --color-canvas: #090909;
+  --color-surface-1: #141414;
+  --color-surface-2: #1c1c1c;
+
+  --color-hairline: #262626;
+  --color-hairline-soft: #1a1a1a;
+
+  --color-inverse-canvas: #ffffff;
+  --color-inverse-ink: #000000;
+
+  --color-gradient-magenta: #d44df0;
+  --color-gradient-violet: #6a4cf5;
+  --color-gradient-orange: #ff7a3d;
+  --color-gradient-coral: #ff5577;
+  --color-success: #22c55e;
+
+  /* ── Spacing ──────────────────────────────────────────────── */
+  --space-hair: 1px;
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 15px;
+  --space-lg: 20px;
+  --space-xl: 30px;
+  --space-xxl: 40px;
+  --space-section: 96px;
+
+  /* ── Radius ───────────────────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 15px;
+  --radius-xl: 20px;
+  --radius-xxl: 30px;
+  --radius-pill: 100px;
+  --radius-full: 9999px;
+
+  /* Legacy mapping for Tailwind */
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
 }
 
+/* ── Tailwind theme registration ────────────────────────────── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-marquee-fast: marquee-vertical 24s linear infinite;
+  --animate-marquee-medium: marquee-vertical 32s linear infinite;
+  --animate-marquee-slow: marquee-vertical 40s linear infinite;
+
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-50%);
+    }
   }
 }
 
+/* ── Base styles ────────────────────────────────────────────── */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-canvas);
+  color: var(--color-ink);
   font-family: var(--font-sans);
+  font-feature-settings: 'cv01', 'cv05', 'cv09', 'cv11', 'ss03', 'ss07', 'dlig';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Selection ──────────────────────────────────────────────── */
+::selection {
+  background: rgba(0, 153, 255, 0.25);
+  color: #ffffff;
+}
+
+/* ── Scrollbar (Webkit) ─────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-hairline);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════════════════════════════════ */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in-up-delay-1 {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.animate-fade-in-up-delay-2 {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.animate-fade-in-up-delay-3 {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.animate-fade-in-up-delay-4 {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ── Gradient spotlight utilities ───────────────────────────── */
+
+.gradient-spotlight-violet {
+  background: linear-gradient(135deg, #6a4cf5 0%, #4a2fd4 50%, #3a1fb4 100%);
+}
+
+.gradient-spotlight-magenta {
+  background: linear-gradient(135deg, #d44df0 0%, #b42dd0 50%, #9418b0 100%);
+}
+
+.gradient-spotlight-orange {
+  background: linear-gradient(135deg, #ff7a3d 0%, #ff5522 50%, #e04010 100%);
+}
+
+.gradient-spotlight-coral {
+  background: linear-gradient(135deg, #ff5577 0%, #ff3355 50%, #dd2244 100%);
+}
+
+/* ── Elevation utilities ────────────────────────────────────── */
+
+.elevation-1 {
+  background: var(--color-surface-1);
+}
+
+.elevation-2 {
+  box-shadow:
+    0 -0.5px 0 0 rgba(255, 255, 255, 0.10),
+    0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.elevation-focus {
+  box-shadow: 0 0 0 1px rgba(0, 153, 255, 0.15);
+}
+
+/* ── Typography utilities ───────────────────────────────────── */
+
+.text-display-xxl {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 110px);
+  font-weight: 500;
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+}
+
+.text-display-xl {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 85px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.text-display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.5vw, 62px);
+  font-weight: 500;
+  line-height: 1.00;
+  letter-spacing: -0.05em;
+}
+
+.text-display-md {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.5vw, 32px);
+  font-weight: 500;
+  line-height: 1.13;
+  letter-spacing: -0.031em;
+}
+
+.text-headline {
+  font-family: 'Inter', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.20;
+  letter-spacing: -0.8px;
+}
+
+.text-subhead {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.30;
+  letter-spacing: -0.01px;
 }
 
 body.has-custom-cursor,

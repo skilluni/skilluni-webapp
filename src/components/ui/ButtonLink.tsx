@@ -2,14 +2,15 @@ import Link from "next/link";
 
 const VARIANTS = {
   primary:
-    "bg-foreground text-background hover:bg-neutral-900 dark:hover:bg-neutral-200",
-  ghost:
-    "border border-foreground/20 text-foreground hover:border-foreground/60 hover:bg-foreground/5",
+    "bg-white text-black hover:bg-neutral-200",
+  secondary:
+    "bg-[#141414] text-white hover:bg-[#1c1c1c]",
 };
 
 const SIZES = {
-  md: "h-11 px-5 text-sm",
-  lg: "h-12 px-6 text-base",
+  sm: "h-9 px-4",
+  md: "h-11 px-5",
+  lg: "h-12 px-6",
 };
 
 type ButtonLinkProps = {
@@ -36,7 +37,8 @@ export default function ButtonLink({
   isMagnetic = false,
 }: ButtonLinkProps) {
   const classes = [
-    "inline-flex items-center justify-center rounded-full font-medium transition-colors",
+    "inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97]",
+    "rounded-[100px]",
     VARIANTS[variant],
     SIZES[size],
     className,
@@ -45,7 +47,7 @@ export default function ButtonLink({
     .join(" ");
 
   const externalProps = isExternal
-    ? { target: "_blank", rel: "noopener noreferrer" }
+    ? { target: "_blank" as const, rel: "noopener noreferrer" }
     : undefined;
 
   return (

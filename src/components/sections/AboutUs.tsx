@@ -79,19 +79,22 @@ export default function AboutUs() {
           />
         </div>
         <div className="grid gap-6 md:grid-cols-2">
-          {[HOME.about.problem, HOME.about.vision].map((block) => (
+          {blocks.map(({ data, spotlight }) => (
             <div
               key={block.title}
               data-about-card
               className="rounded-3xl border border-foreground/10 bg-white/70 p-7 shadow-[0_25px_70px_-50px_rgba(15,23,42,0.45)] backdrop-blur dark:bg-neutral-900/60"
             >
-              <h3 className="text-lg font-semibold text-foreground">
-                {block.title}
+              <h3 className="text-headline" style={{ color: 'var(--color-ink)' }}>
+                {data.title}
               </h3>
-              <ul className="mt-4 space-y-3 text-sm text-foreground/70">
-                {block.points.map((point) => (
-                  <li key={point} className="flex items-start gap-2">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-foreground" />
+              <ul className="mt-4 space-y-3">
+                {data.points.map((point) => (
+                  <li key={point} className="flex items-start gap-3 text-body" style={{ color: spotlight ? 'rgba(255,255,255,0.85)' : 'var(--color-ink-muted)' }}>
+                    <span
+                      className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                      style={{ background: spotlight ? 'rgba(255,255,255,0.5)' : 'var(--color-gradient-orange)' }}
+                    />
                     <span>{point}</span>
                   </li>
                 ))}

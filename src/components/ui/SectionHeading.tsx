@@ -19,15 +19,15 @@ export default function SectionHeading({
   return (
     <div className={`flex max-w-2xl flex-col gap-4 ${alignment}`}>
       {eyebrow ? (
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/70">
+        <p className="text-caption uppercase tracking-[0.2em]" style={{ color: 'var(--color-ink-muted)' }}>
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="text-3xl font-semibold leading-tight text-foreground md:text-4xl">
+      <h2 className="text-display-lg" style={{ color: 'var(--color-ink)' }}>
         {title}
       </h2>
       {description ? (
-        <p className="text-base leading-7 text-foreground/70 md:text-lg">
+        <p className="text-body-lg" style={{ color: 'var(--color-ink-muted)' }}>
           {description}
         </p>
       ) : null}

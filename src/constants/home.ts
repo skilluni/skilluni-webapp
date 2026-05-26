@@ -5,11 +5,12 @@ export const HOME = {
     metrics: "metrics",
     about: "about",
     courses: "courses",
+    testimonials: "testimonials",
     cta: "cta",
   },
   hero: {
     eyebrow: "SkillUni WebApp",
-    title: "Free-forever Java preparation for ICSE Class 10.",
+    title: "Get Skilled",
     description:
       "Organized lectures, notes, and quizzes in one place so every student learns with clarity and confidence.",
     primaryCta: {
@@ -75,6 +76,12 @@ export const HOME = {
       "Our first full roadmap is built to help students score 100/100 in Computer Applications.",
     ctaLabel: "View course roadmap",
     ctaHref: "/courses",
+  },
+  testimonials: {
+    eyebrow: "Testimonials",
+    title: "Loved by students, trusted by teachers",
+    description:
+      "See how SkillUni is helping students master Java and build real programming confidence.",
   },
   cta: {
     title: "Ready to learn with a clear roadmap?",

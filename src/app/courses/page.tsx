@@ -6,8 +6,11 @@ import ButtonLink from "../../components/ui/ButtonLink";
 
 export default function CoursesPage() {
   return (
-    <main className="flex-1 bg-background text-foreground">
-      <section className="border-b border-foreground/10 py-20 md:py-28">
+    <main className="flex-1" style={{ background: 'var(--color-canvas)', color: 'var(--color-ink)' }}>
+      <section
+        className="py-20 md:py-28"
+        style={{ borderBottom: '1px solid var(--color-hairline-soft)' }}
+      >
         <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 md:flex-row md:items-end md:justify-between">
           <SectionHeading
             eyebrow={COURSES_PAGE.hero.eyebrow}
@@ -41,7 +44,7 @@ export default function CoursesPage() {
                 },
                 {
                   label: COURSES_PAGE.card.metaLabels.lectures,
-                  value: `${course.lectures.length} ${COURSES_PAGE.card.lectureCountSuffix}`,
+                  value: `${course.lectures.length}`,
                 },
                 {
                   label: COURSES_PAGE.card.metaLabels.access,

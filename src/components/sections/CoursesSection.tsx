@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 import { COURSES } from "../../constants/courses";
 import { HOME } from "../../constants/home";
-import CourseCard from "../ui/CourseCard";
+import { COURSES_PAGE } from "../../constants/coursesPage";
+import CourseListCard from "../ui/CourseListCard";
 import ButtonLink from "../ui/ButtonLink";
 import SectionHeading from "../ui/SectionHeading";
 import { gsap, registerGsapPlugins } from "../../lib/gsap";
@@ -89,7 +90,7 @@ export default function CoursesSection() {
           <ButtonLink
             href={HOME.courses.ctaHref}
             label={HOME.courses.ctaLabel}
-            variant="ghost"
+            variant="secondary"
           />
         </div>
         <div className="grid gap-6 md:grid-cols-2">
@@ -107,3 +108,4 @@ export default function CoursesSection() {
     </section>
   );
 }
+
