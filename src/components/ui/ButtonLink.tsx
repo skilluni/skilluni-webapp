@@ -20,6 +20,9 @@ type ButtonLinkProps = {
   size?: keyof typeof SIZES;
   className?: string;
   isExternal?: boolean;
+  dataCursor?: "link" | "view" | "hide";
+  cursorText?: string;
+  isMagnetic?: boolean;
 };
 
 export default function ButtonLink({
@@ -29,6 +32,9 @@ export default function ButtonLink({
   size = "md",
   className,
   isExternal,
+  dataCursor = "link",
+  cursorText,
+  isMagnetic = false,
 }: ButtonLinkProps) {
   const classes = [
     "inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97]",
@@ -45,7 +51,14 @@ export default function ButtonLink({
     : undefined;
 
   return (
-    <Link href={href} className={classes} {...externalProps}>
+    <Link
+      href={href}
+      className={classes}
+      data-cursor={dataCursor}
+      data-cursor-text={cursorText ?? label}
+      data-magnetic={isMagnetic ? "true" : undefined}
+      {...externalProps}
+    >
       {label}
     </Link>
   );

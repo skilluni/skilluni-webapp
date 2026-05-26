@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ClientEffects from "../components/layout/ClientEffects";
 import Navbar from "../components/layout/Navbar";
 import { SITE } from "../constants/site";
 import "./globals.css";
@@ -37,6 +38,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Navbar />
+        <ClientEffects />
         {children}
       </body>
     </html>

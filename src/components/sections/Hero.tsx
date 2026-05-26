@@ -1,15 +1,105 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import { HOME } from "../../constants/home";
 import ButtonLink from "../ui/ButtonLink";
+import { gsap, registerGsapPlugins } from "../../lib/gsap";
 
 export default function Hero() {
   const { hero } = HOME;
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const previewRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!sectionRef.current) {
+      return;
+    }
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    registerGsapPlugins();
+
+    const ctx = gsap.context(() => {
+      const introItems = gsap.utils.toArray<HTMLElement>(
+        "[data-hero-intro]",
+        sectionRef.current
+      );
+      const highlightItems = gsap.utils.toArray<HTMLElement>(
+        "[data-hero-highlight]",
+        sectionRef.current
+      );
+      const previewSteps = gsap.utils.toArray<HTMLElement>(
+        "[data-hero-step]",
+        sectionRef.current
+      );
+
+      gsap.fromTo(
+        introItems,
+        { y: 24, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          ease: "power2.out",
+          stagger: 0.12,
+        }
+      );
+
+      gsap.fromTo(
+        highlightItems,
+        { y: 16, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.5,
+          ease: "power2.out",
+          stagger: 0.08,
+          delay: 0.3,
+        }
+      );
+
+      if (previewRef.current) {
+        gsap.fromTo(
+          previewRef.current,
+          { y: 32, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            ease: "power2.out",
+          }
+        );
+
+        gsap.to(previewRef.current, {
+          y: -10,
+          duration: 3.2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+      }
+
+      gsap.fromTo(
+        previewSteps,
+        { y: 16, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.4,
+          ease: "power2.out",
+          stagger: 0.08,
+          delay: 0.4,
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section
-      className="relative overflow-hidden"
-      style={{ background: 'var(--color-canvas)' }}
-    >
-      {/* Atmospheric glow */}
+    <section ref={sectionRef} className="relative overflow-hidden bg-background">
       <div className="absolute inset-0 -z-10">
         <div
           className="animate-pulse-glow absolute left-1/2 top-0 -translate-x-1/2"
@@ -34,28 +124,24 @@ export default function Hero() {
         {/* Left column */}
         <div className="space-y-8">
           <div
-            className="animate-fade-in-up inline-flex items-center gap-2 px-4 py-2 text-caption uppercase tracking-[0.25em]"
-            style={{
-              background: 'var(--color-surface-1)',
-              borderRadius: 'var(--radius-pill)',
-              color: 'var(--color-ink-muted)',
-            }}
+            data-hero-intro
+            className="inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-foreground/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-foreground/70"
           >
             {hero.eyebrow}
           </div>
-
-          <h1 className="animate-fade-in-up-delay-1 text-display-xxl max-w-xl" style={{ color: 'var(--color-ink)' }}>
+          <h1
+            data-hero-intro
+            className="max-w-xl font-display text-4xl font-semibold leading-tight tracking-tight text-foreground md:text-6xl"
+          >
             {hero.title}
           </h1>
-
           <p
-            className="animate-fade-in-up-delay-2 text-body-lg max-w-xl"
-            style={{ color: 'var(--color-ink-muted)' }}
+            data-hero-intro
+            className="max-w-xl text-base leading-7 text-foreground/70 md:text-lg"
           >
             {hero.description}
           </p>
-
-          <div className="animate-fade-in-up-delay-3 flex flex-wrap gap-4">
+          <div data-hero-intro className="flex flex-wrap gap-4">
             <ButtonLink
               href={hero.primaryCta.href}
               label={hero.primaryCta.label}
@@ -74,12 +160,8 @@ export default function Hero() {
             {hero.highlights.map((item) => (
               <li
                 key={item}
-                className="flex items-start gap-3 px-4 py-3 text-body-sm"
-                style={{
-                  background: 'var(--color-surface-1)',
-                  borderRadius: 'var(--radius-md)',
-                  color: 'var(--color-ink-muted)',
-                }}
+                data-hero-highlight
+                className="flex items-start gap-3 rounded-2xl border border-foreground/10 bg-background/80 px-4 py-3"
               >
                 <span
                   className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
@@ -90,15 +172,9 @@ export default function Hero() {
             ))}
           </ul>
         </div>
-
-        {/* Right column — Preview card */}
         <div
-          className="animate-scale-in p-8"
-          style={{
-            background: 'var(--color-surface-1)',
-            borderRadius: 'var(--radius-xl)',
-            border: '1px solid var(--color-hairline)',
-          }}
+          ref={previewRef}
+          className="rounded-3xl border border-foreground/10 bg-white/70 p-8 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.55)] backdrop-blur dark:bg-neutral-900/60"
         >
           <div className="space-y-5">
             <p
@@ -114,11 +190,8 @@ export default function Hero() {
               {hero.preview.steps.map((step, index) => (
                 <div
                   key={step}
-                  className="flex items-center justify-between px-4 py-3 text-body-sm"
-                  style={{
-                    background: 'var(--color-surface-2)',
-                    borderRadius: 'var(--radius-md)',
-                  }}
+                  data-hero-step
+                  className="flex items-center justify-between rounded-2xl border border-foreground/10 bg-background/80 px-4 py-3 text-sm"
                 >
                   <span style={{ color: 'var(--color-ink-muted)' }}>{step}</span>
                   <span

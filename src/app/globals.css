@@ -270,102 +270,132 @@ body {
   letter-spacing: -0.01px;
 }
 
-.text-body-lg {
-  font-family: var(--font-sans);
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 1.30;
-  letter-spacing: -0.18px;
+body.has-custom-cursor,
+body.has-custom-cursor * {
+  cursor: none;
 }
 
-.text-body {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.30;
-  letter-spacing: -0.15px;
+.cursor-dot,
+.cursor-ring,
+.cursor-label {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease;
 }
 
-.text-body-sm {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.40;
-  letter-spacing: -0.14px;
+.cursor-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-.text-caption {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.20;
-  letter-spacing: -0.13px;
+.cursor-ring {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.35);
+  background: rgba(255, 255, 255, 0.3);
+  transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+  backdrop-filter: blur(6px);
 }
 
-.text-micro {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.20;
-  letter-spacing: -0.12px;
+.cursor-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #0b0b0b;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+  text-transform: uppercase;
+  max-width: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
-.text-button {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.0;
-  letter-spacing: -0.14px;
+body.cursor-hidden .cursor-dot,
+body.cursor-hidden .cursor-ring,
+body.cursor-hidden .cursor-label {
+  opacity: 0;
 }
 
-/* ── Card hover transition ──────────────────────────────────── */
-
-.card-hover {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+body.cursor-magnetic .cursor-dot {
+  opacity: 0;
 }
 
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 -0.5px 0 0 rgba(255, 255, 255, 0.08),
-    0 20px 40px rgba(0, 0, 0, 0.35);
+body.cursor-magnetic .cursor-ring {
+  width: 64px;
+  height: 64px;
+  background: rgba(15, 23, 42, 0.08);
+  border-color: rgba(15, 23, 42, 0.4);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   VERTICAL TESTIMONIALS MARQUEE & FADE MASK
-   ══════════════════════════════════════════════════════════════ */
-
-/* Pause scroll animation on hover so the user can easily read */
-.hover-pause:hover {
-  animation-play-state: paused !important;
+body.cursor-link .cursor-dot {
+  opacity: 0;
 }
 
-/* Premium linear-gradient mask for fading top and bottom 15% edges */
-.mask-fade-vertical {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 1) 15%,
-    rgba(0, 0, 0, 1) 85%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 1) 15%,
-    rgba(0, 0, 0, 1) 85%,
-    transparent 100%
-  );
+body.cursor-link .cursor-ring {
+  width: 52px;
+  height: 52px;
+  background: #ffffff;
+  border-color: transparent;
 }
 
-/* Premium scrollbar-none utility for scrollable flex rows */
-.scrollbar-none {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-.scrollbar-none::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+body.cursor-link .cursor-label {
+  opacity: 1;
+  color: #0b0b0b;
 }
 
+body.cursor-view .cursor-dot {
+  opacity: 0;
+}
 
+body.cursor-view .cursor-ring {
+  width: 72px;
+  height: 72px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+body.cursor-view .cursor-label {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cursor-dot {
+    background: rgba(226, 232, 240, 0.95);
+  }
+
+  .cursor-ring {
+    border-color: rgba(226, 232, 240, 0.35);
+    background: rgba(15, 23, 42, 0.35);
+  }
+
+  .cursor-label {
+    color: #f8fafc;
+  }
+
+  body.cursor-link .cursor-ring {
+    background: #ffffff;
+  }
+
+  body.cursor-link .cursor-label {
+    color: #0b0b0b;
+  }
+
+  body.cursor-magnetic .cursor-ring,
+  body.cursor-view .cursor-ring {
+    background: rgba(226, 232, 240, 0.08);
+    border-color: rgba(226, 232, 240, 0.35);
+  }
+}

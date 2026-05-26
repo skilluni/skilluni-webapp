@@ -32,7 +32,9 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-caption text-[#999999] transition-colors duration-200 hover:text-white"
+                    className="transition-colors hover:text-foreground"
+                    data-cursor="link"
+                    data-cursor-text="GO"
                   >
                     {link.label}
                   </Link>
@@ -54,7 +56,9 @@ export default function Footer() {
             <Link
               key={item.label}
               href={item.href}
-              className="text-caption text-[#999999] transition-colors duration-200 hover:text-white"
+              data-cursor="link"
+              data-cursor-text="VISIT"
+              className="transition-colors hover:text-foreground"
             >
               {item.label}
             </Link>

@@ -32,43 +32,19 @@ export default function CourseListCard({
 
   return (
     <div
-      className="card-hover flex h-full flex-col justify-between p-6 md:p-8"
-      style={{
-        background: "var(--color-surface-1)",
-        borderRadius: "var(--radius-xl)",
-        border: "1px solid var(--color-hairline)",
-      }}
+      data-cursor="view"
+      className="flex h-full flex-col justify-between rounded-3xl border border-foreground/10 bg-white/80 p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.55)] backdrop-blur dark:bg-neutral-900/60"
     >
-      <div className="flex flex-col gap-6">
-        {/* 1. Course Title */}
-        <h3 className="text-display-md" style={{ color: "var(--color-ink)" }}>
-          {course.title}
-        </h3>
-
-        {/* 2. Transparent Colored Chips (Tags) */}
-        {tags && tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag, index) => {
-              const color = TAG_COLORS[index % TAG_COLORS.length];
-              return (
-                <span
-                  key={tag}
-                  className="px-3 py-1 text-micro font-semibold uppercase tracking-[0.1em] rounded-full border transition-colors duration-200"
-                  style={{
-                    backgroundColor: color.bg,
-                    color: color.text,
-                    borderColor: color.border,
-                  }}
-                >
-                  {tag}
-                </span>
-              );
-            })}
-          </div>
-        )}
-
-        {/* 3. Level, Lectures and Access Subcards - Enforced Row Layout via Inline CSS */}
-        <div className="w-full" style={{ display: "flex", flexDirection: "row", gap: "12px" }}>
+      <div className="space-y-5">
+        <div className="space-y-2">
+          <h3 className="text-xl font-semibold text-foreground">
+            {course.title}
+          </h3>
+          <p className="text-sm leading-6 text-foreground/70">
+            {course.description}
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
           {meta.map((item) => (
             <div
               key={item.label}
@@ -116,11 +92,9 @@ export default function CourseListCard({
       {/* 5. Primary CTA to Enroll: ENROLL FOR FREE */}
       <Link
         href={ctaHref}
-        className="mt-8 flex w-full items-center justify-center text-button font-bold text-center py-4 rounded-full transition-all duration-200 active:scale-[0.98] hover:scale-[1.01] hover:shadow-lg shadow-md cursor-pointer select-none"
-        style={{
-          background: "var(--color-primary)",
-          color: "var(--color-on-primary)",
-        }}
+        data-cursor="link"
+        data-cursor-text="View"
+        className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-foreground/80 transition-colors hover:text-foreground"
       >
         ENROLL FOR FREE
       </Link>

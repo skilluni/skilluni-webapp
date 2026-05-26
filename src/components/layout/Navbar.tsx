@@ -10,24 +10,13 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header
-      className="sticky top-0 z-40 w-full backdrop-blur-xl"
-      style={{
-        background: 'rgba(9, 9, 9, 0.85)',
-        borderBottom: '1px solid var(--color-hairline-soft)',
-        height: '56px',
-      }}
-    >
-      <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
-        {/* Brand */}
+    <header className="sticky top-0 z-40 w-full border-b border-foreground/10 bg-background/80 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link
           href={SITE.homeHref}
-          className="text-display-md"
-          style={{
-            color: 'var(--color-ink)',
-            fontSize: '20px',
-            letterSpacing: '-0.5px',
-          }}
+          className="text-lg font-semibold text-foreground"
+          data-cursor="link"
+          data-cursor-text="GO"
         >
           {SITE.name}
         </Link>
@@ -38,10 +27,9 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-body-sm transition-colors duration-200"
-              style={{ color: 'var(--color-ink-muted)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-ink)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-ink-muted)')}
+              data-cursor="link"
+              data-cursor-text="GO"
+              className="transition-colors hover:text-foreground"
             >
               {link.label}
             </Link>
@@ -59,7 +47,10 @@ export default function Navbar() {
           <ButtonLink
             href={HEADER.cta.href}
             label={HEADER.cta.label}
-            size="sm"
+            size="md"
+            dataCursor="link"
+            cursorText="Join"
+            isMagnetic
           />
         </div>
 
