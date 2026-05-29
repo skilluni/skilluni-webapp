@@ -56,7 +56,7 @@ export default function Metrics() {
   return (
     <section
       id={HOME.sectionIds.metrics}
-      className="border-y border-foreground/10 bg-foreground/2 py-20 md:py-28"
+      className="border-y border-hairline bg-canvas py-20 md:py-28"
       ref={sectionRef}
     >
       <div className="mx-auto grid max-w-6xl gap-12 px-6 md:grid-cols-[1.1fr_1fr] md:items-center">
@@ -66,20 +66,32 @@ export default function Metrics() {
           description={HOME.metrics.description}
         />
         <div className="grid gap-4 sm:grid-cols-2">
-          {METRICS.map((metric) => (
-            <div
-              key={metric.label}
-              data-metric-card
-              className="rounded-3xl border border-foreground/10 bg-white/70 p-6 shadow-[0_25px_70px_-50px_rgba(15,23,42,0.45)] backdrop-blur dark:bg-neutral-900/60"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/60">
-                {metric.label}
-              </p>
-              <p className="mt-3 text-3xl font-semibold text-foreground">
-                {metric.value}
-              </p>
-            </div>
-          ))}
+          {METRICS.map((metric, index) => {
+            const variant = SPOTLIGHT_VARIANTS[index % SPOTLIGHT_VARIANTS.length];
+            const isSpotlight = !!variant;
+
+            return (
+              <div
+                key={metric.label}
+                data-metric-card
+                className={
+                  isSpotlight
+                    ? `rounded-[20px] p-8 ${variant} text-white relative overflow-hidden flex flex-col justify-center gap-1 h-36`
+                    : "rounded-[20px] border border-hairline bg-surface-1 p-8 flex flex-col justify-center gap-1 h-36"
+                }
+              >
+                <p
+                  className="text-xs font-semibold uppercase tracking-[0.2em]"
+                  style={{ color: isSpotlight ? "rgba(255, 255, 255, 0.8)" : "var(--color-ink-muted)" }}
+                >
+                  {metric.label}
+                </p>
+                <p className="text-display-md text-ink leading-tight">
+                  {metric.value}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

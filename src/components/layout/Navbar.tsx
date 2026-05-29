@@ -10,11 +10,11 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-foreground/10 bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-40 w-full border-b border-hairline bg-canvas/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link
           href={SITE.homeHref}
-          className="text-lg font-semibold text-foreground"
+          className="text-headline text-ink font-semibold tracking-[-0.03em]"
           data-cursor="link"
           data-cursor-text="GO"
         >
@@ -29,7 +29,7 @@ export default function Navbar() {
               href={link.href}
               data-cursor="link"
               data-cursor-text="GO"
-              className="transition-colors hover:text-foreground"
+              className="text-body-sm transition-colors text-ink-muted hover:text-ink"
             >
               {link.label}
             </Link>

@@ -4,7 +4,7 @@ const VARIANTS = {
   primary:
     "bg-white text-black hover:bg-neutral-200",
   secondary:
-    "bg-[#141414] text-white hover:bg-[#1c1c1c]",
+    "bg-[#141414] text-white border border-hairline hover:bg-[#1c1c1c]",
 };
 
 const SIZES = {

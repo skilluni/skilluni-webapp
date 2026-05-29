@@ -15,13 +15,13 @@ export default function CourseCard({
   return (
     <div
       data-cursor="view"
-      className="group flex h-full flex-col justify-between rounded-3xl border border-foreground/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.45)] backdrop-blur dark:bg-neutral-900/60"
+      className="group flex h-full flex-col justify-between rounded-[20px] border border-hairline bg-surface-1/80 backdrop-blur-md p-6 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.01]"
     >
       <div className="space-y-4">
-        <h3 className="text-display-md" style={{ color: 'var(--color-ink)' }}>
+        <h3 className="text-display-md text-ink">
           {course.title}
         </h3>
-        <p className="text-body" style={{ color: 'var(--color-ink-muted)' }}>
+        <p className="text-body text-ink-muted">
           {course.description}
         </p>
       </div>
@@ -29,7 +29,7 @@ export default function CourseCard({
         href={ctaHref}
         data-cursor="link"
         data-cursor-text="View"
-        className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-foreground/80 transition-colors group-hover:text-foreground"
+        className="mt-6 inline-flex items-center gap-2 text-body-sm font-semibold text-[#0099ff] transition-colors hover:text-[#33adff]"
       >
         {ctaLabel}
         <span className="transition-transform group-hover:translate-x-1">→</span>

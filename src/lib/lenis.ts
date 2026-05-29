@@ -13,7 +13,7 @@ export function initLenis() {
     lerp: 0.08,
     duration: 1.1,
     smoothWheel: true,
-    smoothTouch: false,
+    syncTouch: false,
     wheelMultiplier: 1.1,
     touchMultiplier: 1.2,
   });

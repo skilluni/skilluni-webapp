@@ -48,19 +48,18 @@ export default function CTA() {
   return (
     <section
       id={HOME.sectionIds.cta}
-      className="py-20 md:py-28"
+      className="py-20 md:py-28 bg-canvas"
       ref={sectionRef}
     >
       <div className="mx-auto max-w-6xl px-6">
         <div
           data-cta-panel
-          className="relative overflow-hidden rounded-3xl border border-foreground/10 bg-foreground/3 p-10 text-center md:p-14"
+          className="relative overflow-hidden rounded-[20px] border border-hairline bg-surface-1 p-10 text-center md:p-14"
         >
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(70%_70%_at_50%_0%,rgba(148,163,184,0.25)_0%,rgba(255,255,255,0)_60%)]" />
-          <h2 className="font-display text-3xl font-semibold text-foreground md:text-4xl">
+          <h2 className="text-display-lg text-ink font-semibold tracking-[-0.03em]">
             {HOME.cta.title}
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-foreground/70 md:text-lg">
+          <p className="mx-auto mt-4 max-w-2xl text-body-lg text-ink-muted leading-relaxed">
             {HOME.cta.description}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -76,7 +75,7 @@ export default function CTA() {
               href={HOME.cta.secondaryCta.href}
               label={HOME.cta.secondaryCta.label}
               size="lg"
-              variant="ghost"
+              variant="secondary"
               isMagnetic
             />
           </div>

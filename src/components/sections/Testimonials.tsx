@@ -62,7 +62,7 @@ function TestimonialCard({ item }: { item: Testimonial }) {
       <div className="flex items-center gap-3">
         {/* Avatar with spotlight gradient */}
         <div
-          className={`w-10 h-10 rounded-full flex items-center justify-center text-button font-semibold select-none shadow-md ${avatarBg}`}
+          className={`w-10 h-10 rounded-full flex items-center justify-center text-button font-semibold select-none shadow-none ${avatarBg}`}
           style={{ color: "#ffffff" }}
         >
           {initials}

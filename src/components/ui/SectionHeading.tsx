@@ -19,7 +19,7 @@ export default function SectionHeading({
   return (
     <div className={`flex max-w-2xl flex-col gap-4 ${alignment}`}>
       {eyebrow ? (
-        <p className="text-caption uppercase tracking-[0.2em]" style={{ color: 'var(--color-ink-muted)' }}>
+        <p className="text-eyebrow" style={{ color: 'var(--color-ink-muted)' }}>
           {eyebrow}
         </p>
       ) : null}

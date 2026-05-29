@@ -33,37 +33,59 @@ export default function CourseListCard({
   return (
     <div
       data-cursor="view"
-      className="flex h-full flex-col justify-between rounded-3xl border border-foreground/10 bg-white/80 p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.55)] backdrop-blur dark:bg-neutral-900/60"
+      className="flex h-full flex-col justify-between rounded-[20px] border border-hairline bg-surface-1/80 backdrop-blur-md p-8 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.01]"
     >
-      <div className="space-y-5">
-        <div className="space-y-2">
-          <h3 className="text-xl font-semibold text-foreground">
+      <div className="space-y-6">
+        {/* 1 & 2. Course Title and Tags */}
+        <div className="space-y-3.5">
+          <h3 className="text-headline font-bold text-ink tracking-[-0.03em] leading-snug">
             {course.title}
           </h3>
-          <p className="text-sm leading-6 text-foreground/70">
-            {course.description}
-          </p>
+          
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-0.5">
+              {tags.map((tag, idx) => {
+                const color = TAG_COLORS[idx % TAG_COLORS.length];
+                return (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold border backdrop-blur-[2px] transition-all hover:scale-[1.03]"
+                    style={{
+                      backgroundColor: color.bg,
+                      color: color.text,
+                      borderColor: color.border,
+                    }}
+                  >
+                    {tag}
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {meta.map((item) => (
+
+        {/* 3. Three Subcards for level, lectures and access. (Row Grid for mobile devices) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
+          {meta.map((item, idx) => (
             <div
               key={item.label}
-              className="px-3 py-2.5 sm:px-4 sm:py-3 flex flex-col justify-between gap-1 min-w-0"
+              className={`px-2.5 py-3 sm:px-4 flex flex-col justify-between gap-1 min-w-0 transition-colors border duration-200 hover:bg-surface-2/60 ${
+                idx === 2 ? "col-span-2 sm:col-span-1" : ""
+              }`}
               style={{
-                flex: "1 1 0%",
                 background: "var(--color-surface-2)",
                 borderRadius: "var(--radius-md)",
-                border: "1px solid var(--color-hairline-soft)",
+                borderColor: "var(--color-hairline-soft)",
               }}
             >
               <span
-                className="text-[10px] sm:text-micro font-medium uppercase tracking-[0.08em] truncate"
+                className="text-[9px] sm:text-micro font-semibold uppercase tracking-[0.08em] truncate"
                 style={{ color: "var(--color-ink-muted)" }}
               >
                 {item.label}
               </span>
               <span
-                className="text-xs sm:text-body-sm font-semibold truncate"
+                className="text-xs sm:text-body-sm font-bold truncate"
                 style={{ color: "var(--color-ink)" }}
               >
                 {item.value}
@@ -72,13 +94,13 @@ export default function CourseListCard({
           ))}
         </div>
 
-        {/* 4. Content Covered (Description) */}
-        <div className="flex flex-col gap-2">
+        {/* 4 & 5. Eyebrow "CONTENT COVERED" and Syllabus Scope */}
+        <div className="flex flex-col gap-2 pt-1">
           <h4
-            className="text-micro font-semibold uppercase tracking-[0.12em]"
+            className="text-micro font-semibold uppercase tracking-[0.15em]"
             style={{ color: "var(--color-ink-muted)" }}
           >
-            Content Covered
+            CONTENT COVERED
           </h4>
           <p
             className="text-body leading-relaxed font-sans"
@@ -89,15 +111,17 @@ export default function CourseListCard({
         </div>
       </div>
 
-      {/* 5. Primary CTA to Enroll: ENROLL FOR FREE */}
-      <Link
-        href={ctaHref}
-        data-cursor="link"
-        data-cursor-text="View"
-        className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-foreground/80 transition-colors hover:text-foreground"
-      >
-        ENROLL FOR FREE
-      </Link>
+      {/* 6. Primary CTA: ENROLL FOR FREE Pill Button */}
+      <div className="mt-6 pt-1">
+        <Link
+          href={ctaHref}
+          data-cursor="link"
+          data-cursor-text="Enroll"
+          className="inline-flex w-full items-center justify-center text-button font-bold bg-white text-black hover:bg-neutral-200 transition-all duration-200 active:scale-[0.97] rounded-[100px] h-12 px-6 shadow-sm hover:scale-[1.01]"
+        >
+          ENROLL FOR FREE
+        </Link>
+      </div>
     </div>
   );
 }
