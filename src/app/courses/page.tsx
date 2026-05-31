@@ -1,10 +1,11 @@
-import { COURSES } from "../../constants/courses";
 import { COURSES_PAGE } from "../../constants/coursesPage";
 import CourseListCard from "../../components/ui/CourseListCard";
 import SectionHeading from "../../components/ui/SectionHeading";
 import ButtonLink from "../../components/ui/ButtonLink";
+import { getCourses } from "../../lib/db";
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const courses = getCourses();
   return (
     <main className="flex-1" style={{ background: 'var(--color-canvas)', color: 'var(--color-ink)' }}>
       <section
@@ -36,7 +37,7 @@ export default function CoursesPage() {
             description={COURSES_PAGE.list.description}
           />
           <div className="grid gap-6 md:grid-cols-2">
-            {COURSES.map((course) => {
+            {courses.map((course) => {
               const meta = [
                 {
                   label: COURSES_PAGE.card.metaLabels.level,

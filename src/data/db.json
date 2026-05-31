@@ -1,0 +1,1075 @@
+[
+  {
+    "id": "skilluni-icse-java",
+    "slug": "icse-java-class-9",
+    "title": "Computer Applications Class IX",
+    "description": "Official syllabus of Class 9th Computer Applications for ICSE Board Students.",
+    "level": "Beginner",
+    "thumbnail": "/images/courses/isc-java-dsa.webp",
+    "isPremium": false,
+    "tags": [
+      "ICSE",
+      "Class 9th",
+      "Java"
+    ],
+    "lectures": [
+      {
+        "id": "L-1780254605094",
+        "title": "Orientation",
+        "description": "Orientation Session.",
+        "order": 1,
+        "slug": "orientation",
+        "duration": "15 min",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "isLocked": false
+      },
+      {
+        "id": "L001",
+        "order": 2,
+        "slug": "introduction-to-java",
+        "title": "Introduction to Computer Applications / Java",
+        "description": "Introduction to Java, Computer Applications and ICSE syllabus overview.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "15 min",
+        "isLocked": false
+      },
+      {
+        "id": "L002",
+        "order": 3,
+        "slug": "procedure-oriented-programming",
+        "title": "Procedure Oriented Programming",
+        "description": "Learn the basics of procedure-oriented programming and its concepts.",
+        "videoUrl": "https://www.youtube.com/watch?v=4dS-UxpC93o",
+        "notesUrl": "https://drive.google.com/file/d/1ERBbQl4jOzJNw_Z8I45WPD-L2DOy0Pzl/view?usp=drive_link",
+        "quizUrl": "",
+        "duration": "18 min",
+        "isLocked": false
+      },
+      {
+        "id": "L003",
+        "order": 4,
+        "slug": "object-oriented-programming",
+        "title": "Object Oriented Programming",
+        "description": "Understand OOP concepts, features and advantages in Java.",
+        "videoUrl": "https://www.youtube.com/watch?v=Bg_iLOzzxRU",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "20 min",
+        "isLocked": false
+      },
+      {
+        "id": "L011",
+        "order": 5,
+        "slug": "classes-and-objects",
+        "title": "Classes and Objects in Java",
+        "description": "Learn how classes and objects work in Java programming.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "22 min",
+        "isLocked": false
+      },
+      {
+        "id": "L013",
+        "order": 5,
+        "slug": "ascii-code-explained",
+        "title": "ASCII Code Explained",
+        "description": "Understand ASCII encoding and how computers store characters.",
+        "videoUrl": "https://www.youtube.com/watch?v=x3u1de8ZPk4",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "12 min",
+        "isLocked": false
+      },
+      {
+        "id": "L014",
+        "order": 6,
+        "slug": "unicode-explained",
+        "title": "Unicode Explained",
+        "description": "Learn Unicode and why it is important in modern computing.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "14 min",
+        "isLocked": false
+      },
+      {
+        "id": "L017",
+        "order": 7,
+        "slug": "tokens-in-java",
+        "title": "Tokens in Java",
+        "description": "Learn what tokens are and their role in Java syntax.",
+        "videoUrl": "https://www.youtube.com/watch?v=j8ZMFd-xK8U",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "16 min",
+        "isLocked": false
+      },
+      {
+        "id": "L018",
+        "order": 8,
+        "slug": "keywords-in-java",
+        "title": "Keywords in Java",
+        "description": "Understand Java keywords and their significance.",
+        "videoUrl": "https://www.youtube.com/watch?v=X5juJUBj4Wk",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "14 min",
+        "isLocked": false
+      },
+      {
+        "id": "L019",
+        "order": 9,
+        "slug": "identifiers-in-java",
+        "title": "Identifiers in Java",
+        "description": "Learn naming rules and conventions for identifiers in Java.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "12 min",
+        "isLocked": false
+      },
+      {
+        "id": "L020",
+        "order": 10,
+        "slug": "literals-in-java",
+        "title": "Literals in Java",
+        "description": "Understand literals and their different types in Java.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "13 min",
+        "isLocked": false
+      },
+      {
+        "id": "L027",
+        "order": 11,
+        "slug": "logical-operators-in-java",
+        "title": "Logical Operators in Java",
+        "description": "Learn AND, OR, NOT operators and logical expressions in Java.",
+        "videoUrl": "https://www.youtube.com/watch?v=HwyXfgYQCPU",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "17 min",
+        "isLocked": false
+      }
+    ],
+    "chapters": [
+      {
+        "id": "ch1",
+        "order": 1,
+        "title": "Introduction to OOP",
+        "description": "",
+        "lectures": [
+          {
+            "id": "L-1780254605094",
+            "title": "Orientation",
+            "description": "Orientation Session.",
+            "order": 1,
+            "slug": "orientation",
+            "duration": "15 min",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "isLocked": false
+          },
+          {
+            "id": "L001",
+            "order": 2,
+            "slug": "introduction-to-java",
+            "title": "Introduction to Computer Applications / Java",
+            "description": "Introduction to Java, Computer Applications and ICSE syllabus overview.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "15 min",
+            "isLocked": false
+          },
+          {
+            "id": "L002",
+            "order": 3,
+            "slug": "procedure-oriented-programming",
+            "title": "Procedure Oriented Programming",
+            "description": "Learn the basics of procedure-oriented programming and its concepts.",
+            "videoUrl": "https://www.youtube.com/watch?v=4dS-UxpC93o",
+            "notesUrl": "https://drive.google.com/file/d/1ERBbQl4jOzJNw_Z8I45WPD-L2DOy0Pzl/view?usp=drive_link",
+            "quizUrl": "",
+            "duration": "18 min",
+            "isLocked": false
+          },
+          {
+            "id": "L003",
+            "order": 4,
+            "slug": "object-oriented-programming",
+            "title": "Object Oriented Programming",
+            "description": "Understand OOP concepts, features and advantages in Java.",
+            "videoUrl": "https://www.youtube.com/watch?v=Bg_iLOzzxRU",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "20 min",
+            "isLocked": false
+          },
+          {
+            "id": "L011",
+            "order": 5,
+            "slug": "classes-and-objects",
+            "title": "Classes and Objects in Java",
+            "description": "Learn how classes and objects work in Java programming.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "22 min",
+            "isLocked": false
+          }
+        ]
+      },
+      {
+        "id": "ch2",
+        "order": 2,
+        "title": "Text Encodings",
+        "description": "Master ASCII and Unicode character encodings, learning how computers process and store textual data.",
+        "lectures": [
+          {
+            "id": "L013",
+            "order": 5,
+            "slug": "ascii-code-explained",
+            "title": "ASCII Code Explained",
+            "description": "Understand ASCII encoding and how computers store characters.",
+            "videoUrl": "https://www.youtube.com/watch?v=x3u1de8ZPk4",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "12 min",
+            "isLocked": false
+          },
+          {
+            "id": "L014",
+            "order": 6,
+            "slug": "unicode-explained",
+            "title": "Unicode Explained",
+            "description": "Learn Unicode and why it is important in modern computing.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "14 min",
+            "isLocked": false
+          }
+        ]
+      },
+      {
+        "id": "ch3",
+        "order": 3,
+        "title": "Java Tokens & Operators",
+        "description": "Explore core language components including keywords, identifiers, literals, and relational or logical operators.",
+        "lectures": [
+          {
+            "id": "L017",
+            "order": 7,
+            "slug": "tokens-in-java",
+            "title": "Tokens in Java",
+            "description": "Learn what tokens are and their role in Java syntax.",
+            "videoUrl": "https://www.youtube.com/watch?v=j8ZMFd-xK8U",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "16 min",
+            "isLocked": false
+          },
+          {
+            "id": "L018",
+            "order": 8,
+            "slug": "keywords-in-java",
+            "title": "Keywords in Java",
+            "description": "Understand Java keywords and their significance.",
+            "videoUrl": "https://www.youtube.com/watch?v=X5juJUBj4Wk",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "14 min",
+            "isLocked": false
+          },
+          {
+            "id": "L019",
+            "order": 9,
+            "slug": "identifiers-in-java",
+            "title": "Identifiers in Java",
+            "description": "Learn naming rules and conventions for identifiers in Java.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "12 min",
+            "isLocked": false
+          },
+          {
+            "id": "L020",
+            "order": 10,
+            "slug": "literals-in-java",
+            "title": "Literals in Java",
+            "description": "Understand literals and their different types in Java.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "13 min",
+            "isLocked": false
+          },
+          {
+            "id": "L027",
+            "order": 11,
+            "slug": "logical-operators-in-java",
+            "title": "Logical Operators in Java",
+            "description": "Learn AND, OR, NOT operators and logical expressions in Java.",
+            "videoUrl": "https://www.youtube.com/watch?v=HwyXfgYQCPU",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "17 min",
+            "isLocked": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "skilluni-isc-java-dsa",
+    "slug": "isc-java-dsa-class-11-12",
+    "title": "Data Structures & Algorithms",
+    "description": "Master Arrays, Stacks, Queues, Recursion, and ISC Class 11th & 12th Computer Science syllabus.",
+    "level": "Intermediate",
+    "thumbnail": "/images/courses/isc-java-dsa.webp",
+    "isPremium": true,
+    "tags": [
+      "ISC",
+      "Class 11 & 12",
+      "DSA",
+      "Java"
+    ],
+    "lectures": [
+      {
+        "id": "L101",
+        "order": 1,
+        "slug": "introduction-to-dsa",
+        "title": "Introduction to DSA in Java",
+        "description": "Overview of DSA concepts and Java implementation fundamentals.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "18 min",
+        "isLocked": false
+      },
+      {
+        "id": "L102",
+        "order": 2,
+        "slug": "dynamic-vs-static-arrays",
+        "title": "Dynamic vs Static Arrays",
+        "description": "Understand static memory allocation vs dynamic sizing in Java.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "22 min",
+        "isLocked": false
+      },
+      {
+        "id": "L105",
+        "order": 5,
+        "slug": "single-double-arrays",
+        "title": "Single & Double Dimensional Arrays",
+        "description": "Master multi-dimensional array traversals and standard algorithms.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "20 min",
+        "isLocked": false
+      },
+      {
+        "id": "L103",
+        "order": 3,
+        "slug": "recursion-fundamentals",
+        "title": "Recursion Fundamentals",
+        "description": "Learn base cases, call stacks, and simple recursive methods.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "25 min",
+        "isLocked": false
+      },
+      {
+        "id": "L104",
+        "order": 4,
+        "slug": "complex-recursion",
+        "title": "Complex Recursion & Backtracking",
+        "description": "Solve board level recursion and backtracking puzzles.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "30 min",
+        "isLocked": false
+      },
+      {
+        "id": "L106",
+        "order": 6,
+        "slug": "stack-concepts",
+        "title": "Stack Data Structure Concepts",
+        "description": "Understand LIFO structures, push, pop, and peek operations.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "15 min",
+        "isLocked": true
+      },
+      {
+        "id": "L107",
+        "order": 7,
+        "slug": "queue-implementation",
+        "title": "Queue Data Structure Implementation",
+        "description": "Learn FIFO structures, enqueue, dequeue, and circular queue mechanics.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "18 min",
+        "isLocked": true
+      },
+      {
+        "id": "L108",
+        "order": 8,
+        "slug": "complexity-analysis",
+        "title": "Complexity Analysis & Big O",
+        "description": "Learn how to analyze algorithm time and space efficiency.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "24 min",
+        "isLocked": true
+      }
+    ],
+    "chapters": [
+      {
+        "id": "ch1",
+        "order": 1,
+        "title": "Array Fundamentals",
+        "description": "Learn basic structures, dynamic memory allocation vs static sizing, and single or double-dimensional array operations.",
+        "lectures": [
+          {
+            "id": "L101",
+            "order": 1,
+            "slug": "introduction-to-dsa",
+            "title": "Introduction to DSA in Java",
+            "description": "Overview of DSA concepts and Java implementation fundamentals.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "18 min",
+            "isLocked": false
+          },
+          {
+            "id": "L102",
+            "order": 2,
+            "slug": "dynamic-vs-static-arrays",
+            "title": "Dynamic vs Static Arrays",
+            "description": "Understand static memory allocation vs dynamic sizing in Java.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "22 min",
+            "isLocked": false
+          },
+          {
+            "id": "L105",
+            "order": 5,
+            "slug": "single-double-arrays",
+            "title": "Single & Double Dimensional Arrays",
+            "description": "Master multi-dimensional array traversals and standard algorithms.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "20 min",
+            "isLocked": false
+          }
+        ]
+      },
+      {
+        "id": "ch2",
+        "order": 2,
+        "title": "Recursion & Backtracking",
+        "description": "Master the call stack, base cases, complex board-level puzzle solving, and backtracking logic.",
+        "lectures": [
+          {
+            "id": "L103",
+            "order": 3,
+            "slug": "recursion-fundamentals",
+            "title": "Recursion Fundamentals",
+            "description": "Learn base cases, call stacks, and simple recursive methods.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "25 min",
+            "isLocked": false
+          },
+          {
+            "id": "L104",
+            "order": 4,
+            "slug": "complex-recursion",
+            "title": "Complex Recursion & Backtracking",
+            "description": "Solve board level recursion and backtracking puzzles.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "30 min",
+            "isLocked": false
+          }
+        ]
+      },
+      {
+        "id": "ch3",
+        "order": 3,
+        "title": "Linear Data Structures",
+        "description": "Dive into stacks and queues, understanding LIFO/FIFO operations, push, pop, enqueue, and dequeue mechanics.",
+        "lectures": [
+          {
+            "id": "L106",
+            "order": 6,
+            "slug": "stack-concepts",
+            "title": "Stack Data Structure Concepts",
+            "description": "Understand LIFO structures, push, pop, and peek operations.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "15 min",
+            "isLocked": true
+          },
+          {
+            "id": "L107",
+            "order": 7,
+            "slug": "queue-implementation",
+            "title": "Queue Data Structure Implementation",
+            "description": "Learn FIFO structures, enqueue, dequeue, and circular queue mechanics.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "18 min",
+            "isLocked": true
+          }
+        ]
+      },
+      {
+        "id": "ch4",
+        "order": 4,
+        "title": "Algorithm Analysis",
+        "description": "Analyze time and space efficiency of algorithms, mastering Big O notation and complexity scaling.",
+        "lectures": [
+          {
+            "id": "L108",
+            "order": 8,
+            "slug": "complexity-analysis",
+            "title": "Complexity Analysis & Big O",
+            "description": "Learn how to analyze algorithm time and space efficiency.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "24 min",
+            "isLocked": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "skilluni-oop-java",
+    "slug": "oop-deep-dive-java",
+    "title": "OOP Concepts Mastery",
+    "description": "Deep dive into Inheritance, Polymorphism, Encapsulation, and Abstraction with ICSE examination focus.",
+    "level": "Intermediate",
+    "thumbnail": "/images/courses/oop-java.webp",
+    "isPremium": false,
+    "tags": [
+      "OOP",
+      "Java",
+      "ICSE Prep"
+    ],
+    "lectures": [
+      {
+        "id": "L201",
+        "order": 1,
+        "slug": "principles-of-oop",
+        "title": "Principles of Object-Oriented Programming",
+        "description": "Learn the core 4 pillars of OOP and real-world mapping.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "12 min",
+        "isLocked": false
+      },
+      {
+        "id": "L202",
+        "order": 2,
+        "slug": "encapsulation-data-hiding",
+        "title": "Encapsulation & Data Hiding",
+        "description": "Learn getter, setter methods and access specifiers in Java.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "15 min",
+        "isLocked": false
+      },
+      {
+        "id": "L203",
+        "order": 3,
+        "slug": "inheritance-super-keyword",
+        "title": "Inheritance & Super Keyword",
+        "description": "Understand sub-classing, code reusability, and constructor chaining.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "22 min",
+        "isLocked": false
+      },
+      {
+        "id": "L205",
+        "order": 5,
+        "slug": "abstract-classes-interfaces",
+        "title": "Abstract Classes and Interfaces",
+        "description": "When to use abstraction and standard interface contracts.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "25 min",
+        "isLocked": true
+      },
+      {
+        "id": "L204",
+        "order": 4,
+        "slug": "method-overloading-overriding",
+        "title": "Method Overloading & Overriding",
+        "description": "Difference between compile-time and runtime polymorphism.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "18 min",
+        "isLocked": false
+      },
+      {
+        "id": "L206",
+        "order": 6,
+        "slug": "polymorphism-board-exams",
+        "title": "Polymorphism in Board Exams",
+        "description": "Standard questions asked in ICSE/ISC theory papers.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "20 min",
+        "isLocked": true
+      }
+    ],
+    "chapters": [
+      {
+        "id": "ch1",
+        "order": 1,
+        "title": "Pillars of OOP",
+        "description": "Establish a solid foundation with the 4 pillars of Object-Oriented programming and encapsulation/data-hiding concepts.",
+        "lectures": [
+          {
+            "id": "L201",
+            "order": 1,
+            "slug": "principles-of-oop",
+            "title": "Principles of Object-Oriented Programming",
+            "description": "Learn the core 4 pillars of OOP and real-world mapping.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "12 min",
+            "isLocked": false
+          },
+          {
+            "id": "L202",
+            "order": 2,
+            "slug": "encapsulation-data-hiding",
+            "title": "Encapsulation & Data Hiding",
+            "description": "Learn getter, setter methods and access specifiers in Java.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "15 min",
+            "isLocked": false
+          }
+        ]
+      },
+      {
+        "id": "ch2",
+        "order": 2,
+        "title": "Inheritance & Interfaces",
+        "description": "Explore sub-classing, code reusability, constructor chaining, super keyword, abstract classes, and interface contracts.",
+        "lectures": [
+          {
+            "id": "L203",
+            "order": 3,
+            "slug": "inheritance-super-keyword",
+            "title": "Inheritance & Super Keyword",
+            "description": "Understand sub-classing, code reusability, and constructor chaining.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "22 min",
+            "isLocked": false
+          },
+          {
+            "id": "L205",
+            "order": 5,
+            "slug": "abstract-classes-interfaces",
+            "title": "Abstract Classes and Interfaces",
+            "description": "When to use abstraction and standard interface contracts.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "25 min",
+            "isLocked": true
+          }
+        ]
+      },
+      {
+        "id": "ch3",
+        "order": 3,
+        "title": "Polymorphism",
+        "description": "Differentiate between compile-time and runtime polymorphism, method overloading, overriding, and solve typical board exam questions.",
+        "lectures": [
+          {
+            "id": "L204",
+            "order": 4,
+            "slug": "method-overloading-overriding",
+            "title": "Method Overloading & Overriding",
+            "description": "Difference between compile-time and runtime polymorphism.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "18 min",
+            "isLocked": false
+          },
+          {
+            "id": "L206",
+            "order": 6,
+            "slug": "polymorphism-board-exams",
+            "title": "Polymorphism in Board Exams",
+            "description": "Standard questions asked in ICSE/ISC theory papers.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "20 min",
+            "isLocked": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "skilluni-solved-papers",
+    "slug": "icse-java-solved-papers",
+    "title": "10-Year Solved Papers",
+    "description": "Step-by-step video solutions and handwritten notes for last 10 years ICSE Computer Applications Board Exams.",
+    "level": "Advanced",
+    "thumbnail": "/images/courses/solved-papers.webp",
+    "isPremium": true,
+    "tags": [
+      "ICSE",
+      "Board Exams",
+      "Solved Papers"
+    ],
+    "lectures": [
+      {
+        "id": "L301",
+        "order": 1,
+        "slug": "2025-solved-paper-a",
+        "title": "2025 Solved Board Paper - Section A",
+        "description": "Step-by-step video solutions of Section A (MCQs & Short Codes).",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "35 min",
+        "isLocked": false
+      },
+      {
+        "id": "L302",
+        "order": 2,
+        "slug": "2025-solved-paper-b",
+        "title": "2025 Solved Board Paper - Section B",
+        "description": "Detail design & coding logic solutions of Section B questions.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "45 min",
+        "isLocked": false
+      },
+      {
+        "id": "L303",
+        "order": 3,
+        "slug": "2024-solved-paper-complete",
+        "title": "2024 Solved Board Paper - Complete",
+        "description": "Full breakdown and coding solutions for the 2024 exam.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "50 min",
+        "isLocked": false
+      },
+      {
+        "id": "L304",
+        "order": 4,
+        "slug": "2023-solved-paper-complete",
+        "title": "2023 Solved Board Paper - Complete",
+        "description": "Handwritten answers and video explanation for 2023.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "40 min",
+        "isLocked": false
+      },
+      {
+        "id": "L305",
+        "order": 5,
+        "slug": "2022-solved-paper-complete",
+        "title": "2022 Solved Board Paper - Complete",
+        "description": "Detailed video solutions for the semester & theory papers.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "38 min",
+        "isLocked": false
+      },
+      {
+        "id": "L306",
+        "order": 6,
+        "slug": "2021-solved-paper-complete",
+        "title": "2021 Solved Board Paper - Complete",
+        "description": "Detailed step-by-step video solutions for 2021 papers.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "42 min",
+        "isLocked": true
+      },
+      {
+        "id": "L307",
+        "order": 7,
+        "slug": "2020-solved-paper-complete",
+        "title": "2020 Solved Board Paper - Complete",
+        "description": "Complete answer explanations and notes for 2020.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "45 min",
+        "isLocked": true
+      },
+      {
+        "id": "L308",
+        "order": 8,
+        "slug": "2019-solved-paper-complete",
+        "title": "2019 Solved Board Paper - Complete",
+        "description": "Java solutions and logical answers for the 2019 exam.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "40 min",
+        "isLocked": true
+      },
+      {
+        "id": "L309",
+        "order": 9,
+        "slug": "2018-solved-paper-complete",
+        "title": "2018 Solved Board Paper - Complete",
+        "description": "Solutions and handwritten notes for 2018 paper.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "42 min",
+        "isLocked": true
+      },
+      {
+        "id": "L310",
+        "order": 10,
+        "slug": "2017-solved-paper-complete",
+        "title": "2017 Solved Board Paper - Complete",
+        "description": "Comprehensive class breakdown for 2017 exam.",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "duration": "38 min",
+        "isLocked": true
+      },
+      {
+        "id": "L-1780250442731",
+        "title": "Principles of WOW",
+        "description": "",
+        "order": 1,
+        "slug": "priniciples-of-lol",
+        "duration": "15 min",
+        "videoUrl": "",
+        "notesUrl": "",
+        "quizUrl": "",
+        "isLocked": false
+      }
+    ],
+    "chapters": [
+      {
+        "id": "ch1",
+        "order": 1,
+        "title": "2025 Specimen & Board",
+        "description": "Get complete, step-by-step video solutions and detailed breakdowns for the latest 2025 Board Examination.",
+        "lectures": [
+          {
+            "id": "L301",
+            "order": 1,
+            "slug": "2025-solved-paper-a",
+            "title": "2025 Solved Board Paper - Section A",
+            "description": "Step-by-step video solutions of Section A (MCQs & Short Codes).",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "35 min",
+            "isLocked": false
+          },
+          {
+            "id": "L302",
+            "order": 2,
+            "slug": "2025-solved-paper-b",
+            "title": "2025 Solved Board Paper - Section B",
+            "description": "Detail design & coding logic solutions of Section B questions.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "45 min",
+            "isLocked": false
+          }
+        ]
+      },
+      {
+        "id": "ch2",
+        "order": 2,
+        "title": "2022-2024 Series",
+        "description": "In-depth coding logic and handwritten answers for the 2024, 2023, and 2022 Computer Applications Board Exams.",
+        "lectures": [
+          {
+            "id": "L303",
+            "order": 3,
+            "slug": "2024-solved-paper-complete",
+            "title": "2024 Solved Board Paper - Complete",
+            "description": "Full breakdown and coding solutions for the 2024 exam.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "50 min",
+            "isLocked": false
+          },
+          {
+            "id": "L304",
+            "order": 4,
+            "slug": "2023-solved-paper-complete",
+            "title": "2023 Solved Board Paper - Complete",
+            "description": "Handwritten answers and video explanation for 2023.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "40 min",
+            "isLocked": false
+          },
+          {
+            "id": "L305",
+            "order": 5,
+            "slug": "2022-solved-paper-complete",
+            "title": "2022 Solved Board Paper - Complete",
+            "description": "Detailed video solutions for the semester & theory papers.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "38 min",
+            "isLocked": false
+          }
+        ]
+      },
+      {
+        "id": "ch3",
+        "order": 3,
+        "title": "2017-2021 Foundation",
+        "description": "Build a strong historical foundation with comprehensive solution breakdowns of ICSE papers from 2017 through 2021.",
+        "lectures": [
+          {
+            "id": "L306",
+            "order": 6,
+            "slug": "2021-solved-paper-complete",
+            "title": "2021 Solved Board Paper - Complete",
+            "description": "Detailed step-by-step video solutions for 2021 papers.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "42 min",
+            "isLocked": true
+          },
+          {
+            "id": "L307",
+            "order": 7,
+            "slug": "2020-solved-paper-complete",
+            "title": "2020 Solved Board Paper - Complete",
+            "description": "Complete answer explanations and notes for 2020.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "45 min",
+            "isLocked": true
+          },
+          {
+            "id": "L308",
+            "order": 8,
+            "slug": "2019-solved-paper-complete",
+            "title": "2019 Solved Board Paper - Complete",
+            "description": "Java solutions and logical answers for the 2019 exam.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "40 min",
+            "isLocked": true
+          },
+          {
+            "id": "L309",
+            "order": 9,
+            "slug": "2018-solved-paper-complete",
+            "title": "2018 Solved Board Paper - Complete",
+            "description": "Solutions and handwritten notes for 2018 paper.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "42 min",
+            "isLocked": true
+          },
+          {
+            "id": "L310",
+            "order": 10,
+            "slug": "2017-solved-paper-complete",
+            "title": "2017 Solved Board Paper - Complete",
+            "description": "Comprehensive class breakdown for 2017 exam.",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "duration": "38 min",
+            "isLocked": true
+          }
+        ]
+      },
+      {
+        "id": "ch-1780250377310",
+        "title": "LOL",
+        "description": "WOW TYSM",
+        "order": 4,
+        "lectures": [
+          {
+            "id": "L-1780250442731",
+            "title": "Principles of WOW",
+            "description": "",
+            "order": 1,
+            "slug": "priniciples-of-lol",
+            "duration": "15 min",
+            "videoUrl": "",
+            "notesUrl": "",
+            "quizUrl": "",
+            "isLocked": false
+          }
+        ]
+      }
+    ]
+  }
+]

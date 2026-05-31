@@ -2,12 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { HEADER, SITE } from "../../constants/site";
 import { NAV_LINKS } from "../../constants/nav";
 import ButtonLink from "../ui/ButtonLink";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-hairline bg-canvas/85 backdrop-blur">

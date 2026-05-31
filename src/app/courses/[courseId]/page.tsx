@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
-import { COURSES } from "../../../constants/courses";
 import { ROADMAP_PAGE } from "../../../constants/roadmap";
 import LectureCard from "../../../components/ui/LectureCard";
 import SectionHeading from "../../../components/ui/SectionHeading";
-import { getCourseChapters } from "../../../lib/chapters";
+import { getCourseBySlug } from "../../../lib/db";
 
 type CourseRoadmapPageProps = {
   params: Promise<{
@@ -22,7 +21,7 @@ export default async function CourseRoadmapPage({
   params,
 }: CourseRoadmapPageProps) {
   const { courseId } = await params;
-  const course = COURSES.find((item) => item.slug === courseId);
+  const course = getCourseBySlug(courseId);
 
   if (!course) {
     notFound();
@@ -35,8 +34,8 @@ export default async function CourseRoadmapPage({
     ? Math.round((completedCount / course.lectures.length) * 100)
     : 0;
 
-  // Group lectures into chapters dynamically
-  const chapters = getCourseChapters(course.slug, course.lectures);
+  // Group lectures into chapters dynamically from the database
+  const chapters = course.chapters;
 
   return (
     <main className="flex-1" style={{ background: 'var(--color-canvas)', color: 'var(--color-ink)' }}>

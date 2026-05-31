@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { COURSES } from "../../constants/courses";
 import { HOME } from "../../constants/home";
 import { COURSES_PAGE } from "../../constants/coursesPage";
 import CourseListCard from "../ui/CourseListCard";
 import ButtonLink from "../ui/ButtonLink";
 import SectionHeading from "../ui/SectionHeading";
 import { gsap, registerGsapPlugins } from "../../lib/gsap";
+import type { DbCourse } from "../../lib/db";
 
-export default function CoursesSection() {
+export default function CoursesSection({ initialCourses }: { initialCourses?: DbCourse[] }) {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const [courses, setCourses] = useState<DbCourse[]>(initialCourses || []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -24,6 +25,17 @@ export default function CoursesSection() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    if (initialCourses && initialCourses.length > 0) {
+      setCourses(initialCourses);
+    } else {
+      fetch("/api/courses")
+        .then((res) => res.json())
+        .then((data) => setCourses(data))
+        .catch((err) => console.error("Failed to fetch courses:", err));
+    }
+  }, [initialCourses]);
 
   useEffect(() => {
     if (!sectionRef.current) {
@@ -79,10 +91,10 @@ export default function CoursesSection() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [courses]);
 
   const itemsPerPage = mounted ? (isMobile ? 1 : 2) : 2;
-  const maxIndex = Math.max(0, COURSES.length - itemsPerPage);
+  const maxIndex = Math.max(0, courses.length - itemsPerPage);
 
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -185,7 +197,7 @@ export default function CoursesSection() {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            {COURSES.map((course) => {
+            {courses.map((course) => {
               const meta = [
                 {
                   label: COURSES_PAGE.card.metaLabels.level,

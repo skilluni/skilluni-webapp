@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { COURSES } from "../../../../../constants/courses";
-import { getCourseChapters } from "../../../../../lib/chapters";
+import { getCourseBySlug } from "../../../../../lib/db";
 
 type LectureDetailsPageProps = {
   params: Promise<{
@@ -62,7 +61,7 @@ export default async function LectureDetailsPage({
 }: LectureDetailsPageProps) {
   const { courseId, lectureSlug } = await params;
 
-  const course = COURSES.find((c) => c.slug === courseId);
+  const course = getCourseBySlug(courseId);
   if (!course) {
     notFound();
   }
@@ -75,7 +74,7 @@ export default async function LectureDetailsPage({
   const embedUrl = getEmbedUrl(lecture.videoUrl);
 
   // Group lectures into chapters to match the spotlight colors
-  const chapters = getCourseChapters(course.slug, course.lectures);
+  const chapters = course.chapters;
   const chapterIndex = chapters.findIndex((ch) =>
     ch.lectures.some((l) => l.slug === lecture.slug)
   );
