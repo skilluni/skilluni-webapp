@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCourseBySlug } from "../../../../../lib/db";
+import CustomVideoPlayer from "../../../../../components/ui/CustomVideoPlayer";
 
 type LectureDetailsPageProps = {
   params: Promise<{
@@ -16,46 +17,6 @@ const SPOTLIGHT_COLORS = [
   { text: "#ff5577", border: "rgba(255, 85, 119, 0.2)", bg: "rgba(255, 85, 119, 0.08)" },
 ];
 
-// Robust helper to convert standard YouTube watch URLs to embed URL formats
-function getEmbedUrl(videoUrl: string | undefined): string | null {
-  if (!videoUrl) return null;
-
-  try {
-    // Already an embed URL
-    if (videoUrl.includes("youtube.com/embed/")) {
-      return videoUrl;
-    }
-
-    let videoId = "";
-    if (videoUrl.includes("youtube.com/watch")) {
-      const urlObj = new URL(videoUrl);
-      videoId = urlObj.searchParams.get("v") || "";
-    } else if (videoUrl.includes("youtu.be/")) {
-      const urlObj = new URL(videoUrl);
-      videoId = urlObj.pathname.substring(1);
-    } else if (videoUrl.includes("youtube.com/v/")) {
-      const parts = videoUrl.split("/v/");
-      videoId = parts[parts.length - 1].split(/[?#]/)[0];
-    }
-
-    if (videoId) {
-      return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=0`;
-    }
-    return null;
-  } catch (e) {
-    console.error("Failed to parse YouTube URL:", videoUrl, e);
-    // Dynamic string fallback for safety
-    if (videoUrl.includes("watch?v=")) {
-      const match = videoUrl.split("watch?v=")[1];
-      if (match) {
-        const id = match.split("&")[0];
-        return `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&autoplay=0`;
-      }
-    }
-    return null;
-  }
-}
-
 export default async function LectureDetailsPage({
   params,
 }: LectureDetailsPageProps) {
@@ -70,8 +31,6 @@ export default async function LectureDetailsPage({
   if (!lecture) {
     notFound();
   }
-
-  const embedUrl = getEmbedUrl(lecture.videoUrl);
 
   // Group lectures into chapters to match the spotlight colors
   const chapters = course.chapters;
@@ -89,7 +48,7 @@ export default async function LectureDetailsPage({
       className="flex-1 min-h-screen py-12 md:py-20"
       style={{ background: "var(--color-canvas)", color: "var(--color-ink)" }}
     >
-      <div className="mx-auto max-w-4xl px-6 flex flex-col gap-8">
+      <div className="mx-auto max-w-6xl px-6 flex flex-col gap-8">
         
         {/* Navigation Breadcrumb */}
         <div>
@@ -97,317 +56,180 @@ export default async function LectureDetailsPage({
             href={`/courses/${course.slug}`}
             data-cursor="link"
             data-cursor-text="Roadmap"
-            className="group inline-flex items-center gap-4 text-caption font-semibold transition-colors duration-200"
+            className="group inline-flex items-center gap-2 text-caption font-semibold transition-colors duration-200 hover:text-white"
             style={{ color: "var(--color-ink-muted)" }}
           >
-            <span
-              className="flex h-10 w-10 items-center justify-center transition-all duration-300 group-hover:bg-white/5 group-hover:border-neutral-700"
-              style={{
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid var(--color-hairline)",
-                borderRadius: "var(--radius-full)",
-                color: "var(--color-ink)",
-              }}
+            <svg
+              className="h-4 w-4 stroke-[2.5] transition-transform duration-200 group-hover:-translate-x-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              <span className="group-hover:-translate-x-0.5 transition-transform duration-200">←</span>
-            </span>
-            <span className="group-hover:text-white transition-colors duration-200">
-              Back to {course.title} Roadmap
-            </span>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5"
+              />
+            </svg>
+            <span>Back to Roadmap</span>
           </Link>
         </div>
 
-        {/* Lecture Header Block */}
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <span
-              className="px-3 py-1 text-[11px] uppercase tracking-widest font-bold border rounded-full"
-              style={{
-                color: spotColor.text,
-                borderColor: spotColor.border,
-                backgroundColor: spotColor.bg,
-              }}
-            >
-              Lesson {lecture.order}
-            </span>
-            <span
-              className="px-3 py-1 text-[11px] uppercase tracking-widest font-semibold bg-neutral-900/80 text-ink-muted border border-[var(--color-hairline)] rounded-full"
-            >
-              Duration: {lecture.duration}
-            </span>
-            {lecture.isLocked && (
-              <span
-                className="px-3 py-1 text-[11px] uppercase tracking-widest font-bold bg-[#ff5577]/10 text-[#ff5577] border border-[#ff5577]/20 rounded-full animate-pulse-glow"
-              >
-                Premium Locked
-              </span>
-            )}
-          </div>
+        {/* Dashboard Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12 items-start">
           
-          <h1
-            className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight"
-            style={{ color: "var(--color-ink)" }}
-          >
-            {lecture.title}
-          </h1>
+          {/* Main Content Column (Left, spans 3 columns on desktop) */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Custom Video Player */}
+            <CustomVideoPlayer 
+              videoUrl={lecture.videoUrl} 
+              title={lecture.title} 
+              accentColor={spotColor.text} 
+            />
 
-          <p
-            className="text-body-lg leading-relaxed max-w-3xl"
-            style={{ color: "var(--color-ink-muted)" }}
-          >
-            {lecture.description}
-          </p>
-        </div>
-
-        {/* Video Player Section wrapped in custom Mock Browser Chrome */}
-        <div className="relative mt-2">
-          {embedUrl ? (
-            <div
-              className="w-full rounded-2xl overflow-hidden border shadow-2xl transition-all duration-300 hover:border-neutral-700 animate-scale-in relative group"
-              style={{
-                borderColor: "var(--color-hairline)",
-                background: "var(--color-surface-1)",
-              }}
-            >
-              {/* Dynamic Atmospheric Spotlight Aura behind browser frame */}
-              <div 
-                className="absolute -inset-10 bg-radial-gradient from-[var(--spotlight-color)]/8 to-transparent blur-3xl pointer-events-none opacity-40 group-hover:opacity-60 transition-opacity duration-500"
-                style={{
-                  // @ts-ignore
-                  '--spotlight-color': spotColor.text
-                }}
-              />
-
-              {/* Browser Chrome Header */}
-              <div
-                className="flex items-center justify-between px-4 py-3 border-b select-none relative z-10"
-                style={{
-                  background: "var(--color-surface-2)",
-                  borderColor: "var(--color-hairline)",
-                }}
-              >
-                {/* Window Dots */}
-                <div className="flex items-center gap-1.5 w-1/4">
-                  <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-                  <span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-                  <span className="w-3 h-3 rounded-full bg-[#27c93f]" />
-                </div>
-                
-                {/* Active Tab / Address bar */}
-                <div
-                  className="flex items-center justify-center gap-2 px-3 py-1 text-[11px] font-semibold rounded-md border text-ink-muted w-1/2 md:w-2/5 truncate"
+            {/* Lecture Header Block */}
+            <div className="space-y-4 pt-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span
+                  className="px-3 py-1 text-[11px] uppercase tracking-widest font-bold border rounded-full"
                   style={{
-                    background: "var(--color-canvas)",
-                    borderColor: "var(--color-hairline)",
+                    color: spotColor.text,
+                    borderColor: spotColor.border,
+                    backgroundColor: spotColor.bg,
                   }}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full animate-pulse-glow" style={{ backgroundColor: spotColor.text }} />
-                  <span className="truncate font-mono tracking-tight">skilluni.edu/player/{lecture.slug}</span>
-                </div>
-
-                {/* Right metadata info indicator */}
-                <div className="w-1/4 flex justify-end text-[10px] font-mono tracking-wider opacity-30 select-none uppercase">
-                  1080p stream
-                </div>
+                  Lesson {lecture.order}
+                </span>
+                <span
+                  className="px-3 py-1 text-[11px] uppercase tracking-widest font-semibold bg-neutral-900/80 text-ink-muted border border-[var(--color-hairline)] rounded-full"
+                >
+                  Duration: {lecture.duration}
+                </span>
+                {lecture.isLocked && (
+                  <span
+                    className="px-3 py-1 text-[11px] uppercase tracking-widest font-bold bg-[#ff5577]/10 text-[#ff5577] border border-[#ff5577]/20 rounded-full animate-pulse-glow"
+                  >
+                    Premium Locked
+                  </span>
+                )}
               </div>
+              
+              <h1
+                className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight"
+                style={{ color: "var(--color-ink)" }}
+              >
+                {lecture.title}
+              </h1>
 
-              {/* Video Player Container */}
-              <div className="aspect-video w-full relative z-10 bg-black">
-                <iframe
-                  src={embedUrl}
-                  title={lecture.title}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
+              <p
+                className="text-body-lg leading-relaxed max-w-3xl"
+                style={{ color: "var(--color-ink-muted)" }}
+              >
+                {lecture.description}
+              </p>
             </div>
-          ) : (
-            // Exquisite glassmorphic placeholder for coming soon videos
-            <div
-              className="w-full py-20 px-8 flex flex-col items-center justify-center text-center rounded-2xl border border-dashed relative overflow-hidden animate-scale-in"
+          </div>
+
+          {/* Sidebar Column (Right, spans 1 column on desktop) */}
+          <aside className="lg:col-span-1 lg:sticky lg:top-24 space-y-6">
+            <div 
+              className="p-6 rounded-2xl border space-y-6"
               style={{
+                background: "var(--color-surface-1)",
                 borderColor: "var(--color-hairline)",
-                background: "linear-gradient(135deg, rgba(20, 20, 20, 0.4) 0%, rgba(28, 28, 28, 0.2) 100%)",
-                backdropFilter: "blur(8px)",
               }}
             >
-              {/* Decorative aura */}
-              <div 
-                className="absolute -inset-10 bg-radial-gradient from-[var(--spot-glow)]/5 to-transparent blur-3xl pointer-events-none animate-pulse-glow" 
-                style={{
-                  // @ts-ignore
-                  '--spot-glow': spotColor.text
-                }}
-              />
-
-              <div className="relative z-10 space-y-4 max-w-md">
-                <div
-                  className="mx-auto w-12 h-12 rounded-full flex items-center justify-center border border-[var(--color-hairline)] bg-neutral-900/60"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke={spotColor.text}
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M23 7a2 2 0 0 0-2.45-1.45L16 7V5a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2l4.55 1.45A2 2 0 0 0 23 17V7z" />
-                  </svg>
-                </div>
-                
-                <h3
-                  className="text-headline font-bold"
-                  style={{ color: "var(--color-ink)" }}
-                >
-                  Video Lesson Coming Soon
-                </h3>
-                <p
-                  className="text-body-sm max-w-sm mx-auto leading-relaxed"
+              <div>
+                <h2
+                  className="text-caption uppercase tracking-[0.2em] font-bold"
                   style={{ color: "var(--color-ink-muted)" }}
                 >
-                  We are hard at work productionizing this lesson. In the meantime, you can explore the notes and interactive quiz below.
+                  Lesson Materials
+                </h2>
+                <p className="text-xs text-ink-muted/60 mt-1">
+                  Access notes and check your understanding.
                 </p>
               </div>
+
+              <div className="flex flex-col gap-3">
+                {/* Take Quiz Link */}
+                {lecture.quizUrl ? (
+                  <a
+                    href={lecture.quizUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor="link"
+                    data-cursor-text="Quiz"
+                    className="group flex items-center justify-between p-4 rounded-xl transition-all duration-200 bg-white text-black hover:bg-neutral-200 select-none text-button font-bold"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Take Quiz</span>
+                    </div>
+                    <svg className="h-3.5 w-3.5 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                ) : (
+                  <div
+                    className="flex items-center justify-between p-4 rounded-xl border border-dashed select-none opacity-50 text-button font-medium italic"
+                    style={{
+                      borderColor: "var(--color-hairline)",
+                      color: "var(--color-ink-muted)",
+                    }}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Take Quiz</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Download Notes Link */}
+                {lecture.notesUrl ? (
+                  <a
+                    href={lecture.notesUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor="link"
+                    data-cursor-text="Notes"
+                    className="group flex items-center justify-between p-4 rounded-xl transition-all duration-200 border border-hairline bg-[#1c1c1c] hover:bg-[#262626] select-none text-button font-bold text-ink"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <svg className="h-4.5 w-4.5 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Lesson Notes</span>
+                    </div>
+                    <svg className="h-3.5 w-3.5 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                ) : (
+                  <div
+                    className="flex items-center justify-between p-4 rounded-xl border border-dashed select-none opacity-50 text-button font-medium italic"
+                    style={{
+                      borderColor: "var(--color-hairline)",
+                      color: "var(--color-ink-muted)",
+                    }}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Lesson Notes</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          </aside>
+
         </div>
-
-        {/* Resources Actions Grid */}
-        <div className="mt-4 space-y-6">
-          <h2
-            className="text-caption uppercase tracking-[0.2em]"
-            style={{ color: "var(--color-ink-muted)" }}
-          >
-            Lesson Materials & Resources
-          </h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-            {/* Take Quiz Button Card */}
-            {lecture.quizUrl ? (
-              <a
-                href={lecture.quizUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-cursor="link"
-                data-cursor-text="Quiz"
-                className="group flex flex-col justify-between p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.01] shadow-lg hover:shadow-xl select-none"
-                style={{
-                  background: "var(--color-primary)",
-                  borderColor: "var(--color-primary)",
-                  color: "var(--color-on-primary)",
-                }}
-              >
-                <div className="space-y-1">
-                  <span className="text-[10px] uppercase tracking-widest font-extrabold opacity-60">
-                    Practice Assignment
-                  </span>
-                  <h3 className="text-lg font-bold tracking-tight">
-                    Take Lesson Quiz
-                  </h3>
-                  <p className="text-body-sm opacity-80 mt-1 leading-relaxed">
-                    Test your understanding immediately with direct concept questions.
-                  </p>
-                </div>
-                
-                <div className="mt-8 flex items-center justify-between font-bold text-button">
-                  <span>Start Practice Quiz</span>
-                  <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-                </div>
-              </a>
-            ) : (
-              <div
-                className="flex flex-col justify-between p-6 rounded-2xl border border-dashed select-none opacity-60"
-                style={{
-                  borderColor: "var(--color-hairline)",
-                  background: "var(--color-surface-1)",
-                  color: "var(--color-ink-muted)",
-                }}
-              >
-                <div className="space-y-1">
-                  <span className="text-[10px] uppercase tracking-widest font-extrabold opacity-45">
-                    Practice Assignment
-                  </span>
-                  <h3 className="text-lg font-bold tracking-tight" style={{ color: "var(--color-ink)" }}>
-                    Lesson Quiz Unavailable
-                  </h3>
-                  <p className="text-body-sm opacity-60 mt-1 leading-relaxed">
-                    An interactive review quiz is being prepared for this lecture step.
-                  </p>
-                </div>
-                
-                <div className="mt-8 text-button font-medium italic">
-                  Quiz coming soon
-                </div>
-              </div>
-            )}
-
-            {/* Download Notes Button Card */}
-            {lecture.notesUrl ? (
-              <a
-                href={lecture.notesUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-cursor="link"
-                data-cursor-text="Notes"
-                className="group flex flex-col justify-between p-6 rounded-2xl border transition-all duration-300 hover:scale-[1.01] hover:border-neutral-700 shadow-md hover:shadow-lg select-none"
-                style={{
-                  background: "var(--color-surface-1)",
-                  borderColor: "var(--color-hairline)",
-                  color: "var(--color-ink)",
-                }}
-              >
-                <div className="space-y-1">
-                  <span className="text-[10px] uppercase tracking-widest font-extrabold opacity-60" style={{ color: "var(--color-ink-muted)" }}>
-                    Lecture Guides
-                  </span>
-                  <h3 className="text-lg font-bold tracking-tight">
-                    Download Lesson Notes
-                  </h3>
-                  <p className="text-body-sm mt-1 leading-relaxed" style={{ color: "var(--color-ink-muted)" }}>
-                    Access complete high-quality handwritten theory notes and programming cheat sheets.
-                  </p>
-                </div>
-                
-                <div className="mt-8 flex items-center justify-between font-bold text-button" style={{ color: "#0099ff" }}>
-                  <span>Download Notes PDF</span>
-                  <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-                </div>
-              </a>
-            ) : (
-              <div
-                className="flex flex-col justify-between p-6 rounded-2xl border border-dashed select-none opacity-60"
-                style={{
-                  borderColor: "var(--color-hairline)",
-                  background: "var(--color-surface-1)",
-                  color: "var(--color-ink-muted)",
-                }}
-              >
-                <div className="space-y-1">
-                  <span className="text-[10px] uppercase tracking-widest font-extrabold opacity-45">
-                    Lecture Guides
-                  </span>
-                  <h3 className="text-lg font-bold tracking-tight" style={{ color: "var(--color-ink)" }}>
-                    Lesson Notes Unavailable
-                  </h3>
-                  <p className="text-body-sm opacity-60 mt-1 leading-relaxed">
-                    Handwritten class notes are currently in draft review for this step.
-                  </p>
-                </div>
-                
-                <div className="mt-8 text-button font-medium italic">
-                  Notes coming soon
-                </div>
-              </div>
-            )}
-
-          </div>
-        </div>
-        
       </div>
     </main>
   );

@@ -566,3 +566,12 @@ body.cursor-view .cursor-ring {
 body.cursor-view .cursor-label {
   opacity: 1;
 }
+
+/* ── Hide scrollbar utility ──────────────────────────────────── */
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}

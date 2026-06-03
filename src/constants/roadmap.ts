@@ -17,7 +17,7 @@ export const ROADMAP_PAGE = {
     progress: "Progress",
   },
   lecture: {
-    stepLabel: "Step",
+    lectureLabel: "Lecture",
     durationLabel: "Duration",
     lockedLabel: "Locked",
     emptyResourceLabel: "Coming soon",

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Lecture } from "../../types/lecture";
 
 type LectureLabels = {
-  stepLabel: string;
+  lectureLabel: string;
   durationLabel: string;
   lockedLabel: string;
 };
@@ -23,11 +23,8 @@ export default function LectureCard({
   const lectureHref = `/courses/${courseSlug}/lectures/${lecture.slug}`;
 
   return (
-    <Link
-      href={lectureHref}
-      data-cursor="link"
-      data-cursor-text="Open"
-      className="group block relative p-6 transition-all duration-300 hover:border-neutral-700 hover:scale-[1.01] select-none"
+    <div
+      className="relative p-6 select-none"
       style={{
         background: 'var(--color-surface-1)',
         borderRadius: 'var(--radius-xl)',
@@ -40,7 +37,7 @@ export default function LectureCard({
         className="flex items-center justify-between text-caption uppercase tracking-[0.2em]"
         style={{ color: 'var(--color-ink-muted)' }}
       >
-        <span>{labels.stepLabel}</span>
+        <span>{labels.lectureLabel}</span>
         <span
           className="flex h-8 w-8 items-center justify-center text-body-sm"
           style={{
@@ -54,7 +51,7 @@ export default function LectureCard({
       </div>
       
       <div className="mt-4 space-y-2">
-        <h3 className="text-headline font-bold transition-colors group-hover:text-[var(--hover-accent)]" style={{ color: 'var(--color-ink)' }}>
+        <h3 className="text-headline font-bold" style={{ color: 'var(--color-ink)' }}>
           {lecture.title}
         </h3>
         <p className="text-body text-ink-muted leading-relaxed line-clamp-2">
@@ -62,7 +59,7 @@ export default function LectureCard({
         </p>
       </div>
       
-      <div className="mt-5 flex items-center justify-between">
+      <div className="mt-5 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
         <div className="flex items-center gap-2">
           <span
             className="px-3 py-1 text-caption"
@@ -84,19 +81,27 @@ export default function LectureCard({
         </div>
         
         {/* Start Lesson Trigger */}
-        <span 
-          className="px-4 py-2 text-button font-semibold flex items-center gap-2 transition-all duration-300 group-hover:bg-white/5 group-hover:border-neutral-700 group-hover:text-[var(--hover-accent)]"
-          style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid var(--color-hairline)',
-            borderRadius: 'var(--radius-pill)',
-            color: 'var(--color-ink)'
-          }}
+        <Link
+          href={lectureHref}
+          data-cursor="link"
+          data-cursor-text="Open"
+          className="group px-4 py-2.5 text-button font-semibold flex items-center gap-1.5 transition-all duration-200 bg-white text-black hover:bg-neutral-200 rounded-[100px] shrink-0"
         >
           <span>Start Lesson</span>
-          <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
-        </span>
+          <svg
+            className="h-3.5 w-3.5 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M13 5l7 7-7 7M5 5l7 7-7 7"
+            />
+          </svg>
+        </Link>
       </div>
-    </Link>
+    </div>
   );
 }
