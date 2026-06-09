@@ -60,22 +60,28 @@ export default function CustomCursor() {
 
     // ── Pointer tracking ──────────────────────────────────────────────────
     const onMove = (e: PointerEvent) => {
-      mouse.current = { x: e.clientX, y: e.clientY };
+      if (e && typeof e.clientX === "number" && typeof e.clientY === "number") {
+        mouse.current = { x: e.clientX, y: e.clientY };
+      }
     };
 
     // ── Hover detection ───────────────────────────────────────────────────
-    const resolveMode = (target: HTMLElement | null): CursorMode => {
-      if (!target) return "default";
-      if (target.closest(HIDE_CURSOR_SELECTOR)) return "hidden";
-      if (target.closest(EDITABLE_SELECTOR)) return "text";
-      if (target.closest(VIEW_CURSOR_SELECTOR)) return "view";
-      if (target.closest(MAGNETIC_SELECTOR)) return "magnetic";
-      if (target.closest(CLICKABLE_SELECTOR)) return "link";
+    const resolveMode = (target: any): CursorMode => {
+      if (!target || typeof target.closest !== "function") return "default";
+      try {
+        if (target.closest(HIDE_CURSOR_SELECTOR)) return "hidden";
+        if (target.closest(EDITABLE_SELECTOR)) return "text";
+        if (target.closest(VIEW_CURSOR_SELECTOR)) return "view";
+        if (target.closest(MAGNETIC_SELECTOR)) return "magnetic";
+        if (target.closest(CLICKABLE_SELECTOR)) return "link";
+      } catch (err) {
+        console.error("CustomCursor resolveMode error:", err);
+      }
       return "default";
     };
 
     const onHover = (e: Event) => {
-      setMode(resolveMode(e.target as HTMLElement | null));
+      setMode(resolveMode(e.target));
     };
 
     // ── Magnetic elements ─────────────────────────────────────────────────
@@ -105,20 +111,22 @@ export default function CustomCursor() {
     const animate = () => {
       const { x: mx, y: my } = mouse.current;
 
-      // Arrow follows tightly
-      arrow.current.x = lerp(arrow.current.x, mx, 0.8);
-      arrow.current.y = lerp(arrow.current.y, my, 0.8);
+      if (!isNaN(mx) && !isNaN(my)) {
+        // Arrow follows tightly
+        arrow.current.x = lerp(arrow.current.x, mx, 0.8);
+        arrow.current.y = lerp(arrow.current.y, my, 0.8);
 
-      if (arrowRef.current) {
-        arrowRef.current.style.left = `${arrow.current.x}px`;
-        arrowRef.current.style.top = `${arrow.current.y}px`;
+        if (arrowRef.current) {
+          // GPU accelerated translate3d with the default arrowhead offset (-2, -1) built in
+          arrowRef.current.style.transform = `translate3d(${arrow.current.x - 2}px, ${arrow.current.y - 1}px, 0)`;
+        }
       }
 
       rafId.current = requestAnimationFrame(animate);
     };
 
     rafId.current = requestAnimationFrame(animate);
-    window.addEventListener("pointermove", onMove, { passive: true });
+    document.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerover", onHover, true);
     document.addEventListener("pointerout", onHover, true);
 
@@ -127,7 +135,7 @@ export default function CustomCursor() {
         "has-custom-cursor", "cursor-hidden", "cursor-link",
         "cursor-text", "cursor-view", "cursor-magnetic",
       );
-      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerover", onHover, true);
       document.removeEventListener("pointerout", onHover, true);
       cancelAnimationFrame(rafId.current);
