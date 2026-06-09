@@ -6,14 +6,21 @@ import { usePathname } from "next/navigation";
 import { HEADER, SITE } from "../../constants/site";
 import { NAV_LINKS } from "../../constants/nav";
 import ButtonLink from "../ui/ButtonLink";
+import { useAuth } from "../../components/providers/AuthProvider";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { user, profile, signOut } = useAuth();
 
-  if (pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/admin") || pathname === "/signin" || pathname === "/signup") {
     return null;
   }
+
+  const handleSignOut = async () => {
+    await signOut();
+    window.location.href = "/";
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-hairline bg-canvas/85 backdrop-blur">
@@ -44,20 +51,37 @@ export default function Navbar() {
 
         {/* Desktop CTAs */}
         <div className="hidden items-center gap-3 md:flex">
-          <ButtonLink
-            href="#"
-            label="Sign in"
-            variant="secondary"
-            size="sm"
-          />
-          <ButtonLink
-            href={HEADER.cta.href}
-            label={HEADER.cta.label}
-            size="md"
-            dataCursor="link"
-            cursorText="Join"
-            isMagnetic
-          />
+          {user ? (
+            <div className="flex items-center gap-4 animate-fade-in-up">
+              <span className="text-body-sm text-ink-muted">
+                Hi, <span className="text-ink font-semibold">{profile?.username || "Learner"}</span>
+              </span>
+              <button
+                onClick={handleSignOut}
+                className="inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-9 px-4 bg-[#141414] text-white border border-hairline hover:bg-[#1c1c1c] cursor-pointer"
+                data-cursor="link"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <>
+              <ButtonLink
+                href="/signin"
+                label="Sign in"
+                variant="secondary"
+                size="sm"
+              />
+              <ButtonLink
+                href="/signup"
+                label={HEADER.cta.label}
+                size="md"
+                dataCursor="link"
+                cursorText="Join"
+                isMagnetic
+              />
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -106,17 +130,39 @@ export default function Navbar() {
             ))}
           </nav>
           <div className="mt-4 flex flex-col gap-3">
-            <ButtonLink
-              href="#"
-              label="Sign in"
-              variant="secondary"
-              size="md"
-            />
-            <ButtonLink
-              href={HEADER.cta.href}
-              label={HEADER.cta.label}
-              size="md"
-            />
+            {user ? (
+              <>
+                <div className="text-body-sm py-2 px-3 text-ink-muted bg-surface-1 rounded-md">
+                  Logged in as: <span className="text-ink font-semibold">{profile?.username || user.email}</span>
+                </div>
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    setMobileOpen(false);
+                  }}
+                  className="inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-11 px-5 bg-[#141414] text-white border border-hairline hover:bg-[#1c1c1c] cursor-pointer text-left w-full justify-start"
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/signin"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-11 px-5 bg-[#141414] text-white border border-hairline hover:bg-[#1c1c1c]"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-11 px-5 bg-white text-black hover:bg-neutral-200"
+                >
+                  {HEADER.cta.label}
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ClientEffects from "../components/layout/ClientEffects";
 import Navbar from "../components/layout/Navbar";
 import { SITE } from "../constants/site";
+import { AuthProvider } from "../components/providers/AuthProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,9 +38,11 @@ export default function RootLayout({
         }}
         suppressHydrationWarning
       >
-        <Navbar />
-        <ClientEffects />
-        {children}
+        <AuthProvider>
+          <Navbar />
+          <ClientEffects />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
