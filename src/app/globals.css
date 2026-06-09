@@ -468,103 +468,27 @@ body {
 
 body.has-custom-cursor,
 body.has-custom-cursor * {
-  cursor: none;
+  cursor: none !important;
 }
 
-.cursor-dot,
-.cursor-ring,
-.cursor-label {
+.cursor-arrow {
   position: fixed;
   top: 0;
   left: 0;
   pointer-events: none;
   z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: opacity 0.2s ease;
-}
-
-.cursor-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.95);
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-.cursor-ring {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.04);
-  transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    background 0.2s ease,
-    border-color 0.2s ease,
-    opacity 0.2s ease;
-  backdrop-filter: blur(4px);
-}
-
-.cursor-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #000000;
-  opacity: 0;
+  transform: translate(-2px, -1px);
   transition: opacity 0.15s ease;
-  white-space: nowrap;
-  text-transform: uppercase;
-  max-width: 52px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35));
 }
 
-body.cursor-hidden .cursor-dot,
-body.cursor-hidden .cursor-ring,
-body.cursor-hidden .cursor-label {
+.cursor-arrow svg {
+  display: block;
+}
+
+/* ── Hidden ──────────────────────────────────────────────────── */
+body.cursor-hidden .cursor-arrow {
   opacity: 0;
-}
-
-body.cursor-magnetic .cursor-dot {
-  opacity: 0;
-}
-
-body.cursor-magnetic .cursor-ring {
-  width: 64px;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-body.cursor-link .cursor-dot {
-  opacity: 0;
-}
-
-body.cursor-link .cursor-ring {
-  width: 52px;
-  height: 52px;
-  background: #ffffff;
-  border-color: transparent;
-}
-
-body.cursor-link .cursor-label {
-  opacity: 1;
-  color: #000000;
-}
-
-body.cursor-view .cursor-dot {
-  opacity: 0;
-}
-
-body.cursor-view .cursor-ring {
-  width: 72px;
-  height: 72px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-body.cursor-view .cursor-label {
-  opacity: 1;
 }
 
 /* ── Hide scrollbar utility ──────────────────────────────────── */
