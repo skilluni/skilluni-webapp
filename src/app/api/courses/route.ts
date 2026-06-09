@@ -2,7 +2,21 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import crypto from "crypto";
-import { getCourses, saveCourses, DbCourse, DbChapter, DbLecture } from "../../../lib/db";
+import {
+  getCourses,
+  addCourse,
+  editCourse,
+  deleteCourse,
+  addChapter,
+  editChapter,
+  deleteChapter,
+  addLecture,
+  editLecture,
+  deleteLecture,
+  isCourseSlugTaken,
+  isLectureSlugTaken,
+  findLectureLocation,
+} from "../../../lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +31,7 @@ function getAdminPassword(): string {
 
 export async function GET() {
   try {
-    const courses = getCourses();
+    const courses = await getCourses();
     return NextResponse.json(courses);
   } catch (error) {
     console.error("GET courses error:", error);
@@ -44,13 +58,11 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { action, data } = body;
-    const courses = getCourses();
 
     if (!action) {
       return NextResponse.json({ error: "Action is required" }, { status: 400 });
     }
 
-    let success = false;
     let message = "";
 
     switch (action) {
@@ -60,66 +72,38 @@ export async function POST(request: Request) {
         if (!title || !slug) {
           return NextResponse.json({ error: "Title and slug are required" }, { status: 400 });
         }
-        if (courses.some((c) => c.slug === slug)) {
+        if (await isCourseSlugTaken(slug)) {
           return NextResponse.json({ error: "Course slug already exists" }, { status: 400 });
         }
 
-        const newCourse: DbCourse = {
-          id: `course-${Date.now()}`,
-          title,
-          slug,
-          description: description || "",
-          level: level || "Beginner",
-          thumbnail: thumbnail || "/images/courses/default.webp",
-          isPremium: !!isPremium,
-          tags: tags || [],
-          chapters: [],
-          lectures: [],
-        };
-
-        courses.push(newCourse);
-        success = true;
+        await addCourse({ title, slug, description, level, thumbnail, isPremium, tags });
         message = "Course added successfully";
         break;
       }
 
       case "edit-course": {
         const { id, title, slug, description, level, thumbnail, isPremium, tags } = data;
-        const idx = courses.findIndex((c) => c.id === id);
-        if (idx === -1) {
-          return NextResponse.json({ error: "Course not found" }, { status: 404 });
+        if (!id) {
+          return NextResponse.json({ error: "Course ID is required" }, { status: 400 });
         }
 
         // Check if slug is taken by another course
-        if (courses.some((c) => c.slug === slug && c.id !== id)) {
+        if (slug && (await isCourseSlugTaken(slug, id))) {
           return NextResponse.json({ error: "Course slug already exists" }, { status: 400 });
         }
 
-        courses[idx] = {
-          ...courses[idx],
-          title: title || courses[idx].title,
-          slug: slug || courses[idx].slug,
-          description: description !== undefined ? description : courses[idx].description,
-          level: level || courses[idx].level,
-          thumbnail: thumbnail || courses[idx].thumbnail,
-          isPremium: isPremium !== undefined ? !!isPremium : courses[idx].isPremium,
-          tags: tags || courses[idx].tags,
-        };
-
-        success = true;
+        await editCourse(id, { title, slug, description, level, thumbnail, isPremium, tags });
         message = "Course updated successfully";
         break;
       }
 
       case "delete-course": {
         const { id } = data;
-        const idx = courses.findIndex((c) => c.id === id);
-        if (idx === -1) {
-          return NextResponse.json({ error: "Course not found" }, { status: 404 });
+        if (!id) {
+          return NextResponse.json({ error: "Course ID is required" }, { status: 400 });
         }
 
-        courses.splice(idx, 1);
-        success = true;
+        await deleteCourse(id);
         message = "Course deleted successfully";
         break;
       }
@@ -127,192 +111,171 @@ export async function POST(request: Request) {
       // --- CHAPTER CRUD ---
       case "add-chapter": {
         const { courseId, title, description, order } = data;
-        const course = courses.find((c) => c.id === courseId);
-        if (!course) {
-          return NextResponse.json({ error: "Course not found" }, { status: 404 });
+        if (!courseId) {
+          return NextResponse.json({ error: "Course ID is required" }, { status: 400 });
         }
 
-        const newChapter: DbChapter = {
-          id: `ch-${Date.now()}`,
-          title: title || "New Chapter",
-          description: description || "",
-          order: Number(order) || (course.chapters.length + 1),
-          lectures: [],
-        };
-
-        course.chapters.push(newChapter);
-        success = true;
+        await addChapter({
+          courseId,
+          title,
+          description,
+          order: order ? Number(order) : undefined,
+        });
         message = "Chapter added successfully";
         break;
       }
 
       case "edit-chapter": {
-        const { courseId, id, title, description, order } = data;
-        const course = courses.find((c) => c.id === courseId);
-        if (!course) {
-          return NextResponse.json({ error: "Course not found" }, { status: 404 });
+        const { id, title, description, order } = data;
+        if (!id) {
+          return NextResponse.json({ error: "Chapter ID is required" }, { status: 400 });
         }
 
-        const chapter = course.chapters.find((ch) => ch.id === id);
-        if (!chapter) {
-          return NextResponse.json({ error: "Chapter not found" }, { status: 404 });
-        }
-
-        chapter.title = title || chapter.title;
-        chapter.description = description !== undefined ? description : chapter.description;
-        chapter.order = order !== undefined ? Number(order) : chapter.order;
-
-        success = true;
+        await editChapter(id, {
+          title,
+          description,
+          order: order !== undefined ? Number(order) : undefined,
+        });
         message = "Chapter updated successfully";
         break;
       }
 
       case "delete-chapter": {
-        const { courseId, id } = data;
-        const course = courses.find((c) => c.id === courseId);
-        if (!course) {
-          return NextResponse.json({ error: "Course not found" }, { status: 404 });
+        const { id } = data;
+        if (!id) {
+          return NextResponse.json({ error: "Chapter ID is required" }, { status: 400 });
         }
 
-        const idx = course.chapters.findIndex((ch) => ch.id === id);
-        if (idx === -1) {
-          return NextResponse.json({ error: "Chapter not found" }, { status: 404 });
-        }
-
-        course.chapters.splice(idx, 1);
-        success = true;
+        await deleteChapter(id);
         message = "Chapter deleted successfully";
         break;
       }
 
       // --- LECTURE CRUD ---
       case "add-lecture": {
-        const { courseId, chapterId, title, description, order, slug, duration, videoUrl, notesUrl, quizUrl, isLocked } = data;
-        const course = courses.find((c) => c.id === courseId);
-        if (!course) {
-          return NextResponse.json({ error: "Course not found" }, { status: 404 });
-        }
+        const {
+          courseId,
+          chapterId,
+          title,
+          description,
+          order,
+          slug,
+          duration,
+          videoUrl,
+          notesUrl,
+          quizUrl,
+          isLocked,
+        } = data;
 
-        const chapter = course.chapters.find((ch) => ch.id === chapterId);
-        if (!chapter) {
-          return NextResponse.json({ error: "Chapter not found" }, { status: 404 });
+        if (!courseId || !chapterId) {
+          return NextResponse.json(
+            { error: "Course ID and Chapter ID are required" },
+            { status: 400 }
+          );
         }
 
         const finalSlug = slug || `lecture-${Date.now()}`;
-        
-        // Ensure slug is unique within this course's lectures
-        const allLectures = course.chapters.flatMap((ch) => ch.lectures);
-        if (allLectures.some((l) => l.slug === finalSlug)) {
-          return NextResponse.json({ error: "Lecture slug already exists in this course" }, { status: 400 });
+
+        // Ensure slug is unique within this course
+        if (await isLectureSlugTaken(courseId, finalSlug)) {
+          return NextResponse.json(
+            { error: "Lecture slug already exists in this course" },
+            { status: 400 }
+          );
         }
 
-        const newLecture: DbLecture = {
-          id: `L-${Date.now()}`,
-          title: title || "New Lecture",
-          description: description || "",
-          order: Number(order) || (chapter.lectures.length + 1),
+        await addLecture({
+          courseId,
+          chapterId,
+          title,
+          description,
+          order: order ? Number(order) : undefined,
           slug: finalSlug,
-          duration: duration || "10 min",
-          videoUrl: videoUrl || "",
-          notesUrl: notesUrl || "",
-          quizUrl: quizUrl || "",
-          isLocked: !!isLocked,
-        };
-
-        chapter.lectures.push(newLecture);
-        success = true;
+          duration,
+          videoUrl,
+          notesUrl,
+          quizUrl,
+          isLocked,
+        });
         message = "Lecture added successfully";
         break;
       }
 
       case "edit-lecture": {
-        const { courseId, chapterId, id, title, description, order, slug, duration, videoUrl, notesUrl, quizUrl, isLocked } = data;
-        const course = courses.find((c) => c.id === courseId);
-        if (!course) {
-          return NextResponse.json({ error: "Course not found" }, { status: 404 });
+        const {
+          courseId,
+          chapterId,
+          id,
+          title,
+          description,
+          order,
+          slug,
+          duration,
+          videoUrl,
+          notesUrl,
+          quizUrl,
+          isLocked,
+        } = data;
+
+        if (!id) {
+          return NextResponse.json({ error: "Lecture ID is required" }, { status: 400 });
         }
 
-        // Find which chapter holds the lecture
-        let chapter = course.chapters.find((ch) => ch.id === chapterId);
-        let lecture: DbLecture | undefined;
-        let originalChapter = chapter;
-
-        if (chapter) {
-          lecture = chapter.lectures.find((l) => l.id === id);
-        } else {
-          // If no chapterId passed or moved, search all chapters
-          for (const ch of course.chapters) {
-            lecture = ch.lectures.find((l) => l.id === id);
-            if (lecture) {
-              originalChapter = ch;
-              break;
-            }
+        // If slug is being changed, verify uniqueness
+        if (slug && courseId) {
+          if (await isLectureSlugTaken(courseId, slug, id)) {
+            return NextResponse.json(
+              { error: "Lecture slug already exists in this course" },
+              { status: 400 }
+            );
           }
         }
 
-        if (!lecture || !originalChapter) {
-          return NextResponse.json({ error: "Lecture not found" }, { status: 404 });
-        }
-
-        const finalSlug = slug || lecture.slug;
-        const allOtherLectures = course.chapters
-          .flatMap((ch) => ch.lectures)
-          .filter((l) => l.id !== id);
-
-        if (allOtherLectures.some((l) => l.slug === finalSlug)) {
-          return NextResponse.json({ error: "Lecture slug already exists in this course" }, { status: 400 });
-        }
-
-        // Update lecture fields
-        lecture.title = title || lecture.title;
-        lecture.description = description !== undefined ? description : lecture.description;
-        lecture.order = order !== undefined ? Number(order) : lecture.order;
-        lecture.slug = finalSlug;
-        lecture.duration = duration || lecture.duration;
-        lecture.videoUrl = videoUrl !== undefined ? videoUrl : lecture.videoUrl;
-        lecture.notesUrl = notesUrl !== undefined ? notesUrl : lecture.notesUrl;
-        lecture.quizUrl = quizUrl !== undefined ? quizUrl : lecture.quizUrl;
-        lecture.isLocked = isLocked !== undefined ? !!isLocked : lecture.isLocked;
-
-        // Handle moving lecture to another chapter if chapterId changed
-        if (chapterId && chapterId !== originalChapter.id) {
-          const targetChapter = course.chapters.find((ch) => ch.id === chapterId);
-          if (!targetChapter) {
-            return NextResponse.json({ error: "Target chapter not found" }, { status: 404 });
+        // Handle moving lecture to another chapter
+        if (chapterId && courseId) {
+          const location = await findLectureLocation(courseId, id);
+          if (location && location.chapterId !== chapterId) {
+            // Update chapter_id to move the lecture
+            await editLecture(id, {
+              chapterId,
+              title,
+              description,
+              order: order !== undefined ? Number(order) : undefined,
+              slug,
+              duration,
+              videoUrl,
+              notesUrl,
+              quizUrl,
+              isLocked,
+            });
+            message = "Lecture updated and moved successfully";
+            break;
           }
-          // Remove from original chapter
-          originalChapter.lectures = originalChapter.lectures.filter((l) => l.id !== id);
-          // Add to target chapter
-          targetChapter.lectures.push(lecture);
         }
 
-        success = true;
+        await editLecture(id, {
+          chapterId,
+          title,
+          description,
+          order: order !== undefined ? Number(order) : undefined,
+          slug,
+          duration,
+          videoUrl,
+          notesUrl,
+          quizUrl,
+          isLocked,
+        });
         message = "Lecture updated successfully";
         break;
       }
 
       case "delete-lecture": {
-        const { courseId, id } = data;
-        const course = courses.find((c) => c.id === courseId);
-        if (!course) {
-          return NextResponse.json({ error: "Course not found" }, { status: 404 });
+        const { id } = data;
+        if (!id) {
+          return NextResponse.json({ error: "Lecture ID is required" }, { status: 400 });
         }
 
-        let deleted = false;
-        for (const ch of course.chapters) {
-          const idx = ch.lectures.findIndex((l) => l.id === id);
-          if (idx !== -1) {
-            ch.lectures.splice(idx, 1);
-            deleted = true;
-            break;
-          }
-        }
-
-        if (!deleted) {
-          return NextResponse.json({ error: "Lecture not found" }, { status: 404 });
-        }
-
-        success = true;
+        await deleteLecture(id);
         message = "Lecture deleted successfully";
         break;
       }
@@ -321,25 +284,22 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid action type" }, { status: 400 });
     }
 
-    if (success) {
-      saveCourses(courses);
-
-      // Perform standard path revalidations for instant cash updates
-      try {
-        revalidatePath("/");
-        revalidatePath("/courses");
-        revalidatePath("/courses/[courseId]", "page");
-        revalidatePath("/courses/[courseId]/lectures/[lectureSlug]", "page");
-      } catch (e) {
-        console.warn("Revalidation warning (expected in dev static context):", e);
-      }
-
-      return NextResponse.json({ success: true, message });
+    // Perform standard path revalidations for instant cache updates
+    try {
+      revalidatePath("/");
+      revalidatePath("/courses");
+      revalidatePath("/courses/[courseId]", "page");
+      revalidatePath("/courses/[courseId]/lectures/[lectureSlug]", "page");
+    } catch (e) {
+      console.warn("Revalidation warning (expected in dev static context):", e);
     }
 
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ success: true, message });
   } catch (error) {
     console.error("POST API error:", error);
-    return NextResponse.json({ error: (error as Error).message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: (error as Error).message || "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

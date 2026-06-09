@@ -5,7 +5,7 @@ import ButtonLink from "../../components/ui/ButtonLink";
 import { getCourses } from "../../lib/db";
 
 export default async function CoursesPage() {
-  const courses = getCourses();
+  const courses = await getCourses();
   return (
     <main className="flex-1" style={{ background: 'var(--color-canvas)', color: 'var(--color-ink)' }}>
       <section

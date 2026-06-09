@@ -22,7 +22,7 @@ export default async function CourseRoadmapPage({
   params,
 }: CourseRoadmapPageProps) {
   const { courseId } = await params;
-  const course = getCourseBySlug(courseId);
+  const course = await getCourseBySlug(courseId);
 
   if (!course) {
     notFound();

@@ -22,7 +22,7 @@ export default async function LectureDetailsPage({
 }: LectureDetailsPageProps) {
   const { courseId, lectureSlug } = await params;
 
-  const course = getCourseBySlug(courseId);
+  const course = await getCourseBySlug(courseId);
   if (!course) {
     notFound();
   }

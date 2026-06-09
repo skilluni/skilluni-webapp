@@ -7,7 +7,7 @@ import Footer from "../components/layout/Footer";
 import { getCourses } from "../lib/db";
 
 export default async function Home() {
-  const courses = getCourses();
+  const courses = await getCourses();
 
   return (
     <main className="flex-1" style={{ background: 'var(--color-canvas)', color: 'var(--color-ink)' }}>
