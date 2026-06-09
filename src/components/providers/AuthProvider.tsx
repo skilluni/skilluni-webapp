@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "../../lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
+import LoadingScreen from "../ui/LoadingScreen";
 
 export interface Profile {
   id: string;
@@ -117,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, signOut, refreshProfile }}>
+      <LoadingScreen loading={loading} />
       {children}
     </AuthContext.Provider>
   );
