@@ -83,6 +83,7 @@ export async function getCourses(): Promise<DbCourse[]> {
       quizUrl: l.quiz_url || "",
       duration: l.duration,
       isLocked: l.is_locked,
+      codeFiles: l.code_files || [],
     });
     lecturesByChapter.set(l.chapter_id, list);
   }
@@ -272,6 +273,7 @@ export async function addLecture(data: {
   notesUrl?: string;
   quizUrl?: string;
   isLocked?: boolean;
+  codeFiles?: string[];
 }) {
   const id = `L-${Date.now()}`;
   const finalSlug = data.slug || `lecture-${Date.now()}`;
@@ -299,6 +301,7 @@ export async function addLecture(data: {
     quiz_url: data.quizUrl || "",
     duration: data.duration || "10 min",
     is_locked: !!data.isLocked,
+    code_files: data.codeFiles || [],
   });
 
   if (error) throw new Error(`Add lecture failed: ${error.message}`);
@@ -319,6 +322,7 @@ export async function editLecture(
     notesUrl?: string;
     quizUrl?: string;
     isLocked?: boolean;
+    codeFiles?: string[];
   }
 ) {
   const update: Record<string, unknown> = {};
@@ -332,6 +336,7 @@ export async function editLecture(
   if (data.notesUrl !== undefined) update.notes_url = data.notesUrl;
   if (data.quizUrl !== undefined) update.quiz_url = data.quizUrl;
   if (data.isLocked !== undefined) update.is_locked = !!data.isLocked;
+  if (data.codeFiles !== undefined) update.code_files = data.codeFiles;
 
   const { error } = await supabaseAdmin.from("lectures").update(update).eq("id", id);
   if (error) throw new Error(`Edit lecture failed: ${error.message}`);

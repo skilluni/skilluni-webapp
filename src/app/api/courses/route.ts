@@ -165,6 +165,7 @@ export async function POST(request: Request) {
           notesUrl,
           quizUrl,
           isLocked,
+          codeFiles,
         } = data;
 
         if (!courseId || !chapterId) {
@@ -196,6 +197,7 @@ export async function POST(request: Request) {
           notesUrl,
           quizUrl,
           isLocked,
+          codeFiles,
         });
         message = "Lecture added successfully";
         break;
@@ -215,6 +217,7 @@ export async function POST(request: Request) {
           notesUrl,
           quizUrl,
           isLocked,
+          codeFiles,
         } = data;
 
         if (!id) {
@@ -247,6 +250,7 @@ export async function POST(request: Request) {
               notesUrl,
               quizUrl,
               isLocked,
+              codeFiles,
             });
             message = "Lecture updated and moved successfully";
             break;
@@ -264,6 +268,7 @@ export async function POST(request: Request) {
           notesUrl,
           quizUrl,
           isLocked,
+          codeFiles,
         });
         message = "Lecture updated successfully";
         break;

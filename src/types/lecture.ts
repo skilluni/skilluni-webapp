@@ -10,4 +10,5 @@ export type Lecture = {
   duration: string;
   isLocked: boolean;
   completed?: boolean;
+  codeFiles?: string[];
 };

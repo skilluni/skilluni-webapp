@@ -48,6 +48,7 @@ export default function AdminDashboard() {
     notesUrl: "",
     quizUrl: "",
     isLocked: false,
+    codeFiles: "",
   });
 
   // Computed statistics
@@ -270,6 +271,7 @@ export default function AdminDashboard() {
         notesUrl: "",
         quizUrl: "",
         isLocked: false,
+        codeFiles: "",
       });
     } else if (formType === "lecture-edit") {
       const lecture = activeItem || selectedLecture;
@@ -285,6 +287,7 @@ export default function AdminDashboard() {
           notesUrl: lecture.notesUrl,
           quizUrl: lecture.quizUrl || "",
           isLocked: lecture.isLocked,
+          codeFiles: lecture.codeFiles?.join("\n") || "",
         });
       }
     }
@@ -323,6 +326,9 @@ export default function AdminDashboard() {
           id: selectedLecture?.id,
           chapterId: selectedChapter?.id,
           courseId: selectedCourse?.id,
+          codeFiles: lectureFormData.codeFiles
+            ? lectureFormData.codeFiles.split("\n").map((l) => l.trim()).filter(Boolean)
+            : [],
         };
       }
 
@@ -823,6 +829,17 @@ export default function AdminDashboard() {
                         onChange={(e) => setLectureFormData({ ...lectureFormData, quizUrl: e.target.value })}
                         className="w-full bg-[#1c1c1c] text-white px-4 py-3 rounded-lg border border-[#262626] text-sm focus:outline-none focus:border-[#0099ff] focus:ring-1 focus:ring-[#0099ff]/15 transition"
                         placeholder="e.g. https://quizizz.com/..."
+                      />
+                    </div>
+
+                    <div className="md:col-span-2 space-y-1">
+                      <label className="text-xs uppercase tracking-widest text-[#999999] font-medium">Code Files (Google Drive Links, one per line)</label>
+                      <textarea
+                        rows={3}
+                        value={lectureFormData.codeFiles}
+                        onChange={(e) => setLectureFormData({ ...lectureFormData, codeFiles: e.target.value })}
+                        className="w-full bg-[#1c1c1c] text-white px-4 py-3 rounded-lg border border-[#262626] text-sm focus:outline-none focus:border-[#0099ff] focus:ring-1 focus:ring-[#0099ff]/15 transition resize-none"
+                        placeholder="e.g. https://drive.google.com/file/d/...&#10;https://drive.google.com/file/d/..."
                       />
                     </div>
 
