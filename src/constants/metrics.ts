@@ -1,6 +1,6 @@
 export const METRICS = [
-  { label: "Subscribers", value: "2000+" },
-  { label: "Watch Hours", value: "10,800+" },
-  { label: "Minutes Watched", value: "648K+" },
+  { label: "Subscribers", value: "2.0K+" },
+  { label: "Total Views", value: "120K+" },
+  { label: "Video Lessons", value: "45 lessons" },
   { label: "Pricing", value: "Free" },
 ];

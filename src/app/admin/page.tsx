@@ -14,6 +14,16 @@ export default function AdminDashboard() {
   const [selectedChapter, setSelectedChapter] = useState<DbChapter | null>(null);
   const [selectedLecture, setSelectedLecture] = useState<DbLecture | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"curriculum" | "testimonials">("curriculum");
+
+  // Testimonials States
+  const [ytComments, setYtComments] = useState<any[]>([]);
+  const [featuredTestimonials, setFeaturedTestimonials] = useState<any[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [featuredLoading, setFeaturedLoading] = useState(false);
+  const [ratingSelection, setRatingSelection] = useState<Record<string, number>>({});
+  const [searchVideoUrl, setSearchVideoUrl] = useState("");
+  const [commentsNextPageToken, setCommentsNextPageToken] = useState<string | null>(null);
 
   // Form toggles: 'course-add' | 'course-edit' | 'chapter-add' | 'chapter-edit' | 'lecture-add' | 'lecture-edit' | null
   const [activeForm, setActiveForm] = useState<string | null>(null);
@@ -107,6 +117,125 @@ export default function AdminDashboard() {
     document.title = "SkillUni Admin";
     checkAuth();
   }, []);
+
+  const fetchComments = async (isLoadMore = false) => {
+    if (commentsLoading) return;
+    setCommentsLoading(true);
+    try {
+      const pageTokenParam = isLoadMore && commentsNextPageToken ? `&pageToken=${commentsNextPageToken}` : "";
+      const videoParam = searchVideoUrl.trim() ? `&videoId=${encodeURIComponent(searchVideoUrl.trim())}` : "";
+      
+      const res = await fetch(`/api/youtube-comments?${videoParam}${pageTokenParam}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (isLoadMore) {
+          setYtComments((prev) => [...prev, ...data.comments]);
+        } else {
+          setYtComments(data.comments);
+        }
+        setCommentsNextPageToken(data.nextPageToken || null);
+      } else {
+        const data = await res.json();
+        showToast(data.error || "Failed to fetch YouTube comments.", "error");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("Network error fetching comments.", "error");
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  const fetchFeaturedTestimonials = async () => {
+    setFeaturedLoading(true);
+    try {
+      const res = await fetch("/api/testimonials");
+      if (res.ok) {
+        const data = await res.json();
+        setFeaturedTestimonials(data);
+      } else {
+        showToast("Failed to fetch featured testimonials.", "error");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("Network error fetching testimonials.", "error");
+    } finally {
+      setFeaturedLoading(false);
+    }
+  };
+
+  const handleFeatureComment = async (commentItem: any, rating: number) => {
+    setActionLoading(true);
+    try {
+      const res = await fetch("/api/testimonials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "approve-testimonial",
+          data: {
+            id: commentItem.id,
+            name: commentItem.name,
+            avatarUrl: commentItem.avatarUrl,
+            comment: commentItem.comment,
+            rating,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        showToast(result.message || "Featured successfully!", "success");
+        await fetchFeaturedTestimonials();
+      } else {
+        const data = await res.json();
+        showToast(data.error || "Failed to feature comment.", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Error sending request.", "error");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUnfeatureTestimonial = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this testimonial from the homepage?")) {
+      return;
+    }
+    setActionLoading(true);
+    try {
+      const res = await fetch("/api/testimonials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "delete-testimonial",
+          data: { id },
+        }),
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        showToast(result.message || "Testimonial removed.", "success");
+        await fetchFeaturedTestimonials();
+      } else {
+        const data = await res.json();
+        showToast(data.error || "Failed to remove testimonial.", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Error sending request.", "error");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Fetch featured testimonials and comments when switching to testimonials tab
+  useEffect(() => {
+    if (activeTab === "testimonials" && isAuthenticated) {
+      fetchComments();
+      fetchFeaturedTestimonials();
+    }
+  }, [activeTab, isAuthenticated]);
 
   // Fetch all courses
   const fetchCourses = async (silent = false) => {
@@ -914,7 +1043,7 @@ export default function AdminDashboard() {
 
       <div className="mx-auto max-w-7xl flex flex-col gap-8 relative z-10">
         {/* Dashboard Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-4 border-b border-white/5">
           <div className="space-y-1">
             <span className="text-caption uppercase tracking-[0.2em] font-medium text-[#999999]">
               Developer Workspace
@@ -923,6 +1052,25 @@ export default function AdminDashboard() {
               SkillUni Admin
             </h1>
           </div>
+          {/* Tab Selector */}
+          <div className="flex items-center bg-[#141414] border border-white/5 rounded-full p-1 self-start md:self-auto shrink-0">
+            <button
+              onClick={() => { setActiveTab("curriculum"); setSelectedCourse(null); }}
+              className={`px-5 py-2 rounded-full text-xs font-semibold select-none cursor-pointer transition ${
+                activeTab === "curriculum" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              Curriculum Builder
+            </button>
+            <button
+              onClick={() => setActiveTab("testimonials")}
+              className={`px-5 py-2 rounded-full text-xs font-semibold select-none cursor-pointer transition ${
+                activeTab === "testimonials" ? "bg-white text-black" : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              YouTube Testimonials
+            </button>
+          </div>
           <div className="flex items-center gap-4">
             <button
               onClick={handleLogout}
@@ -930,22 +1078,26 @@ export default function AdminDashboard() {
             >
               Sign Out
             </button>
-            <button
-              onClick={() => handleActionClick("course-add")}
-              className="px-6 py-3 rounded-full text-black bg-white hover:bg-neutral-200 font-semibold text-sm active:scale-[0.97] transition-all duration-200 cursor-pointer shadow-lg flex items-center gap-2"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M7 2V12M2 7H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              Add New Course
-            </button>
+            {activeTab === "curriculum" && (
+              <button
+                onClick={() => handleActionClick("course-add")}
+                className="px-6 py-3 rounded-full text-black bg-white hover:bg-neutral-200 font-semibold text-sm active:scale-[0.97] transition-all duration-200 cursor-pointer shadow-lg flex items-center gap-2"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M7 2V12M2 7H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                Add New Course
+              </button>
+            )}
           </div>
         </div>
 
         {/* Dashboard Content restructuring */}
         
-        {/* VIEW 1: Overview dashboard grid (no selectedCourse) */}
-        {!selectedCourse && (
+        {activeTab === "curriculum" && (
+          <>
+            {/* VIEW 1: Overview dashboard grid (no selectedCourse) */}
+            {!selectedCourse && (
           <div className="space-y-10 animate-fade-in">
             {/* Real-time stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1442,6 +1594,271 @@ export default function AdminDashboard() {
                 </div>
               </section>
 
+            </div>
+          </div>
+        )}
+          </>
+        )}
+
+        {/* TESTIMONIALS TAB VIEW */}
+        {activeTab === "testimonials" && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fade-in">
+            {/* Left column: YouTube Live comments list */}
+            <div className="lg:col-span-7 p-6 rounded-2xl border border-white/5 bg-[#141414]/30 space-y-6">
+              <div className="flex flex-col gap-4 border-b border-white/5 pb-5">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <h2 className="text-headline tracking-tight text-white">Latest YouTube Comments</h2>
+                    <p className="text-xs text-neutral-500">Public student comments fetched from your YouTube channel</p>
+                  </div>
+                  <button
+                    onClick={() => fetchComments(false)}
+                    disabled={commentsLoading}
+                    className="px-4 py-2 rounded-full border border-white/10 hover:bg-[#1c1c1c] text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 shrink-0"
+                  >
+                    {commentsLoading && !commentsNextPageToken ? "Refreshing..." : "Refresh"}
+                  </button>
+                </div>
+
+                {/* Video URL Filter Input */}
+                <div className="flex gap-2 items-center bg-black/20 p-2 rounded-xl border border-white/5">
+                  <input
+                    type="text"
+                    value={searchVideoUrl}
+                    onChange={(e) => setSearchVideoUrl(e.target.value)}
+                    placeholder="Filter by YouTube Video URL or ID (optional)..."
+                    className="flex-1 bg-transparent border-none text-xs text-white focus:outline-none placeholder-neutral-600 px-2 py-1"
+                  />
+                  {searchVideoUrl && (
+                    <button
+                      onClick={() => {
+                        setSearchVideoUrl("");
+                        setTimeout(() => fetchComments(false), 0);
+                      }}
+                      className="text-neutral-500 hover:text-white text-[10px] uppercase font-bold tracking-wider px-2 cursor-pointer bg-transparent border-0"
+                    >
+                      Clear
+                    </button>
+                  )}
+                  <button
+                    onClick={() => fetchComments(false)}
+                    disabled={commentsLoading}
+                    className="px-4 py-1.5 rounded-lg bg-white text-black hover:bg-neutral-200 text-[10px] font-bold transition cursor-pointer shrink-0"
+                  >
+                    Fetch
+                  </button>
+                </div>
+              </div>
+
+              {commentsLoading && ytComments.length === 0 ? (
+                <div className="py-12 flex flex-col items-center justify-center gap-2 opacity-50">
+                  <div className="w-6 h-6 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                  <span className="text-xs text-neutral-500 font-mono">LOADING COMMENT THREADS...</span>
+                </div>
+              ) : ytComments.length === 0 ? (
+                <div className="py-12 text-center text-xs italic text-neutral-500 border border-dashed border-white/5 rounded-xl bg-black/10">
+                  No comment threads found. Check your YOUTUBE_API_KEY, or paste a valid Video URL above.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                    {ytComments.map((comment) => {
+                      const isAlreadyFeatured = featuredTestimonials.some((t) => t.id === comment.id);
+                      const selectedRating = ratingSelection[comment.id] || 5;
+
+                      return (
+                        <div
+                          key={comment.id}
+                          className={`p-4 rounded-xl border flex flex-col gap-3 transition-colors ${
+                            isAlreadyFeatured
+                              ? "bg-[#22c55e]/5 border-[#22c55e]/20"
+                              : "bg-[#1c1c1c]/30 border-white/5 hover:border-white/10"
+                          }`}
+                        >
+                          {/* Author Header */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              {comment.avatarUrl ? (
+                                <img
+                                  src={comment.avatarUrl}
+                                  alt={comment.name}
+                                  className="w-8 h-8 rounded-full border border-white/10"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-bold text-neutral-400">
+                                  {comment.name.substring(0, 2).toUpperCase()}
+                                </div>
+                              )}
+                              <div>
+                                <h4 className="text-xs font-bold text-white">{comment.name}</h4>
+                                <p className="text-[9px] text-neutral-500">
+                                  {new Date(comment.publishedAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+
+                            {comment.videoUrl && (
+                              <a
+                                href={comment.videoUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[9px] text-[#0099ff] hover:underline"
+                              >
+                                View on YouTube ↗
+                              </a>
+                            )}
+                          </div>
+
+                          {/* Comment Body */}
+                          <p className="text-xs text-neutral-300 leading-relaxed font-sans bg-black/20 p-3 rounded-lg border border-white/5">
+                            "{comment.comment}"
+                          </p>
+
+                          {/* Feature Action Panel */}
+                          <div className="flex items-center justify-between pt-1">
+                            {/* Star Rating Selection */}
+                            {!isAlreadyFeatured ? (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] text-neutral-500 font-semibold">Stars:</span>
+                                <div className="flex gap-1">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                      key={star}
+                                      type="button"
+                                      onClick={() => setRatingSelection({ ...ratingSelection, [comment.id]: star })}
+                                      className={`w-5 h-5 flex items-center justify-center rounded transition text-xs font-bold select-none cursor-pointer ${
+                                        selectedRating >= star
+                                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/35"
+                                          : "bg-neutral-800 text-neutral-600 border border-neutral-700/30"
+                                      }`}
+                                    >
+                                      ★
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1 text-[#22c55e]">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                  <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                                <span className="text-[10px] font-bold uppercase tracking-wider">Featured on Home</span>
+                              </div>
+                            )}
+
+                            {/* Submit Action */}
+                            {isAlreadyFeatured ? (
+                              <button
+                                onClick={() => handleUnfeatureTestimonial(comment.id)}
+                                disabled={actionLoading}
+                                className="px-3.5 py-1.5 rounded-lg text-[10px] font-bold bg-[#ff5577]/10 border border-[#ff5577]/20 text-[#ff5577] hover:bg-[#ff5577]/20 transition cursor-pointer"
+                              >
+                                Remove Feature
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleFeatureComment(comment, selectedRating)}
+                                disabled={actionLoading}
+                                className="px-4 py-1.5 rounded-lg text-[10px] font-bold bg-white text-black hover:bg-neutral-200 transition cursor-pointer"
+                              >
+                                + Feature Review
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Load More Pagination Button */}
+                  {commentsNextPageToken && (
+                    <div className="pt-3 border-t border-white/5 flex justify-center">
+                      <button
+                        onClick={() => fetchComments(true)}
+                        disabled={commentsLoading}
+                        className="px-6 py-2 rounded-full border border-white/10 hover:bg-[#1c1c1c] text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 text-neutral-400 hover:text-white"
+                      >
+                        {commentsLoading ? "Loading..." : "Load More Comments"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Right column: Featured testimonials list */}
+            <div className="lg:col-span-5 p-6 rounded-2xl border border-white/5 bg-[#141414]/30 space-y-6">
+              <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                <div className="space-y-0.5">
+                  <h2 className="text-headline tracking-tight text-white">Featured Testimonials</h2>
+                  <p className="text-xs text-neutral-500">Currently active on the website homepage</p>
+                </div>
+                <span className="text-xs font-semibold text-neutral-500 bg-[#1c1c1c] border border-white/5 px-3 py-1 rounded-full">
+                  {featuredTestimonials.length} Featured
+                </span>
+              </div>
+
+              {featuredLoading ? (
+                <div className="py-12 flex flex-col items-center justify-center gap-2 opacity-50">
+                  <div className="w-6 h-6 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                  <span className="text-xs text-neutral-500 font-mono">LOADING FEATURED LIST...</span>
+                </div>
+              ) : featuredTestimonials.length === 0 ? (
+                <div className="py-12 text-center text-xs italic text-neutral-500 border border-dashed border-white/5 rounded-xl bg-black/10">
+                  No testimonials are currently featured. Select comments from the left panel to display them on the homepage.
+                </div>
+              ) : (
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1">
+                  {featuredTestimonials.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-4 rounded-xl border border-white/5 bg-[#1c1c1c]/10 flex flex-col gap-2.5 relative group"
+                    >
+                      {/* Top profile banner */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          {item.avatar_url ? (
+                            <img
+                              src={item.avatar_url}
+                              alt={item.name}
+                              className="w-7 h-7 rounded-full border border-white/10"
+                            />
+                          ) : (
+                            <div className="w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center text-[9px] font-bold text-neutral-400">
+                              {item.name.substring(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                          <div>
+                            <h4 className="text-xs font-bold text-white leading-tight">{item.name}</h4>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              {/* Star rating */}
+                              <div className="flex text-[9px] text-amber-400">
+                                {Array.from({ length: item.rating }).map((_, i) => (
+                                  <span key={i}>★</span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Unfeature button */}
+                        <button
+                          onClick={() => handleUnfeatureTestimonial(item.id)}
+                          disabled={actionLoading}
+                          className="px-2 py-1 rounded bg-[#ff5577]/10 hover:bg-[#ff5577]/25 text-[#ff5577] border border-[#ff5577]/20 text-[9px] font-bold transition cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </div>
+
+                      {/* Comment text */}
+                      <p className="text-xs text-neutral-400 italic leading-relaxed">
+                        "{item.comment}"
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

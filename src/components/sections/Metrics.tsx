@@ -13,8 +13,18 @@ const SPOTLIGHT_VARIANTS = [
   'gradient-spotlight-magenta',
 ];
 
-export default function Metrics() {
+type MetricItem = {
+  label: string;
+  value: string;
+};
+
+type MetricsProps = {
+  initialMetrics?: MetricItem[];
+};
+
+export default function Metrics({ initialMetrics }: MetricsProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const displayMetrics = initialMetrics || METRICS;
 
   useEffect(() => {
     if (!sectionRef.current) {
@@ -66,7 +76,7 @@ export default function Metrics() {
           description={HOME.metrics.description}
         />
         <div className="grid gap-4 sm:grid-cols-2">
-          {METRICS.map((metric, index) => {
+          {displayMetrics.map((metric, index) => {
             const variant = SPOTLIGHT_VARIANTS[index % SPOTLIGHT_VARIANTS.length];
             const isSpotlight = !!variant;
 

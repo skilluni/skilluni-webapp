@@ -12,7 +12,19 @@ const AVATAR_GRADIENTS = [
   "gradient-spotlight-coral",
 ];
 
-function TestimonialCard({ item }: { item: Testimonial }) {
+// Extended Testimonial interface
+interface ExtTestimonial {
+  id: any;
+  name: string;
+  comment: string;
+  rating: number;
+  role?: string;
+  avatarUrl?: string;
+  avatar_url?: string;
+  source?: string;
+}
+
+function TestimonialCard({ item }: { item: ExtTestimonial }) {
   // Get initials for the avatar
   const initials = item.name
     .split(" ")
@@ -20,8 +32,16 @@ function TestimonialCard({ item }: { item: Testimonial }) {
     .join("")
     .slice(0, 2);
 
+  // Compute a numeric ID from string or number for gradient selection
+  const numericId = typeof item.id === "number"
+    ? item.id
+    : item.id.split("").reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+  
   // Assign avatar gradient based on testimonial ID
-  const avatarBg = AVATAR_GRADIENTS[item.id % AVATAR_GRADIENTS.length];
+  const avatarBg = AVATAR_GRADIENTS[numericId % AVATAR_GRADIENTS.length];
+  
+  const resolvedAvatar = item.avatar_url || item.avatarUrl;
+  const resolvedRole = item.role || (item.source === "youtube" ? "YouTube Student" : "Student");
 
   return (
     <div
@@ -59,40 +79,72 @@ function TestimonialCard({ item }: { item: Testimonial }) {
       </div>
 
       {/* User Information */}
-      <div className="flex items-center gap-3">
-        {/* Avatar with spotlight gradient */}
-        <div
-          className={`w-10 h-10 rounded-full flex items-center justify-center text-button font-semibold select-none shadow-none ${avatarBg}`}
-          style={{ color: "#ffffff" }}
-        >
-          {initials}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          {/* Avatar with spotlight gradient */}
+          {resolvedAvatar ? (
+            <img
+              src={resolvedAvatar}
+              alt={item.name}
+              className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0"
+              onError={(e) => {
+                // Fallback to initials if image loading fails
+                (e.target as HTMLElement).style.display = "none";
+              }}
+            />
+          ) : (
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center text-button font-semibold select-none shadow-none shrink-0 ${avatarBg}`}
+              style={{ color: "#ffffff" }}
+            >
+              {initials}
+            </div>
+          )}
+
+          {/* Name and Role */}
+          <div className="flex flex-col">
+            <span
+              className="text-body-sm font-semibold"
+              style={{ color: "var(--color-ink)" }}
+            >
+              {item.name}
+            </span>
+            <span
+              className="text-caption mt-0.5"
+              style={{ color: "var(--color-ink-muted)" }}
+            >
+              {resolvedRole}
+            </span>
+          </div>
         </div>
 
-        {/* Name and Role */}
-        <div className="flex flex-col">
-          <span
-            className="text-body-sm font-semibold"
-            style={{ color: "var(--color-ink)" }}
-          >
-            {item.name}
-          </span>
-          <span
-            className="text-caption mt-0.5"
-            style={{ color: "var(--color-ink-muted)" }}
-          >
-            {item.role}
-          </span>
-        </div>
+        {/* YouTube icon */}
+        {item.source === "youtube" && (
+          <div className="text-[#ff0000] opacity-80 hover:opacity-100 transition shrink-0 select-none" title="Imported from YouTube">
+            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+              <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+            </svg>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export default function Testimonials() {
+type TestimonialsProps = {
+  initialTestimonials?: ExtTestimonial[];
+};
+
+export default function Testimonials({ initialTestimonials }: TestimonialsProps) {
+  // Use DB testimonials if available and not empty, otherwise default to constant list
+  const displayList = initialTestimonials && initialTestimonials.length > 0
+    ? initialTestimonials
+    : TESTIMONIALS;
+
   // Distribute testimonials evenly into 3 separate columns
-  const col1 = TESTIMONIALS.filter((_, idx) => idx % 3 === 0);
-  const col2 = TESTIMONIALS.filter((_, idx) => idx % 3 === 1);
-  const col3 = TESTIMONIALS.filter((_, idx) => idx % 3 === 2);
+  const col1 = displayList.filter((_, idx) => idx % 3 === 0);
+  const col2 = displayList.filter((_, idx) => idx % 3 === 1);
+  const col3 = displayList.filter((_, idx) => idx % 3 === 2);
 
   // Duplicate items in each column to enable smooth and seamless looping
   const col1Doubled = [...col1, ...col1];
