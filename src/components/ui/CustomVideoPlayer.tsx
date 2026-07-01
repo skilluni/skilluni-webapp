@@ -1,38 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { getYouTubeId } from "../../lib/youtube";
 
 type CustomVideoPlayerProps = {
   videoUrl: string;
   title: string;
   accentColor?: string;
 };
-
-// Robust helper to parse YouTube URL to get the Video ID
-function getYouTubeId(url: string | undefined): string | null {
-  if (!url) return null;
-  try {
-    if (url.includes("youtube.com/embed/")) {
-      const parts = url.split("youtube.com/embed/");
-      return parts[parts.length - 1].split(/[?#]/)[0];
-    }
-    if (url.includes("youtube.com/watch")) {
-      const urlObj = new URL(url);
-      return urlObj.searchParams.get("v");
-    }
-    if (url.includes("youtu.be/")) {
-      const urlObj = new URL(url);
-      return urlObj.pathname.substring(1);
-    }
-    if (url.includes("youtube.com/v/")) {
-      const parts = url.split("/v/");
-      return parts[parts.length - 1].split(/[?#]/)[0];
-    }
-    return null;
-  } catch (e) {
-    return null;
-  }
-}
 
 export default function CustomVideoPlayer({ videoUrl, title, accentColor }: CustomVideoPlayerProps) {
   const videoId = getYouTubeId(videoUrl);
