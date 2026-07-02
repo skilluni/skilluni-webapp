@@ -48,16 +48,28 @@ export default function LectureDetailsClient({
 
   const { user } = useAuth();
   const [completedLectures, setCompletedLectures] = useState<string[]>([]);
+  const [isEnrolled, setIsEnrolled] = useState(true); // default true while checking
 
-  // 1. Fetch user progress
+  // 1. Fetch user progress & enrollment status
   useEffect(() => {
-    const fetchProgress = async () => {
+    const fetchProgressAndEnrollment = async () => {
       if (!user) return;
       const { data: session } = await supabase.auth.getSession();
       const token = session?.session?.access_token;
       if (!token) return;
 
       try {
+        // Fetch enrollments to check if user is enrolled
+        const enrollRes = await fetch("/api/dashboard/enrollments", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (enrollRes.ok) {
+          const enrollments = await enrollRes.json();
+          const enrolled = enrollments.some((e: any) => e.course_id === course.id);
+          setIsEnrolled(enrolled);
+        }
+
+        // Fetch completed lectures
         const res = await fetch("/api/dashboard/progress", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -69,41 +81,20 @@ export default function LectureDetailsClient({
           setCompletedLectures(completedIds);
         }
       } catch (err) {
-        console.error("Error fetching progress:", err);
+        console.error("Error fetching progress/enrollment:", err);
       }
     };
 
-    fetchProgress();
+    fetchProgressAndEnrollment();
   }, [user, course.id, lecture.id]);
-
-  // 2. Auto-enroll user when they view a lecture page
-  useEffect(() => {
-    const autoEnroll = async () => {
-      if (!user) return;
-      const { data: session } = await supabase.auth.getSession();
-      const token = session?.session?.access_token;
-      if (!token) return;
-
-      try {
-        await fetch("/api/dashboard/enrollments", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ course_id: course.id }),
-        });
-      } catch (err) {
-        console.error("Auto-enrollment error:", err);
-      }
-    };
-
-    autoEnroll();
-  }, [user, course.id]);
 
   // 3. Mark lecture completed/incomplete
   const handleToggleComplete = async () => {
     if (!user) return;
+    if (!isEnrolled) {
+      alert("Please enroll in the course first to track your progress.");
+      return;
+    }
     const { data: session } = await supabase.auth.getSession();
     const token = session?.session?.access_token;
     if (!token) return;
@@ -304,9 +295,9 @@ export default function LectureDetailsClient({
         />
       )}
 
-      <div className="flex flex-col lg:flex-row w-full items-stretch min-h-[calc(100vh-80px)]">
+      <div className="flex flex-col lg:flex-row w-full items-stretch min-h-[calc(100vh-64px)]">
         {/* Left/Center Panel - Main Workspace */}
-        <div className="flex-1 p-6 md:p-10 transition-all duration-300 min-w-0 max-w-5xl mx-auto w-full">
+        <div className="flex-1 p-6 md:p-10 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] min-w-0 max-w-5xl mx-auto w-full">
           {/* Header Panel with Breadcrumb and Sidebar Toggle */}
           <div className="flex items-center justify-between mb-8">
             <Link
@@ -346,6 +337,18 @@ export default function LectureDetailsClient({
 
           {/* Main Workspace Contents */}
           <div className="flex flex-col gap-6">
+            {!isEnrolled && user && (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 select-none">
+                <span>You are viewing this lecture as a preview. Enroll in the course via the roadmap page to track your progress and mark lectures as completed.</span>
+                <Link
+                  href={`/courses/${course.slug}`}
+                  className="px-4 py-2 text-xs font-bold bg-white text-black hover:bg-neutral-200 rounded-full text-center shrink-0 w-fit cursor-pointer"
+                >
+                  Go to Roadmap
+                </Link>
+              </div>
+            )}
+
             <CustomVideoPlayer
               videoUrl={lecture.videoUrl}
               title={lecture.title}
@@ -722,12 +725,14 @@ export default function LectureDetailsClient({
 
         {/* Right Panel - Sticky Sidebar Roadmap Outline */}
         <div
-          className={`fixed inset-y-0 right-0 z-50 lg:z-10 lg:static flex flex-col border-l border-white/5 bg-[#0b0b0b] transition-all duration-300 shrink-0 ${
+          className={`fixed inset-y-0 right-0 z-50 lg:z-10 lg:static flex flex-col border-l border-white/5 bg-[#0b0b0b] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0 ${
             sidebarOpen
-              ? "translate-x-0 w-full sm:w-[320px] lg:w-[28%] xl:w-[25%] lg:h-[calc(100vh-80px)] lg:sticky lg:top-20"
-              : "translate-x-full lg:translate-x-0 lg:w-0 lg:border-l-0 overflow-hidden"
+              ? "translate-x-0 w-full sm:w-[320px] lg:w-[320px] xl:w-[340px] lg:h-[calc(100vh-64px)] lg:sticky lg:top-16 opacity-100"
+              : "translate-x-full lg:translate-x-0 lg:w-0 lg:border-l-0 overflow-hidden opacity-0 pointer-events-none"
           }`}
         >
+          {/* Inner wrapper to prevent content squeezing during collapse */}
+          <div className="flex flex-col h-full w-full lg:w-[320px] xl:w-[340px] shrink-0">
           {/* Sidebar Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/5 h-16 shrink-0 bg-black/40">
             <div className="min-w-0 pr-3">
@@ -847,6 +852,7 @@ export default function LectureDetailsClient({
                 </div>
               );
             })}
+          </div>
           </div>
         </div>
       </div>

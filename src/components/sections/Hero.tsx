@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { HOME } from "../../constants/home";
 import ButtonLink from "../ui/ButtonLink";
+import { useAuth } from "../providers/AuthProvider";
 import { gsap, registerGsapPlugins } from "../../lib/gsap";
 
 export default function Hero() {
+  const { user } = useAuth();
   const { hero } = HOME;
   const sectionRef = useRef<HTMLElement | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
@@ -136,11 +138,13 @@ export default function Hero() {
             {hero.description}
           </p>
           <div data-hero-intro className="flex flex-wrap gap-4">
-            <ButtonLink
-              href={hero.primaryCta.href}
-              label={hero.primaryCta.label}
-              size="lg"
-            />
+            {!user && (
+              <ButtonLink
+                href={hero.primaryCta.href}
+                label={hero.primaryCta.label}
+                size="lg"
+              />
+            )}
             <ButtonLink
               href={hero.secondaryCta.href}
               label={hero.secondaryCta.label}

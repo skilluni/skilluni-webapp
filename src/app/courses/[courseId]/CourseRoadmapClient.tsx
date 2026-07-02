@@ -30,16 +30,29 @@ export default function CourseRoadmapClient({
   const { user } = useAuth();
   const [completedLectures, setCompletedLectures] = useState<string[]>([]);
   const [progress, setProgress] = useState(initialProgress);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
 
-  // 1. Fetch user progress
+  // 1. Fetch user progress and enrollment status
   useEffect(() => {
-    const fetchProgress = async () => {
+    const fetchProgressAndEnrollment = async () => {
       if (!user) return;
       const { data: session } = await supabase.auth.getSession();
       const token = session?.session?.access_token;
       if (!token) return;
 
       try {
+        // Fetch enrollments to check if user is enrolled
+        const enrollRes = await fetch("/api/dashboard/enrollments", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (enrollRes.ok) {
+          const enrollments = await enrollRes.json();
+          const enrolled = enrollments.some((e: any) => e.course_id === course.id);
+          setIsEnrolled(enrolled);
+        }
+
+        // Fetch completed lectures
         const res = await fetch("/api/dashboard/progress", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -56,37 +69,41 @@ export default function CourseRoadmapClient({
           }
         }
       } catch (err) {
-        console.error("Error fetching progress:", err);
+        console.error("Error fetching progress/enrollment:", err);
       }
     };
 
-    fetchProgress();
+    fetchProgressAndEnrollment();
   }, [user, course]);
 
-  // 2. Auto-enroll user when they view the roadmap
-  useEffect(() => {
-    const autoEnroll = async () => {
-      if (!user) return;
+  const handleEnroll = async () => {
+    if (!user) {
+      window.location.href = `/signin?redirect=${encodeURIComponent(`/courses/${course.slug}`)}`;
+      return;
+    }
+    setEnrolling(true);
+    try {
       const { data: session } = await supabase.auth.getSession();
       const token = session?.session?.access_token;
       if (!token) return;
 
-      try {
-        await fetch("/api/dashboard/enrollments", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ course_id: course.id }),
-        });
-      } catch (err) {
-        console.error("Auto-enrollment error:", err);
+      const res = await fetch("/api/dashboard/enrollments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ course_id: course.id }),
+      });
+      if (res.ok) {
+        setIsEnrolled(true);
       }
-    };
-
-    autoEnroll();
-  }, [user, course.id]);
+    } catch (err) {
+      console.error("Enrollment error:", err);
+    } finally {
+      setEnrolling(false);
+    }
+  };
 
   // Merge the dynamic completed status into the course outline/timeline
   const updatedChapters = course.chapters.map((ch) => ({
@@ -133,6 +150,40 @@ export default function CourseRoadmapClient({
           <p className="text-body" style={{ color: 'var(--color-ink-muted)' }}>
             {ROADMAP_PAGE.header.description}
           </p>
+
+          {/* Enrollment CTA */}
+          <div className="mt-2">
+            {isEnrolled ? (
+              <span className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-full select-none w-fit">
+                <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Enrolled</span>
+              </span>
+            ) : (
+              <button
+                onClick={handleEnroll}
+                disabled={enrolling}
+                className="group/enroll px-6 py-3 text-button font-bold flex items-center gap-2 transition-all duration-200 bg-white text-black hover:bg-neutral-200 rounded-[100px] cursor-pointer disabled:opacity-55 active:scale-95 shadow-lg w-fit"
+              >
+                <span>{enrolling ? "Enrolling..." : "Enroll in Course"}</span>
+                {!enrolling && (
+                  <svg
+                    className="h-4 w-4 stroke-[2.5] transition-transform duration-200 group-hover/enroll:translate-x-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                    />
+                  </svg>
+                )}
+              </button>
+            )}
+          </div>
 
           {/* Meta Cards - Responsive Grid Row */}
           <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 w-full">

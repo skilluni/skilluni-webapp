@@ -1,7 +1,7 @@
 import { COURSES_PAGE } from "../../constants/coursesPage";
 import CourseListCard from "../../components/ui/CourseListCard";
 import SectionHeading from "../../components/ui/SectionHeading";
-import ButtonLink from "../../components/ui/ButtonLink";
+import CoursesHeroCta from "../../components/courses/CoursesHeroCta";
 import { getCourses } from "../../lib/db";
 
 export default async function CoursesPage() {
@@ -18,14 +18,7 @@ export default async function CoursesPage() {
             title={COURSES_PAGE.hero.title}
             description={COURSES_PAGE.hero.description}
           />
-          <ButtonLink
-            href={COURSES_PAGE.hero.primaryCta.href}
-            label={COURSES_PAGE.hero.primaryCta.label}
-            size="lg"
-            cursorText="Join"
-            dataCursor="link"
-            isMagnetic
-          />
+          <CoursesHeroCta />
         </div>
       </section>
 

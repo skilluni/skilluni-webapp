@@ -111,15 +111,15 @@ export default function CourseListCard({
         </div>
       </div>
 
-      {/* 6. Primary CTA: ENROLL FOR FREE Pill Button */}
+      {/* 6. Primary CTA: View Course Pill Button */}
       <div className="mt-6 pt-1">
         <Link
           href={ctaHref}
           data-cursor="link"
-          data-cursor-text="Enroll"
+          data-cursor-text="View"
           className="inline-flex w-full items-center justify-center text-button font-bold bg-white text-black hover:bg-neutral-200 transition-all duration-200 active:scale-[0.97] rounded-[100px] h-12 px-6 shadow-sm hover:scale-[1.01]"
         >
-          ENROLL FOR FREE
+          View Course
         </Link>
       </div>
     </div>

@@ -3,9 +3,11 @@
 import { useEffect, useRef } from "react";
 import { HOME } from "../../constants/home";
 import ButtonLink from "../ui/ButtonLink";
+import { useAuth } from "../providers/AuthProvider";
 import { gsap, registerGsapPlugins } from "../../lib/gsap";
 
 export default function CTA() {
+  const { user } = useAuth();
   const sectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -63,14 +65,16 @@ export default function CTA() {
             {HOME.cta.description}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <ButtonLink
-              href={HOME.cta.primaryCta.href}
-              label={HOME.cta.primaryCta.label}
-              size="lg"
-              cursorText="Join"
-              dataCursor="link"
-              isMagnetic
-            />
+            {!user && (
+              <ButtonLink
+                href={HOME.cta.primaryCta.href}
+                label={HOME.cta.primaryCta.label}
+                size="lg"
+                cursorText="Join"
+                dataCursor="link"
+                isMagnetic
+              />
+            )}
             <ButtonLink
               href={HOME.cta.secondaryCta.href}
               label={HOME.cta.secondaryCta.label}

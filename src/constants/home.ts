@@ -43,7 +43,7 @@ export const HOME = {
     eyebrow: "Impact",
     title: "Learning that already helps thousands",
     description:
-      "Built on real classroom needs with a focus on ICSE Computer Applications.",
+      "Built on real classroom needs with a focus on practical learning.",
   },
   about: {
     eyebrow: "Why SkillUni",
@@ -71,9 +71,9 @@ export const HOME = {
   },
   courses: {
     eyebrow: "Courses",
-    title: "Start with ICSE Class 10 Java",
+    title: "Start with a course.",
     description:
-      "Our first full roadmap is built to help students score 100/100 in Computer Applications.",
+      "Our first full roadmap is built to help learners master skills.",
     ctaLabel: "View course roadmap",
     ctaHref: "/courses",
   },

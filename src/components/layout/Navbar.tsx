@@ -38,17 +38,22 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         <nav className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              data-cursor="link"
-              data-cursor-text="GO"
-              className="text-body-sm transition-colors text-ink-muted hover:text-ink"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isExternal = link.href.startsWith("http");
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                data-cursor="link"
+                data-cursor-text="GO"
+                className="text-body-sm transition-colors text-ink-muted hover:text-ink"
+                target={isExternal ? "_blank" : undefined}
+                rel={isExternal ? "noopener noreferrer" : undefined}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Desktop CTAs */}
@@ -161,17 +166,22 @@ export default function Navbar() {
           }}
         >
           <nav className="flex flex-col gap-4">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-body-sm py-2"
-                style={{ color: 'var(--color-ink-muted)' }}
-                onClick={() => setMobileOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isExternal = link.href.startsWith("http");
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-body-sm py-2"
+                  style={{ color: 'var(--color-ink-muted)' }}
+                  onClick={() => setMobileOpen(false)}
+                  target={isExternal ? "_blank" : undefined}
+                  rel={isExternal ? "noopener noreferrer" : undefined}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
           <div className="mt-4 flex flex-col gap-3">
             {user ? (

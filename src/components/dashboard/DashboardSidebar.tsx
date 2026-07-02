@@ -55,30 +55,37 @@ export default function DashboardSidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="dashboard-sidebar hidden md:flex flex-col">
+      <aside 
+        className="hidden md:flex flex-col w-[240px] shrink-0 border-r border-hairline"
+        style={{
+          background: "var(--color-canvas)",
+          position: "sticky",
+          top: "64px",
+          height: "calc(100vh - 64px)",
+        }}
+      >
         {/* User Identity */}
-        <div className="flex flex-col items-center gap-3 px-5 pt-8 pb-6">
+        <div className="flex flex-col items-center gap-3 px-6 pt-8 pb-6">
           <AvatarDisplay name={userName || username || "User"} size={72} />
-          <div className="text-center">
-            <p className="text-body-sm font-semibold text-ink truncate max-w-[160px]">
+          <div className="text-center w-full">
+            <p className="text-body-sm font-semibold text-ink truncate w-full">
               {userName || "Learner"}
             </p>
-            <p className="text-micro text-ink-muted truncate max-w-[160px]">
+            <p className="text-micro text-ink-muted truncate w-full mt-0.5">
               @{username || "user"}
             </p>
           </div>
         </div>
 
-
         {/* Navigation */}
-        <nav className="flex flex-col gap-1 px-3 py-4 flex-1">
+        <nav className="flex flex-col gap-1.5 px-4 py-4 flex-1">
           {DASHBOARD_TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-[var(--radius-md)] transition-all duration-200 cursor-pointer text-left group"
+                className="flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] transition-all duration-200 cursor-pointer text-left group"
                 style={{
                   background: isActive ? "var(--color-surface-2)" : "transparent",
                   color: isActive ? "var(--color-ink)" : "var(--color-ink-muted)",
@@ -92,10 +99,10 @@ export default function DashboardSidebar({
         </nav>
 
         {/* Sign out */}
-        <div className="px-3 pb-6">
+        <div className="px-4 pb-6">
           <button
             onClick={onSignOut}
-            className="flex items-center gap-3 px-4 py-2.5 w-full rounded-[var(--radius-md)] transition-all duration-200 cursor-pointer text-left"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-[var(--radius-md)] transition-all duration-200 cursor-pointer text-left hover:bg-white/5"
             style={{ color: "var(--color-ink-muted)" }}
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">

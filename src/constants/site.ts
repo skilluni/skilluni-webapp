@@ -15,7 +15,7 @@ export const HEADER = {
 };
 
 export const FOOTER = {
-  note: "Free-forever learning for ICSE Computer Applications.",
+  note: "Built for tech nerds.",
   columns: [
     {
       title: "Explore",
@@ -33,5 +33,5 @@ export const FOOTER = {
     },
   ],
   social: [{ label: "YouTube", href: SITE.youtube }],
-  legal: "© 2026 SkillUni. Free forever.",
+  legal: "© 2026 SkillUni.",
 };

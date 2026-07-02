@@ -42,6 +42,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "lecture_id and course_id required" }, { status: 400 });
   }
 
+  // Verify the user is enrolled in the course first
+  const { data: enrollment, error: enrollErr } = await admin
+    .from("enrollments")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("course_id", course_id)
+    .single();
+
+  if (enrollErr || !enrollment) {
+    return NextResponse.json({ error: "Must enroll in the course first" }, { status: 403 });
+  }
+
   const { data, error } = await admin
     .from("lecture_progress")
     .upsert(
