@@ -120,6 +120,16 @@ export default function LectureCard({
                   Locked
                 </span>
               ) : null}
+              {lecture.completed ? (
+                <span
+                  className="px-3 py-0.5 text-[10px] uppercase tracking-wider font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full flex items-center gap-1"
+                >
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Completed</span>
+                </span>
+              ) : null}
             </div>
             
             {/* Start Lesson Trigger */}
@@ -129,7 +139,7 @@ export default function LectureCard({
               data-cursor-text="Open"
               className="group/btn px-4 py-2.5 text-button font-semibold flex items-center gap-1.5 transition-all duration-200 bg-white text-black hover:bg-neutral-200 rounded-[100px] shrink-0"
             >
-              <span>Start Lesson</span>
+              <span>{lecture.completed ? "Revise" : "Start Lesson"}</span>
               <svg
                 className="h-3.5 w-3.5 stroke-[2.5] transition-transform duration-200 group-hover/btn:translate-x-0.5"
                 fill="none"

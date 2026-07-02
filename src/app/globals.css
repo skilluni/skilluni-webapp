@@ -498,3 +498,17 @@ body.cursor-hidden .cursor-arrow {
 .scrollbar-none::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+/* ── Dashboard ──────────────────────────────────────────────── */
+
+.dashboard-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  border-right: 1px solid var(--color-hairline);
+  background: var(--color-canvas);
+  flex-direction: column;
+}
+

@@ -5,6 +5,8 @@ import Link from "next/link";
 import Editor from "@monaco-editor/react";
 import type { DbCourse, DbLecture } from "../../../../../lib/db";
 import CustomVideoPlayer from "../../../../../components/ui/CustomVideoPlayer";
+import { useAuth } from "../../../../../components/providers/AuthProvider";
+import { supabase } from "../../../../../lib/supabase";
 
 type LectureDetailsClientProps = {
   course: DbCourse;
@@ -43,6 +45,111 @@ export default function LectureDetailsClient({
   const [codeFilesData, setCodeFilesData] = useState<CodeFileData[]>([]);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const { user } = useAuth();
+  const [completedLectures, setCompletedLectures] = useState<string[]>([]);
+
+  // 1. Fetch user progress
+  useEffect(() => {
+    const fetchProgress = async () => {
+      if (!user) return;
+      const { data: session } = await supabase.auth.getSession();
+      const token = session?.session?.access_token;
+      if (!token) return;
+
+      try {
+        const res = await fetch("/api/dashboard/progress", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const completedIds = data
+            .filter((p: any) => p.completed && p.course_id === course.id)
+            .map((p: any) => p.lecture_id);
+          setCompletedLectures(completedIds);
+        }
+      } catch (err) {
+        console.error("Error fetching progress:", err);
+      }
+    };
+
+    fetchProgress();
+  }, [user, course.id, lecture.id]);
+
+  // 2. Auto-enroll user when they view a lecture page
+  useEffect(() => {
+    const autoEnroll = async () => {
+      if (!user) return;
+      const { data: session } = await supabase.auth.getSession();
+      const token = session?.session?.access_token;
+      if (!token) return;
+
+      try {
+        await fetch("/api/dashboard/enrollments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ course_id: course.id }),
+        });
+      } catch (err) {
+        console.error("Auto-enrollment error:", err);
+      }
+    };
+
+    autoEnroll();
+  }, [user, course.id]);
+
+  // 3. Mark lecture completed/incomplete
+  const handleToggleComplete = async () => {
+    if (!user) return;
+    const { data: session } = await supabase.auth.getSession();
+    const token = session?.session?.access_token;
+    if (!token) return;
+
+    const isCurrentCompleted = completedLectures.includes(lecture.id);
+    const newCompletedState = !isCurrentCompleted;
+
+    // Optimistically update
+    if (newCompletedState) {
+      setCompletedLectures((prev) => [...prev, lecture.id]);
+    } else {
+      setCompletedLectures((prev) => prev.filter((id) => id !== lecture.id));
+    }
+
+    try {
+      const res = await fetch("/api/dashboard/progress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          lecture_id: lecture.id,
+          course_id: course.id,
+          completed: newCompletedState,
+        }),
+      });
+
+      if (!res.ok) {
+        // Rollback on error
+        if (newCompletedState) {
+          setCompletedLectures((prev) => prev.filter((id) => id !== lecture.id));
+        } else {
+          setCompletedLectures((prev) => [...prev, lecture.id]);
+        }
+      }
+    } catch (err) {
+      console.error("Error updating progress:", err);
+      // Rollback on error
+      if (newCompletedState) {
+        setCompletedLectures((prev) => prev.filter((id) => id !== lecture.id));
+      } else {
+        setCompletedLectures((prev) => [...prev, lecture.id]);
+      }
+    }
+  };
 
   // Accordion state for sidebar chapters. Default to expanding the chapter of the current lecture.
   const activeChapter = course.chapters.find((ch) =>
@@ -574,6 +681,32 @@ export default function LectureDetailsClient({
                     Premium Locked
                   </span>
                 )}
+                {user && (
+                  <button
+                    onClick={handleToggleComplete}
+                    className={`px-3 py-1 text-[10px] uppercase tracking-widest font-bold border rounded-full select-none cursor-pointer flex items-center gap-1.5 transition-all duration-200 active:scale-[0.97] ${
+                      completedLectures.includes(lecture.id)
+                        ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/25"
+                        : "bg-white/5 text-neutral-400 border-white/10 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    {completedLectures.includes(lecture.id) ? (
+                      <>
+                        <svg className="w-3 h-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>Completed</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-3.5 h-3.5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <circle cx="12" cy="12" r="10" />
+                        </svg>
+                        <span>Mark Completed</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
 
               <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight text-white">
@@ -655,12 +788,33 @@ export default function LectureDetailsClient({
                             }`}
                           >
                             {/* Order index */}
-                            <div className={`w-5.5 h-5.5 rounded-full border text-[9px] font-bold flex items-center justify-center shrink-0 mt-0.5 transition ${
-                              isActive 
-                                ? "bg-white text-black border-white" 
-                                : "border-white/10 text-neutral-500 group-hover:border-white/30 group-hover:text-white"
-                            }`}>
-                              {l.order}
+                            <div
+                              className={`w-5.5 h-5.5 rounded-full border text-[9px] font-bold flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300`}
+                              style={{
+                                borderColor: completedLectures.includes(l.id)
+                                  ? "var(--color-success)"
+                                  : isActive
+                                    ? "#ffffff"
+                                    : "rgba(255, 255, 255, 0.1)",
+                                backgroundColor: completedLectures.includes(l.id)
+                                  ? "var(--color-success)"
+                                  : isActive
+                                    ? "#ffffff"
+                                    : "transparent",
+                                color: completedLectures.includes(l.id)
+                                  ? "#ffffff"
+                                  : isActive
+                                    ? "#000000"
+                                    : "var(--color-ink-muted)",
+                              }}
+                            >
+                              {completedLectures.includes(l.id) ? (
+                                <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              ) : (
+                                l.order
+                              )}
                             </div>
                             
                             {/* Details */}

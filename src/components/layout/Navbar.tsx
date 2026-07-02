@@ -7,6 +7,8 @@ import { HEADER, SITE } from "../../constants/site";
 import { NAV_LINKS } from "../../constants/nav";
 import ButtonLink from "../ui/ButtonLink";
 import { useAuth } from "../../components/providers/AuthProvider";
+import AvatarDisplay from "../dashboard/AvatarDisplay";
+import type { AvatarId } from "../../types/dashboard";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -52,17 +54,59 @@ export default function Navbar() {
         {/* Desktop CTAs */}
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
-            <div className="flex items-center gap-4 animate-fade-in-up">
-              <span className="text-body-sm text-ink-muted">
-                Hi, <span className="text-ink font-semibold">{profile?.username || "Learner"}</span>
-              </span>
+            <div className="relative group animate-fade-in-up">
+              {/* Profile Trigger */}
               <button
-                onClick={handleSignOut}
-                className="inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-9 px-4 bg-[#141414] text-white border border-hairline hover:bg-[#1c1c1c] cursor-pointer"
-                data-cursor="link"
+                className="flex items-center justify-center shrink-0 transition-transform hover:scale-105 cursor-pointer focus:outline-none"
+                aria-label="Profile menu"
               >
-                Sign out
+                <AvatarDisplay
+                  name={profile?.name || profile?.username || user?.email || "User"}
+                  size={32}
+                />
               </button>
+
+              {/* Hover Dropdown Card */}
+              <div className="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none group-hover:pointer-events-auto">
+                <div
+                  className="w-56 p-4 flex flex-col"
+                  style={{
+                    background: "var(--color-surface-1)",
+                    borderRadius: "var(--radius-xl)",
+                    boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4)",
+                  }}
+                >
+                  {/* User Profile Summary */}
+                  <div className="mb-3 min-w-0 text-center">
+                    <p className="text-body-sm font-semibold truncate text-white leading-snug">
+                      {profile?.name || "Learner"}
+                    </p>
+                    <p className="text-micro truncate text-neutral-400 mt-0.5 leading-none">
+                      @{profile?.username || "username"}
+                    </p>
+                  </div>
+
+                  {/* Menu Options */}
+                  <div className="flex flex-col gap-1.5">
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center justify-between text-caption px-3 py-2 rounded-lg hover:bg-white/5 text-neutral-300 hover:text-white transition"
+                    >
+                      <span>Dashboard</span>
+                      <svg className="w-3.5 h-3.5 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+
+                    <button
+                      onClick={handleSignOut}
+                      className="mt-2 inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-9 px-4 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 hover:border-rose-500/30 cursor-pointer select-none text-center font-medium"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <>
@@ -131,20 +175,34 @@ export default function Navbar() {
           </nav>
           <div className="mt-4 flex flex-col gap-3">
             {user ? (
-              <>
-                <div className="text-body-sm py-2 px-3 text-ink-muted bg-surface-1 rounded-md">
-                  Logged in as: <span className="text-ink font-semibold">{profile?.username || user.email}</span>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3 text-body-sm py-2 px-3 text-ink bg-surface-1 rounded-md">
+                  <AvatarDisplay
+                    name={profile?.name || profile?.username || user?.email || "User"}
+                    size={28}
+                  />
+                  <div className="min-w-0 text-left">
+                    <p className="font-semibold truncate text-xs text-white leading-tight">{profile?.name || "Learner"}</p>
+                    <p className="text-[10px] text-neutral-400 truncate mt-0.5 leading-none">@{profile?.username || "username"}</p>
+                  </div>
                 </div>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileOpen(false)}
+                  className="inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-10 px-5 bg-white text-black hover:bg-neutral-200 w-full"
+                >
+                  Dashboard
+                </Link>
                 <button
                   onClick={() => {
                     handleSignOut();
                     setMobileOpen(false);
                   }}
-                  className="inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-11 px-5 bg-[#141414] text-white border border-hairline hover:bg-[#1c1c1c] cursor-pointer text-left w-full justify-start"
+                  className="inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-10 px-5 bg-[#141414] text-rose-400 border border-hairline hover:bg-[#1c1c1c] cursor-pointer w-full"
                 >
                   Sign out
                 </button>
-              </>
+              </div>
             ) : (
               <>
                 <Link

@@ -17,6 +17,7 @@ export interface Profile {
   class: string | null;
   school_name: string | null;
   university_name: string | null;
+  avatar_id: string;
   created_at: string;
   updated_at: string;
 }
