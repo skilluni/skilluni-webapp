@@ -1,18 +1,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import crypto from "crypto";
 import { supabase } from "../../../lib/supabase";
 import { supabaseAdmin } from "../../../lib/supabase-admin";
+import { validateAdminSession } from "../../../lib/adminAuth";
 
 export const dynamic = "force-dynamic";
-
-function getSessionToken(password: string): string {
-  return crypto.createHash("sha256").update(password).digest("hex");
-}
-
-function getAdminPassword(): string {
-  return process.env.ADMIN_PASSWORD || "admin123";
-}
 
 // GET: Public fetch of approved testimonials
 export async function GET() {
@@ -40,17 +32,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     // 1. Session Token Validation
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("skilluni_admin_session");
+    const isAuthenticated = await validateAdminSession();
 
-    if (!sessionCookie) {
-      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
-    }
-
-    const token = sessionCookie.value;
-    const expectedToken = getSessionToken(getAdminPassword());
-
-    if (token !== expectedToken) {
+    if (!isAuthenticated) {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 

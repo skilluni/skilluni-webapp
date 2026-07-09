@@ -1,36 +1,17 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import crypto from "crypto";
+import { supabase } from "../../../lib/supabase";
+import { ensureAdminUserExists, validateAdminSession } from "../../../lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
-// Helper to hash password for secure cookie token
-function getSessionToken(password: string): string {
-  return crypto.createHash("sha256").update(password).digest("hex");
-}
-
-function getAdminPassword(): string {
-  return process.env.ADMIN_PASSWORD || "admin123"; // Fallback default for development
-}
+const ADMIN_EMAIL = "admin@skilluni.com";
 
 // GET: Check if session cookie is valid
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("skilluni_admin_session");
-
-    if (!sessionCookie) {
-      return NextResponse.json({ authenticated: false });
-    }
-
-    const token = sessionCookie.value;
-    const expectedToken = getSessionToken(getAdminPassword());
-
-    if (token === expectedToken) {
-      return NextResponse.json({ authenticated: true });
-    }
-
-    return NextResponse.json({ authenticated: false });
+    const authenticated = await validateAdminSession();
+    return NextResponse.json({ authenticated });
   } catch (e) {
     console.error("Auth GET check error:", e);
     return NextResponse.json({ authenticated: false, error: "Authentication check failed" }, { status: 500 });
@@ -46,13 +27,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Password is required" }, { status: 400 });
     }
 
-    const expectedPassword = getAdminPassword();
+    // Ensure admin user exists and has synced credentials in Supabase
+    await ensureAdminUserExists();
 
-    if (password !== expectedPassword) {
+    // Authenticate using Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: ADMIN_EMAIL,
+      password: password,
+    });
+
+    if (error || !data.session) {
       return NextResponse.json({ success: false, error: "Incorrect password" }, { status: 401 });
     }
 
-    const sessionToken = getSessionToken(expectedPassword);
+    const sessionToken = data.session.access_token;
     
     // Set secure HTTP-only cookie using Next.js cookies utility
     const cookieStore = await cookies();
@@ -60,7 +48,7 @@ export async function POST(request: Request) {
       path: "/",
       httpOnly: true,
       sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: data.session.expires_in || (60 * 60 * 24 * 7), // Use session expiry
       secure: process.env.NODE_ENV === "production",
     });
 

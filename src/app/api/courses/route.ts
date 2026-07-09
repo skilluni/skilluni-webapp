@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import crypto from "crypto";
+import { validateAdminSession } from "../../../lib/adminAuth";
 import {
   getCourses,
   addCourse,
@@ -20,15 +20,6 @@ import {
 
 export const dynamic = "force-dynamic";
 
-// Helper to hash password for secure cookie verification
-function getSessionToken(password: string): string {
-  return crypto.createHash("sha256").update(password).digest("hex");
-}
-
-function getAdminPassword(): string {
-  return process.env.ADMIN_PASSWORD || "admin123";
-}
-
 export async function GET() {
   try {
     const courses = await getCourses();
@@ -42,17 +33,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     // Session token validation check using next/headers cookies
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("skilluni_admin_session");
+    const isAuthenticated = await validateAdminSession();
 
-    if (!sessionCookie) {
-      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
-    }
-
-    const token = sessionCookie.value;
-    const expectedToken = getSessionToken(getAdminPassword());
-
-    if (token !== expectedToken) {
+    if (!isAuthenticated) {
       return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
     }
 
