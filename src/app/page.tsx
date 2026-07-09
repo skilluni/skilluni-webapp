@@ -12,7 +12,7 @@ export default async function Home() {
   const [courses, youtubeStats, testimonialsRes] = await Promise.all([
     getCourses(),
     getYoutubeStats(),
-    supabase.from("testimonials").select("*").order("created_at", { ascending: false }),
+    supabase.from("testimonials").select("*").eq("status", "approved").order("created_at", { ascending: false }),
   ]);
 
   const metrics = [

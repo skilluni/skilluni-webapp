@@ -12,6 +12,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("testimonials")
       .select("*")
+      .eq("status", "approved")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -55,6 +56,13 @@ export async function POST(request: Request) {
           return NextResponse.json({ error: "id, name, and comment are required" }, { status: 400 });
         }
 
+        if (name.length > 100) {
+          return NextResponse.json({ error: "Name is too long (max 100 characters)" }, { status: 400 });
+        }
+        if (comment.length > 1000) {
+          return NextResponse.json({ error: "Comment is too long (max 1000 characters)" }, { status: 400 });
+        }
+
         const { error } = await supabaseAdmin.from("testimonials").upsert({
           id,
           name,
@@ -62,6 +70,7 @@ export async function POST(request: Request) {
           comment,
           rating: Number(rating) || 5,
           source: "youtube",
+          status: "approved",
         });
 
         if (error) throw error;
