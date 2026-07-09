@@ -51,6 +51,24 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: true, message: "URL is required" }, { status: 400 });
     }
 
+    // Parse URL and enforce security checks to mitigate SSRF
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      return NextResponse.json({ error: true, message: "Invalid URL format" }, { status: 400 });
+    }
+
+    if (parsedUrl.protocol !== "https:") {
+      return NextResponse.json({ error: true, message: "Only HTTPS URLs are allowed" }, { status: 400 });
+    }
+
+    const hostname = parsedUrl.hostname.toLowerCase();
+    const isGoogleDomain = hostname === "docs.google.com" || hostname === "drive.google.com" || hostname.endsWith(".google.com");
+    if (!isGoogleDomain) {
+      return NextResponse.json({ error: true, message: "Only Google Drive or Google Docs URLs are allowed" }, { status: 400 });
+    }
+
     // Extract File ID from Google Drive URL
     let fileId = "";
     const dMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -64,25 +82,11 @@ export async function GET(request: Request) {
     }
 
     if (!fileId) {
-      // If it's not a Google Drive link, try to fetch it directly as a fallback
-      try {
-        const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-        if (!response.ok) {
-          throw new Error(`Failed to fetch direct URL: ${response.statusText}`);
-        }
-        const content = await response.text();
-        const urlObj = new URL(url);
-        const name = urlObj.pathname.split("/").pop() || "source-code";
-        const language = getLanguageFromExtension(name);
-        return NextResponse.json({ name, content, language, url });
-      } catch (err) {
-        console.error("Direct URL fetch failed:", err);
-        return NextResponse.json({
-          error: true,
-          message: "Could not parse Google Drive File ID and direct fetch failed.",
-          url,
-        });
-      }
+      return NextResponse.json({
+        error: true,
+        message: "Could not parse Google Drive File ID from URL.",
+        url,
+      }, { status: 400 });
     }
 
     // Google Drive direct download endpoint
@@ -93,6 +97,7 @@ export async function GET(request: Request) {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       },
+      signal: AbortSignal.timeout(8000),
     });
 
     if (!res.ok) {
@@ -113,7 +118,35 @@ export async function GET(request: Request) {
       }
     }
 
-    const content = await res.text();
+    // Implement response size cap (e.g. 2 MB)
+    let content = "";
+    if (res.body) {
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let totalBytes = 0;
+      const limit = 2 * 1024 * 1024; // 2 MB
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          totalBytes += value.length;
+          if (totalBytes > limit) {
+            throw new Error("Response size limit exceeded");
+          }
+          content += decoder.decode(value, { stream: true });
+        }
+        content += decoder.decode(); // flush
+      } finally {
+        reader.releaseLock();
+      }
+    } else {
+      content = await res.text();
+      if (new TextEncoder().encode(content).length > 2 * 1024 * 1024) {
+        throw new Error("Response size limit exceeded");
+      }
+    }
 
     // Check if the response is HTML, which means Google Drive returned a landing page/error instead of raw file text
     if (content.trim().startsWith("<!DOCTYPE html>") || content.trim().startsWith("<html")) {
