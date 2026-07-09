@@ -82,7 +82,7 @@ export async function getCourses(): Promise<DbCourse[]> {
       notesUrl: l.notes_url || "",
       quizUrl: l.quiz_url || "",
       duration: l.duration,
-      isLocked: l.is_locked,
+      isLocked: false,
       codeFiles: l.code_files || [],
     });
     lecturesByChapter.set(l.chapter_id, list);
@@ -117,7 +117,7 @@ export async function getCourses(): Promise<DbCourse[]> {
       description: c.description,
       level: c.level,
       thumbnail: c.thumbnail,
-      isPremium: c.is_premium,
+      isPremium: false,
       tags: c.tags || [],
       chapters,
       lectures: allLectures,
@@ -158,7 +158,7 @@ export async function addCourse(data: {
     description: data.description || "",
     level: data.level || "Beginner",
     thumbnail: data.thumbnail || "/images/courses/default.webp",
-    is_premium: !!data.isPremium,
+    is_premium: false,
     tags: data.tags || [],
   });
 
@@ -186,7 +186,7 @@ export async function editCourse(
   if (data.description !== undefined) update.description = data.description;
   if (data.level !== undefined) update.level = data.level;
   if (data.thumbnail !== undefined) update.thumbnail = data.thumbnail;
-  if (data.isPremium !== undefined) update.is_premium = !!data.isPremium;
+  if (data.isPremium !== undefined) update.is_premium = false;
   if (data.tags !== undefined) update.tags = data.tags;
 
   const { error } = await supabaseAdmin.from("courses").update(update).eq("id", id);
@@ -300,7 +300,7 @@ export async function addLecture(data: {
     notes_url: data.notesUrl || "",
     quiz_url: data.quizUrl || "",
     duration: data.duration || "10 min",
-    is_locked: !!data.isLocked,
+    is_locked: false,
     code_files: data.codeFiles || [],
   });
 
@@ -335,7 +335,7 @@ export async function editLecture(
   if (data.videoUrl !== undefined) update.video_url = data.videoUrl;
   if (data.notesUrl !== undefined) update.notes_url = data.notesUrl;
   if (data.quizUrl !== undefined) update.quiz_url = data.quizUrl;
-  if (data.isLocked !== undefined) update.is_locked = !!data.isLocked;
+  if (data.isLocked !== undefined) update.is_locked = false;
   if (data.codeFiles !== undefined) update.code_files = data.codeFiles;
 
   const { error } = await supabaseAdmin.from("lectures").update(update).eq("id", id);

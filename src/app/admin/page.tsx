@@ -808,19 +808,6 @@ export default function AdminDashboard() {
                         placeholder="e.g. ICSE, Class 9, Java"
                       />
                     </div>
-
-                    <div className="md:col-span-2 py-2 flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        id="isPremium"
-                        checked={courseFormData.isPremium}
-                        onChange={(e) => setCourseFormData({ ...courseFormData, isPremium: e.target.checked })}
-                        className="h-4 w-4 rounded bg-[#1c1c1c] border-[#262626] text-[#0099ff] focus:ring-[#0099ff]/15"
-                      />
-                      <label htmlFor="isPremium" className="text-sm font-semibold select-none cursor-pointer">
-                        Premium Course (Lock advanced content under subscription wall)
-                      </label>
-                    </div>
                   </div>
                 )}
 
@@ -970,19 +957,6 @@ export default function AdminDashboard() {
                         className="w-full bg-[#1c1c1c] text-white px-4 py-3 rounded-lg border border-[#262626] text-sm focus:outline-none focus:border-[#0099ff] focus:ring-1 focus:ring-[#0099ff]/15 transition resize-none"
                         placeholder="e.g. https://drive.google.com/file/d/...&#10;https://drive.google.com/file/d/..."
                       />
-                    </div>
-
-                    <div className="py-2 flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        id="lecLocked"
-                        checked={lectureFormData.isLocked}
-                        onChange={(e) => setLectureFormData({ ...lectureFormData, isLocked: e.target.checked })}
-                        className="h-4 w-4 rounded bg-[#1c1c1c] border-[#262626] text-[#0099ff] focus:ring-[#0099ff]/15"
-                      />
-                      <label htmlFor="lecLocked" className="text-sm font-semibold select-none cursor-pointer">
-                        Premium Locked (Require user membership subscription)
-                      </label>
                     </div>
                   </div>
                 )}
