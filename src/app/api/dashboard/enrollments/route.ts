@@ -25,7 +25,10 @@ export async function GET(req: Request) {
     .eq("user_id", user.id)
     .order("enrolled_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("GET enrollments database error:", error);
+    return NextResponse.json({ error: "Failed to fetch enrollments" }, { status: 500 });
+  }
   return NextResponse.json(data || []);
 }
 
@@ -59,7 +62,10 @@ export async function POST(req: Request) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("POST enrollment database error:", error);
+    return NextResponse.json({ error: "Failed to enroll in course" }, { status: 500 });
+  }
   return NextResponse.json(data, { status: 201 });
 }
 
@@ -84,7 +90,8 @@ export async function DELETE(req: Request) {
       .eq("course_id", course_id);
 
     if (enrollDelete.error) {
-      return NextResponse.json({ error: enrollDelete.error.message }, { status: 500 });
+      console.error("DELETE enrollment error:", enrollDelete.error);
+      return NextResponse.json({ error: "Failed to unenroll from course" }, { status: 500 });
     }
 
     // Delete associated progress
@@ -95,11 +102,12 @@ export async function DELETE(req: Request) {
       .eq("course_id", course_id);
 
     if (progressDelete.error) {
-      console.error("Failed to delete progress on unenroll:", progressDelete.error.message);
+      console.error("Failed to delete progress on unenroll:", progressDelete.error);
     }
 
     return NextResponse.json({ success: true, message: "Unenrolled successfully" });
   } catch (err) {
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+    console.error("DELETE enrollment catch error:", err);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 }

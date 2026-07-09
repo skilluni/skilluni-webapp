@@ -24,7 +24,10 @@ export async function GET(req: Request) {
     .select("*")
     .eq("user_id", user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("GET progress database error:", error);
+    return NextResponse.json({ error: "Failed to fetch progress" }, { status: 500 });
+  }
   return NextResponse.json(data || []);
 }
 
@@ -69,6 +72,9 @@ export async function POST(req: Request) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("POST progress database error:", error);
+    return NextResponse.json({ error: "Failed to update progress" }, { status: 500 });
+  }
   return NextResponse.json(data);
 }

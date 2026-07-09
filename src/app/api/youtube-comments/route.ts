@@ -127,7 +127,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Fetch YouTube comments API error:", error);
     return NextResponse.json(
-      { error: (error as Error).message || "Internal server error fetching YouTube comments." },
+      { error: "Internal server error fetching YouTube comments." },
       { status: 500 }
     );
   }

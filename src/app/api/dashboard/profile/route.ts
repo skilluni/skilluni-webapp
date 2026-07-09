@@ -25,7 +25,10 @@ export async function GET(req: Request) {
     .eq("id", user.id)
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("GET profile database error:", error);
+    return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 });
+  }
   return NextResponse.json(data);
 }
 
@@ -62,7 +65,10 @@ export async function PATCH(req: Request) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("PATCH profile database error:", error);
+    return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
+  }
   return NextResponse.json(data);
 }
 
@@ -84,12 +90,14 @@ export async function DELETE(req: Request) {
     // Delete auth user from Supabase admin auth
     const { error: deleteErr } = await admin.auth.admin.deleteUser(user.id);
     if (deleteErr) {
-      return NextResponse.json({ error: deleteErr.message }, { status: 500 });
+      console.error("DELETE profile admin error:", deleteErr);
+      return NextResponse.json({ error: "Failed to delete user account" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "An unexpected error occurred" }, { status: 500 });
+    console.error("DELETE profile catch error:", err);
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 }
 

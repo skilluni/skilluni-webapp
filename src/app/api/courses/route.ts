@@ -286,7 +286,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("POST API error:", error);
     return NextResponse.json(
-      { error: (error as Error).message || "Internal Server Error" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }

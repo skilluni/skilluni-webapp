@@ -181,7 +181,7 @@ export async function GET(request: Request) {
     console.error("Fetch code API route error:", error);
     return NextResponse.json({
       error: true,
-      message: (error as Error).message || "Internal server error fetching code",
+      message: "Internal server error fetching code",
     });
   }
 }

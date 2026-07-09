@@ -22,7 +22,7 @@ export async function GET() {
   } catch (error) {
     console.error("GET testimonials API error:", error);
     return NextResponse.json(
-      { error: (error as Error).message || "Failed to fetch testimonials" },
+      { error: "Failed to fetch testimonials" },
       { status: 500 }
     );
   }
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("POST testimonials API error:", error);
     return NextResponse.json(
-      { error: (error as Error).message || "Internal Server Error in testimonials management API." },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
