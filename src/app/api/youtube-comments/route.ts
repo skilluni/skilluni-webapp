@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { getClientIp, incrementRateLimit } from "../../../lib/rateLimit";
 import { validateAdminSession } from "../../../lib/adminAuth";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +22,17 @@ function extractVideoId(input: string): string {
 
 export async function GET(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rateLimitKey = `rate:youtube-comments:${ip}`;
+    const requestCount = await incrementRateLimit(rateLimitKey, 60);
+
+    if (requestCount > 30) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
     // 1. Session Token Validation
     const isAuthenticated = await validateAdminSession();
 

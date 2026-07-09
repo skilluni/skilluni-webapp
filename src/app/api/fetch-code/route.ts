@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getClientIp, incrementRateLimit } from "../../../lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -10,17 +11,17 @@ function getLanguageFromExtension(filename: string): string {
     case "py":
       return "python";
     case "js":
-    case "jsx":
+      case "jsx":
       return "javascript";
     case "ts":
-    case "tsx":
+      case "tsx":
       return "typescript";
     case "cpp":
-    case "cc":
-    case "cxx":
+      case "cc":
+      case "cxx":
       return "cpp";
     case "c":
-    case "h":
+      case "h":
       return "c";
     case "html":
       return "html";
@@ -35,7 +36,7 @@ function getLanguageFromExtension(filename: string): string {
     case "xml":
       return "xml";
     case "yaml":
-    case "yml":
+      case "yml":
       return "yaml";
     default:
       return "plaintext";
@@ -44,6 +45,17 @@ function getLanguageFromExtension(filename: string): string {
 
 export async function GET(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const rateLimitKey = `rate:fetch-code:${ip}`;
+    const requestCount = await incrementRateLimit(rateLimitKey, 60);
+
+    if (requestCount > 30) {
+      return NextResponse.json(
+        { error: true, message: "Too many requests. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const url = searchParams.get("url");
 
