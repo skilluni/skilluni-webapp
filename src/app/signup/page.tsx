@@ -113,7 +113,11 @@ export default function SignUp() {
       return setErrorMsg("Please wait for username validation.");
     }
     if (!email.trim()) return setErrorMsg("Email is required.");
-    if (password.length < 6) return setErrorMsg("Password must be at least 6 characters long.");
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    if (password.length < 8 || !hasLetter || !hasNumber) {
+      return setErrorMsg("Password must be at least 8 characters long and contain both letters and numbers.");
+    }
 
     setFormLoading(true);
 

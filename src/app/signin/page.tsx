@@ -177,7 +177,11 @@ export default function SignIn() {
     setErrorMsg("");
     setSuccessMsg("");
 
-    if (newPassword.length < 6) return setErrorMsg("Password must be at least 6 characters.");
+    const hasLetter = /[a-zA-Z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    if (newPassword.length < 8 || !hasLetter || !hasNumber) {
+      return setErrorMsg("Password must be at least 8 characters long and contain both letters and numbers.");
+    }
 
     setLoading(true);
 
