@@ -21,7 +21,6 @@ export default function SignIn() {
 
   // Forgot password flow states
   const [forgotUsername, setForgotUsername] = useState("");
-  const [resolvedEmail, setResolvedEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
@@ -49,27 +48,29 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      // 1. Resolve email address from username
-      const { data: email, error: rpcError } = await supabase.rpc("get_email_by_username", {
-        username_input: usernameInput.trim().toLowerCase(),
+      // 1. Call secure server-side signin endpoint
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: usernameInput.trim().toLowerCase(),
+          password: passwordInput,
+        }),
       });
 
-      if (rpcError) {
-        throw new Error("Failed to look up username.");
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Invalid username or password.");
       }
 
-      if (!email) {
-        throw new Error("No account found with this username.");
-      }
-
-      // 2. Sign in with resolved email and password
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password: passwordInput,
+      // 2. Set the session on the client
+      const { error: setSessionError } = await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
       });
 
-      if (signInError) {
-        throw signInError;
+      if (setSessionError) {
+        throw setSessionError;
       }
 
       setSuccessMsg("Welcome back! Signing in...");
@@ -84,7 +85,7 @@ export default function SignIn() {
     }
   };
 
-  // Forgot Password: Step 1 - Look up username and send OTP
+  // Forgot Password: Step 1 - Send OTP via server-side endpoint
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
@@ -95,30 +96,21 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      // 1. Look up email
-      const { data: email, error: rpcError } = await supabase.rpc("get_email_by_username", {
-        username_input: forgotUsername.trim().toLowerCase(),
+      const res = await fetch("/api/auth/recover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: forgotUsername.trim().toLowerCase(),
+        }),
       });
 
-      if (rpcError || !email) {
-        throw new Error("No user profile found matching this username.");
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Could not request password recovery OTP.");
       }
 
-      setResolvedEmail(email);
-
-      // 2. Request OTP code via Supabase passwordless auth
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: false,
-        },
-      });
-
-      if (otpError) {
-        throw otpError;
-      }
-
-      setSuccessMsg(`OTP sent successfully to your registered email!`);
+      // Display the generic success message regardless of username existence
+      setSuccessMsg(data.message);
       setTimeout(() => {
         setSuccessMsg("");
         setMode("forgot_otp");
@@ -131,7 +123,7 @@ export default function SignIn() {
     }
   };
 
-  // Forgot Password: Step 2 - Verify OTP
+  // Forgot Password: Step 2 - Verify OTP via server-side endpoint
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
@@ -142,14 +134,28 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        email: resolvedEmail,
-        token: otpCode.trim(),
-        type: "email",
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: forgotUsername.trim().toLowerCase(),
+          token: otpCode.trim(),
+        }),
       });
 
-      if (verifyError) {
-        throw verifyError;
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Invalid or expired OTP code.");
+      }
+
+      // Set the session on the client
+      const { error: setSessionError } = await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
+
+      if (setSessionError) {
+        throw setSessionError;
       }
 
       setSuccessMsg("OTP Verified successfully!");
@@ -203,7 +209,6 @@ export default function SignIn() {
     setUsernameInput("");
     setPasswordInput("");
     setForgotUsername("");
-    setResolvedEmail("");
     setOtpCode("");
     setNewPassword("");
   };
