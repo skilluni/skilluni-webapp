@@ -8,6 +8,64 @@ import { useAuth } from "../../components/providers/AuthProvider";
 
 type FlowMode = "signin" | "forgot_username" | "forgot_otp" | "forgot_reset";
 
+// Clean, flat error alert (No glass, no glow)
+function FormErrorAlert({
+  title,
+  message,
+}: {
+  title?: string;
+  message: string;
+}) {
+  if (!message) return null;
+
+  return (
+    <div className="flex items-start gap-3 p-3.5 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-300 text-left my-3">
+      <div className="w-6 h-6 rounded-full bg-rose-500/20 flex items-center justify-center shrink-0 mt-0.5 text-rose-400">
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="text-body-sm font-semibold text-rose-400 leading-tight">
+          {title || "Sign In Failed"}
+        </h4>
+        <p className="text-caption text-rose-300/80 mt-0.5 leading-relaxed">
+          {message}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// System-themed Success Toast Modal (Floating top center for 2 seconds)
+function SuccessToast({
+  title,
+  message,
+}: {
+  title: string;
+  message: string;
+}) {
+  if (!message) return null;
+
+  return (
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3.5 px-6 py-4 rounded-2xl bg-[#141414] border border-neutral-800 text-white shadow-2xl animate-fade-in-up max-w-md w-[90%] select-none">
+      <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shrink-0 text-white shadow-sm">
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+      </div>
+      <div className="flex-1 min-w-0 text-left">
+        <h4 className="text-body-sm font-semibold text-white leading-tight">
+          {title}
+        </h4>
+        <p className="text-caption text-neutral-400 mt-0.5 leading-snug">
+          {message}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function SignIn() {
   const router = useRouter();
   const { user } = useAuth();
@@ -29,12 +87,12 @@ export default function SignIn() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // Redirect if already logged in
+  // Redirect if already logged in (only on initial load when not in active success flow)
   useEffect(() => {
-    if (user && mode === "signin") {
-      router.push("/courses");
+    if (user && mode === "signin" && !successMsg) {
+      router.push("/dashboard");
     }
-  }, [user, mode, router]);
+  }, [user, mode, router, successMsg]);
 
   // Sign In submit handler
   const handleSignIn = async (e: React.FormEvent) => {
@@ -73,13 +131,13 @@ export default function SignIn() {
         throw setSessionError;
       }
 
-      setSuccessMsg("Welcome back! Signing in...");
+      setSuccessMsg("Welcome back! Redirecting to your dashboard...");
       setTimeout(() => {
-        router.push("/courses");
-      }, 1500);
+        router.push("/dashboard");
+      }, 2000);
     } catch (err: any) {
       console.error("Sign in error:", err);
-      setErrorMsg(err.message || "Invalid username or password.");
+      setErrorMsg(err.message || "Invalid username or password. Please check your credentials and try again.");
     } finally {
       setLoading(false);
     }
@@ -196,7 +254,7 @@ export default function SignIn() {
 
       setSuccessMsg("Password reset successfully! Redirecting...");
       setTimeout(() => {
-        router.push("/courses");
+        router.push("/dashboard");
       }, 2000);
     } catch (err: any) {
       console.error("Password reset update error:", err);
@@ -218,454 +276,380 @@ export default function SignIn() {
   };
 
   return (
-    <main className="flex-1 min-h-screen flex items-center justify-center py-20 px-6 bg-canvas relative overflow-hidden">
+    <main className="min-h-screen w-full flex flex-col md:flex-row bg-canvas relative overflow-hidden">
+      {/* Success Popup Toast (2 seconds duration) */}
+      <SuccessToast title="Signed In Successfully" message={successMsg} />
       {/* Background atmosphere glow aura */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-magenta opacity-[0.03] rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-violet opacity-[0.04] rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="w-full max-w-4xl relative z-10 animate-fade-in-up">
-        {/* Main Unified Card */}
-        <div className="rounded-[24px] border border-hairline bg-surface-1 shadow-2xl grid grid-cols-1 md:grid-cols-12 overflow-hidden min-h-[550px]">
-          
-          {/* Left Side: Form */}
-          <div className="md:col-span-7 p-8 md:p-10 flex flex-col justify-between">
-            <div className="flex-1 flex flex-col justify-center">
-              {/* mode: SIGN IN */}
-              {mode === "signin" && (
-                <>
-                  <div className="text-center mb-8">
-                    <h1 className="text-display-md text-ink font-semibold tracking-[-0.03em] mb-2">
-                      Welcome Back
-                    </h1>
-                    <p className="text-body-sm text-ink-muted">
-                      Log in to access your tech courses.
-                    </p>
-                  </div>
+      {/* Left Part: Form (2 parts = 40% width) */}
+      <div className="w-full md:w-[40%] min-h-screen p-8 md:p-12 lg:p-16 flex flex-col justify-between z-10 bg-canvas border-r border-hairline/60">
+        {/* Top Header Logo */}
+        <div>
+          <Link
+            href="/"
+            className="text-headline text-ink font-semibold tracking-[-0.03em] inline-block hover:opacity-90 transition-opacity"
+            data-cursor="link"
+            data-cursor-text="GO"
+          >
+            SkillUni
+          </Link>
+        </div>
 
-                  <form onSubmit={handleSignIn} className="space-y-5">
-                    <div>
-                      <label htmlFor="username" className="block text-caption text-ink-muted mb-1.5 font-medium">
-                        Username
-                      </label>
-                      <input
-                        id="username"
-                        type="text"
-                        required
-                        value={usernameInput}
-                        onChange={(e) => setUsernameInput(e.target.value)}
-                        placeholder="Enter your username"
-                        className="w-full bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline focus:outline-none focus:ring-1 focus:ring-accent-blue/30 focus:border-accent-blue transition-colors placeholder:text-neutral-700"
-                      />
-                    </div>
+        <div className="my-auto w-full max-w-md mx-auto py-8">
+          {/* mode: SIGN IN */}
+          {mode === "signin" && (
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-display-md text-ink font-semibold tracking-[-0.03em] mb-2">
+                  Welcome Back
+                </h1>
+                <p className="text-body-sm text-ink-muted">
+                  Log in to access your tech courses.
+                </p>
+              </div>
 
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <label htmlFor="password" className="text-caption text-ink-muted font-medium">
-                          Password
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMode("forgot_username");
-                            setErrorMsg("");
-                            setSuccessMsg("");
-                          }}
-                          className="text-micro text-accent-blue hover:text-[#52b1ff] transition-colors cursor-pointer"
-                        >
-                          Forgot Password?
-                        </button>
-                      </div>
-                      <input
-                        id="password"
-                        type="password"
-                        required
-                        value={passwordInput}
-                        onChange={(e) => setPasswordInput(e.target.value)}
-                        placeholder="Enter your password"
-                        className="w-full bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline focus:outline-none focus:ring-1 focus:ring-accent-blue/30 focus:border-accent-blue transition-colors placeholder:text-neutral-700"
-                      />
-                    </div>
+              <form onSubmit={handleSignIn} className="space-y-5 w-full">
+                <div>
+                  <label htmlFor="username" className="block text-caption text-ink-muted mb-1.5 font-medium">
+                    Username
+                  </label>
+                  <input
+                    id="username"
+                    type="text"
+                    required
+                    value={usernameInput}
+                    onChange={(e) => setUsernameInput(e.target.value)}
+                    placeholder="Enter your username"
+                    className="w-full bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline hover:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white transition-colors placeholder:text-neutral-700"
+                  />
+                </div>
 
-                    {errorMsg && (
-                      <div className="text-body-sm text-rose-500 bg-rose-500/10 border border-rose-500/20 p-3 rounded-md text-center">
-                        {errorMsg}
-                      </div>
-                    )}
-
-                    {successMsg && (
-                      <div className="text-body-sm text-success bg-success/10 border border-success/20 p-3 rounded-md text-center">
-                        {successMsg}
-                      </div>
-                    )}
-
+                <div>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label htmlFor="password" className="text-caption text-ink-muted font-medium">
+                      Password
+                    </label>
                     <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full h-11 rounded-[100px] bg-white text-black font-semibold text-button transition-all duration-200 active:scale-[0.97] hover:bg-neutral-200 flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      type="button"
+                      onClick={() => {
+                        setMode("forgot_username");
+                        setErrorMsg("");
+                        setSuccessMsg("");
+                      }}
+                      className="text-micro text-ink-muted hover:text-white transition-colors cursor-pointer"
                     >
-                      {loading ? (
-                        <svg className="animate-spin h-5 w-5 text-black" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                      ) : (
-                        "Sign In"
-                      )}
+                      Forgot Password?
                     </button>
-                  </form>
-
-                  <div className="mt-6 text-center">
-                    <p className="text-body-sm text-ink-muted">
-                      New to SkillUni?{" "}
-                      <Link href="/signup" className="text-accent-blue hover:text-[#52b1ff] transition-colors" data-cursor="link">
-                        Create free account
-                      </Link>
-                    </p>
                   </div>
-                </>
-              )}
+                  <input
+                    id="password"
+                    type="password"
+                    required
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline hover:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white transition-colors placeholder:text-neutral-700"
+                  />
+                </div>
 
-              {/* mode: FORGOT PASSWORD - STEP 1 (Username Entry) */}
-              {mode === "forgot_username" && (
-                <>
-                  <div className="text-center mb-8">
-                    <h1 className="text-display-md text-ink font-semibold tracking-[-0.03em] mb-2">
-                      Recover Password
-                    </h1>
-                    <p className="text-body-sm text-ink-muted">
-                      Step 1: Enter your username to receive a 6-digit verification code.
-                    </p>
-                  </div>
+                <FormErrorAlert title="Sign In Failed" message={errorMsg} />
 
-                  <form onSubmit={handleSendOtp} className="space-y-5">
-                    <div>
-                      <label htmlFor="recovery-username" className="block text-caption text-ink-muted mb-1.5 font-medium">
-                        Username
-                      </label>
-                      <input
-                        id="recovery-username"
-                        type="text"
-                        required
-                        value={forgotUsername}
-                        onChange={(e) => setForgotUsername(e.target.value)}
-                        placeholder="Enter your registered username"
-                        className="w-full bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline focus:outline-none focus:ring-1 focus:ring-accent-blue/30 focus:border-accent-blue transition-colors placeholder:text-neutral-700"
-                      />
-                    </div>
-
-                    {errorMsg && (
-                      <div className="text-body-sm text-rose-500 bg-rose-500/10 border border-rose-500/20 p-3 rounded-md text-center">
-                        {errorMsg}
-                      </div>
-                    )}
-
-                    {successMsg && (
-                      <div className="text-body-sm text-success bg-success/10 border border-success/20 p-3 rounded-md text-center">
-                        {successMsg}
-                      </div>
-                    )}
-
-                    <div className="flex flex-col gap-3">
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-11 rounded-[100px] bg-white text-black font-semibold text-button transition-all duration-200 active:scale-[0.97] hover:bg-neutral-200 flex items-center justify-center cursor-pointer"
-                      >
-                        {loading ? (
-                          <svg className="animate-spin h-5 w-5 text-black" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                        ) : (
-                          "Send Verification Code"
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={resetFlow}
-                        className="w-full h-11 rounded-[100px] bg-[#141414] text-white border border-hairline text-button transition-all duration-200 active:scale-[0.97] hover:bg-[#1c1c1c] flex items-center justify-center cursor-pointer"
-                      >
-                        Back to Sign In
-                      </button>
-                    </div>
-                  </form>
-                </>
-              )}
-
-              {/* mode: FORGOT PASSWORD - STEP 2 (OTP Verification) */}
-              {mode === "forgot_otp" && (
-                <>
-                  <div className="text-center mb-8">
-                    <h1 className="text-display-md text-ink font-semibold tracking-[-0.03em] mb-2">
-                      Verify OTP
-                    </h1>
-                    <p className="text-body-sm text-ink-muted">
-                      Step 2: Enter the 6-digit code sent to your email.
-                    </p>
-                  </div>
-
-                  <form onSubmit={handleVerifyOtp} className="space-y-5">
-                    <div>
-                      <label htmlFor="otp" className="block text-caption text-ink-muted mb-1.5 font-medium">
-                        OTP Code
-                      </label>
-                      <input
-                        id="otp"
-                        type="text"
-                        required
-                        maxLength={6}
-                        value={otpCode}
-                        onChange={(e) => setOtpCode(e.target.value)}
-                        placeholder="123456"
-                        className="w-full text-center bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline focus:outline-none focus:ring-1 focus:ring-accent-blue/30 focus:border-accent-blue transition-colors tracking-[0.2em] font-semibold text-lg placeholder:text-neutral-700"
-                      />
-                    </div>
-
-                    {errorMsg && (
-                      <div className="text-body-sm text-rose-500 bg-rose-500/10 border border-rose-500/20 p-3 rounded-md text-center">
-                        {errorMsg}
-                      </div>
-                    )}
-
-                    {successMsg && (
-                      <div className="text-body-sm text-success bg-success/10 border border-success/20 p-3 rounded-md text-center">
-                        {successMsg}
-                      </div>
-                    )}
-
-                    <div className="flex flex-col gap-3">
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full h-11 rounded-[100px] bg-white text-black font-semibold text-button transition-all duration-200 active:scale-[0.97] hover:bg-neutral-200 flex items-center justify-center cursor-pointer"
-                      >
-                        {loading ? (
-                          <svg className="animate-spin h-5 w-5 text-black" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                        ) : (
-                          "Verify Code"
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMode("forgot_username");
-                          setErrorMsg("");
-                          setSuccessMsg("");
-                        }}
-                        className="w-full h-11 rounded-[100px] bg-[#141414] text-white border border-hairline text-button transition-all duration-200 active:scale-[0.97] hover:bg-[#1c1c1c] flex items-center justify-center cursor-pointer"
-                      >
-                        Change Username
-                      </button>
-                    </div>
-                  </form>
-                </>
-              )}
-
-              {/* mode: FORGOT PASSWORD - STEP 3 (Password Reset) */}
-              {mode === "forgot_reset" && (
-                <>
-                  <div className="text-center mb-8">
-                    <h1 className="text-display-md text-ink font-semibold tracking-[-0.03em] mb-2">
-                      New Password
-                    </h1>
-                    <p className="text-body-sm text-ink-muted">
-                      Step 3: Enter your new password to complete recovery.
-                    </p>
-                  </div>
-
-                  <form onSubmit={handleResetPassword} className="space-y-5">
-                    <div>
-                      <label htmlFor="new-password" className="block text-caption text-ink-muted mb-1.5 font-medium">
-                        New Password
-                      </label>
-                      <input
-                        id="new-password"
-                        type="password"
-                        required
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Enter new password (min 6 chars)"
-                        className="w-full bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline focus:outline-none focus:ring-1 focus:ring-accent-blue/30 focus:border-accent-blue transition-colors placeholder:text-neutral-700"
-                      />
-                    </div>
-
-                    {errorMsg && (
-                      <div className="text-body-sm text-rose-500 bg-rose-500/10 border border-rose-500/20 p-3 rounded-md text-center">
-                        {errorMsg}
-                      </div>
-                    )}
-
-                    {successMsg && (
-                      <div className="text-body-sm text-success bg-success/10 border border-success/20 p-3 rounded-md text-center">
-                        {successMsg}
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full h-11 rounded-[100px] bg-white text-black font-semibold text-button transition-all duration-200 active:scale-[0.97] hover:bg-neutral-200 flex items-center justify-center cursor-pointer"
-                    >
-                      {loading ? (
-                        <svg className="animate-spin h-5 w-5 text-black" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                      ) : (
-                        "Reset Password"
-                      )}
-                    </button>
-                  </form>
-                </>
-              )}
-            </div>
-
-            {/* Back to Homepage Button */}
-            <div className="text-center mt-8">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 text-caption text-ink-muted hover:text-ink transition-colors group cursor-pointer"
-                data-cursor="link"
-              >
-                <svg
-                  className="w-4 h-4 transform group-hover:-translate-x-1.5 transition-transform duration-200"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-[180px] mx-auto h-11 rounded-[100px] bg-white text-black font-semibold text-button transition-all duration-200 active:scale-[0.97] hover:bg-neutral-200 flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
-                </svg>
-                Back to homepage
-              </Link>
-            </div>
-          </div>
+                  {loading ? (
+                    <svg className="animate-spin h-5 w-5 text-black" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    "Sign In"
+                  )}
+                </button>
+              </form>
 
-          {/* Right Side: Tech Illustrative Artboard */}
-          <div className="hidden md:flex md:col-span-5 flex-col justify-between p-8 bg-[#090909] border-l border-hairline relative overflow-hidden select-none">
-            {/* Fine Grid Background */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                 style={{
-                   backgroundImage: `radial-gradient(var(--color-hairline) 1px, transparent 1px)`,
-                   backgroundSize: '16px 16px'
-                 }} 
-            />
+              <div className="mt-6 text-center">
+                <p className="text-body-sm text-ink-muted">
+                  New to SkillUni?{" "}
+                  <Link href="/signup" className="text-white underline underline-offset-4 hover:text-neutral-300 transition-colors" data-cursor="link">
+                    Create free account
+                  </Link>
+                </p>
+              </div>
+            </>
+          )}
 
-            {/* Glowing Spotlight Gradients */}
-            <div className="absolute -top-20 -left-20 w-[200px] h-[200px] bg-gradient-violet rounded-full blur-[70px] opacity-[0.25]" />
-            <div className="absolute -bottom-20 -right-20 w-[250px] h-[250px] bg-gradient-magenta rounded-full blur-[80px] opacity-[0.25]" />
+          {/* mode: FORGOT PASSWORD - STEP 1 (Username Entry) */}
+          {mode === "forgot_username" && (
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-display-md text-ink font-semibold tracking-[-0.03em] mb-2">
+                  Recover Password
+                </h1>
+                <p className="text-body-sm text-ink-muted">
+                  Step 1: Enter your username to receive a 6-digit verification code.
+                </p>
+              </div>
 
-            {/* Title branding inside illustration */}
-            <div className="relative z-10">
-              <span className="text-micro font-mono text-accent-blue tracking-widest uppercase mb-1.5 block">
-                SKILLUNI ENGINE
-              </span>
-              <h2 className="text-body-sm text-ink font-semibold tracking-[-0.02em] leading-snug">
-                Interactive Learning
-              </h2>
-            </div>
+              <form onSubmit={handleSendOtp} className="space-y-5 w-full">
+                <div>
+                  <label htmlFor="recovery-username" className="block text-caption text-ink-muted mb-1.5 font-medium">
+                    Username
+                  </label>
+                  <input
+                    id="recovery-username"
+                    type="text"
+                    required
+                    value={forgotUsername}
+                    onChange={(e) => setForgotUsername(e.target.value)}
+                    placeholder="Enter your registered username"
+                    className="w-full bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline hover:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white transition-colors placeholder:text-neutral-700"
+                  />
+                </div>
 
-            {/* SVG Tech Illustrative Pattern */}
-            <div className="relative z-10 w-full flex-1 flex items-center justify-center my-6">
-              <svg className="w-full max-w-[260px] h-[260px]" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  {/* Glowing Gradients for lines */}
-                  <linearGradient id="lineGrad" x1="0" y1="0" x2="300" y2="300" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#0099ff" />
-                    <stop offset="1" stopColor="#d44df0" />
-                  </linearGradient>
-                </defs>
+                <FormErrorAlert title="Recovery Error" message={errorMsg} />
 
-                {/* Animated CSS style inside SVG */}
-                <style dangerouslySetInnerHTML={{__html: `
-                  @keyframes dash {
-                    to { stroke-dashoffset: -20; }
-                  }
-                  @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                  }
-                  @keyframes pulse {
-                    0%, 100% { r: 6; opacity: 0.8; }
-                    50% { r: 12; opacity: 0.3; }
-                  }
-                  .data-line {
-                    stroke-dasharray: 4, 6;
-                    animation: dash 1.5s linear infinite;
-                  }
-                  .spin-gear {
-                    animation: spin 20s linear infinite;
-                    transform-origin: center;
-                  }
-                  .pulse-ring {
-                    animation: pulse 2s infinite ease-in-out;
-                    transform-box: fill-box;
-                    transform-origin: center;
-                  }
-                `}} />
+                <div className="flex flex-col items-center gap-3">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-[220px] h-11 rounded-[100px] bg-white text-black font-semibold text-button transition-all duration-200 active:scale-[0.97] hover:bg-neutral-200 flex items-center justify-center cursor-pointer"
+                  >
+                    {loading ? (
+                      <svg className="animate-spin h-5 w-5 text-black" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    ) : (
+                      "Send Verification Code"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetFlow}
+                    className="w-[220px] h-11 rounded-[100px] bg-[#141414] text-white border border-hairline hover:border-white/40 text-button transition-all duration-200 active:scale-[0.97] hover:bg-[#1c1c1c] flex items-center justify-center cursor-pointer"
+                  >
+                    Back to Sign In
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
 
-                {/* Concentric circles (Grid helper) */}
-                <circle cx="150" cy="150" r="110" stroke="var(--color-hairline)" strokeWidth="1" strokeOpacity="0.4" />
-                <circle cx="150" cy="150" r="70" stroke="var(--color-hairline)" strokeWidth="1" strokeOpacity="0.3" strokeDasharray="3 3" />
-                <circle cx="150" cy="150" r="30" stroke="var(--color-hairline)" strokeWidth="1" strokeOpacity="0.2" />
+          {/* mode: FORGOT PASSWORD - STEP 2 (OTP Verification) */}
+          {mode === "forgot_otp" && (
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-display-md text-ink font-semibold tracking-[-0.03em] mb-2">
+                  Verify OTP
+                </h1>
+                <p className="text-body-sm text-ink-muted">
+                  Step 2: Enter the 6-digit code sent to your email.
+                </p>
+              </div>
 
-                {/* Connecting Node Lines */}
-                <line x1="150" y1="150" x2="60" y2="90" stroke="url(#lineGrad)" strokeWidth="1.5" strokeOpacity="0.6" />
-                <line x1="150" y1="150" x2="240" y2="90" stroke="url(#lineGrad)" strokeWidth="1.5" strokeOpacity="0.6" />
-                <line x1="150" y1="150" x2="150" y2="250" stroke="url(#lineGrad)" strokeWidth="1.5" strokeOpacity="0.6" />
-                <line x1="150" y1="150" x2="50" y2="180" stroke="var(--color-hairline)" strokeWidth="1" strokeOpacity="0.4" />
-                <line x1="150" y1="150" x2="250" y2="180" stroke="var(--color-hairline)" strokeWidth="1" strokeOpacity="0.4" />
+              <form onSubmit={handleVerifyOtp} className="space-y-5 w-full">
+                <div>
+                  <label htmlFor="otp" className="block text-caption text-ink-muted mb-1.5 font-medium">
+                    OTP Code
+                  </label>
+                  <input
+                    id="otp"
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    placeholder="123456"
+                    className="w-full text-center bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline hover:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white transition-colors tracking-[0.2em] font-semibold text-lg placeholder:text-neutral-700"
+                  />
+                </div>
 
-                {/* Animated Data Packets (Dashed Lines) */}
-                <line x1="150" y1="150" x2="60" y2="90" stroke="#0099ff" strokeWidth="2" className="data-line" />
-                <line x1="150" y1="150" x2="240" y2="90" stroke="#d44df0" strokeWidth="2" className="data-line" />
-                <line x1="150" y1="150" x2="150" y2="250" stroke="#0099ff" strokeWidth="2" className="data-line" />
+                <FormErrorAlert title="Verification Error" message={errorMsg} />
 
-                {/* Central Glowing Gear / Hub */}
-                <circle cx="150" cy="150" r="22" fill="#090909" stroke="url(#lineGrad)" strokeWidth="2.5" />
-                <circle cx="150" cy="150" r="16" stroke="var(--color-hairline)" strokeWidth="1" strokeDasharray="4 2" className="spin-gear" />
-                <path d="M147 140 H153 V160 H147 Z M140 147 H160 V153 H140 Z" fill="var(--color-ink-muted)" opacity="0.6" />
+                <div className="flex flex-col items-center gap-3">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-[220px] h-11 rounded-[100px] bg-white text-black font-semibold text-button transition-all duration-200 active:scale-[0.97] hover:bg-neutral-200 flex items-center justify-center cursor-pointer"
+                  >
+                    {loading ? (
+                      <svg className="animate-spin h-5 w-5 text-black" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    ) : (
+                      "Verify Code"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode("forgot_username");
+                      setErrorMsg("");
+                      setSuccessMsg("");
+                    }}
+                    className="w-[220px] h-11 rounded-[100px] bg-[#141414] text-white border border-hairline hover:border-white/40 text-button transition-all duration-200 active:scale-[0.97] hover:bg-[#1c1c1c] flex items-center justify-center cursor-pointer"
+                  >
+                    Change Username
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
 
-                {/* Floating Node 1: Code Block representation */}
-                <g transform="translate(60, 90)">
-                  <rect x="-18" y="-18" width="36" height="36" rx="8" fill="#141414" stroke="var(--color-hairline)" strokeWidth="1" />
-                  <text x="0" y="4" fill="#0099ff" fontSize="10" fontFamily="monospace" textAnchor="middle" fontWeight="bold">{"<>"}</text>
-                </g>
+          {/* mode: FORGOT PASSWORD - STEP 3 (Password Reset) */}
+          {mode === "forgot_reset" && (
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-display-md text-ink font-semibold tracking-[-0.03em] mb-2">
+                  New Password
+                </h1>
+                <p className="text-body-sm text-ink-muted">
+                  Step 3: Enter your new password to complete recovery.
+                </p>
+              </div>
 
-                {/* Floating Node 2: Loop / Process */}
-                <g transform="translate(240, 90)">
-                  <rect x="-18" y="-18" width="36" height="36" rx="8" fill="#141414" stroke="var(--color-hairline)" strokeWidth="1" />
-                  <text x="0" y="4" fill="#d44df0" fontSize="10" fontFamily="monospace" textAnchor="middle" fontWeight="bold">for</text>
-                </g>
+              <form onSubmit={handleResetPassword} className="space-y-5 w-full">
+                <div>
+                  <label htmlFor="new-password" className="block text-caption text-ink-muted mb-1.5 font-medium">
+                    New Password
+                  </label>
+                  <input
+                    id="new-password"
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password (min 6 chars)"
+                    className="w-full bg-surface-2 text-ink text-body p-[10px_14px] rounded-md border border-hairline hover:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white transition-colors placeholder:text-neutral-700"
+                  />
+                </div>
 
-                {/* Floating Node 3: Database / Object */}
-                <g transform="translate(150, 250)">
-                  <circle cx="0" cy="0" r="16" fill="#141414" stroke="var(--color-hairline)" strokeWidth="1" />
-                  <path d="M-8 -6 H8 V-2 H-8 Z M-8 0 H8 V4 H-8 Z" fill="var(--color-ink-muted)" stroke="var(--color-hairline)" strokeWidth="1" />
-                </g>
+                <FormErrorAlert title="Reset Error" message={errorMsg} />
 
-                {/* Floating Node 4: Logic / Condition */}
-                <g transform="translate(50, 180)">
-                  <circle cx="0" cy="0" r="8" fill="#141414" stroke="#0099ff" strokeWidth="1.5" />
-                  <circle cx="0" cy="0" r="8" fill="#0099ff" fillOpacity="0.3" className="pulse-ring" />
-                </g>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-[220px] mx-auto h-11 rounded-[100px] bg-white text-black font-semibold text-button transition-all duration-200 active:scale-[0.97] hover:bg-neutral-200 flex items-center justify-center cursor-pointer"
+                >
+                  {loading ? (
+                    <svg className="animate-spin h-5 w-5 text-black" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    "Reset Password"
+                  )}
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
 
-                {/* Floating Node 5: Output */}
-                <g transform="translate(250, 180)">
-                  <circle cx="0" cy="0" r="8" fill="#141414" stroke="#d44df0" strokeWidth="1.5" />
-                  <circle cx="0" cy="0" r="8" fill="#d44df0" fillOpacity="0.3" className="pulse-ring" />
-                </g>
+      {/* Right Part: Violet Spotlight Gradient & Bold "SkillUni" Branding (3 parts = 60% width) */}
+      <div 
+        className="hidden md:flex md:w-[60%] min-h-screen flex-col items-center justify-center p-12 relative overflow-hidden select-none"
+        style={{
+          background: "linear-gradient(160deg, #8568ff 0%, #6a4cf5 35%, #4a2dd4 100%)",
+        }}
+      >
+        {/* Fine Grid Overlay Pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.08] pointer-events-none" 
+          style={{
+            backgroundImage: `radial-gradient(#ffffff 1px, transparent 1px)`,
+            backgroundSize: '24px 24px'
+          }} 
+        />
 
-                {/* Floating Tech Text Elements */}
-                <text x="50" y="50" fill="var(--color-ink-muted)" stroke="none" fontSize="8" fontFamily="monospace" opacity="0.3">double x;</text>
-                <text x="210" y="210" fill="var(--color-ink-muted)" stroke="none" fontSize="8" fontFamily="monospace" opacity="0.3">out.print()</text>
-                <text x="220" y="40" fill="var(--color-ink-muted)" stroke="none" fontSize="8" fontFamily="monospace" opacity="0.3">class Main</text>
-                <text x="35" y="270" fill="var(--color-ink-muted)" stroke="none" fontSize="8" fontFamily="monospace" opacity="0.3">if(arr != null)</text>
-              </svg>
-            </div>
-          </div>
+        {/* Ambient Glowing Spotlight Orbs */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white opacity-20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute -top-20 -right-20 w-[350px] h-[350px] bg-purple-300 opacity-25 rounded-full blur-[90px] pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-indigo-900 opacity-30 rounded-full blur-[100px] pointer-events-none" />
 
+        {/* Abstract Educational & Tech Background Icon Pattern */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.25] select-none">
+          <svg className="w-full h-full" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="iconGradientSignin" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0.4" />
+              </linearGradient>
+            </defs>
+
+            {/* Geometric Constellation Orbits & Node Connections */}
+            <circle cx="400" cy="400" r="340" stroke="url(#iconGradientSignin)" strokeWidth="1.2" strokeDasharray="8 12" strokeOpacity="0.6" />
+            <circle cx="400" cy="400" r="230" stroke="url(#iconGradientSignin)" strokeWidth="1" strokeDasharray="4 8" strokeOpacity="0.5" />
+            <circle cx="400" cy="400" r="130" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.3" />
+            
+            <line x1="100" y1="180" x2="700" y2="620" stroke="#ffffff" strokeWidth="1" strokeDasharray="4 8" strokeOpacity="0.3" />
+            <line x1="700" y1="180" x2="100" y2="620" stroke="#ffffff" strokeWidth="1" strokeDasharray="4 8" strokeOpacity="0.3" />
+
+            {/* 1. Polished Graduation Cap (Top Left & Bottom Right) */}
+            <g transform="translate(140, 120) rotate(-10) scale(1.6)">
+              <path d="M12 2L1.5 7.5L12 13L22.5 7.5L12 2Z" fill="rgba(255,255,255,0.08)" stroke="#ffffff" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M5 9.5V15.5C5 15.5 8 18 12 18C16 18 19 15.5 19 15.5V9.5" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M20 8.5V17.5M20 17.5C20 18.3 19.3 19 18.5 19C17.7 19 17 18.3 17 17.5" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" />
+            </g>
+            <g transform="translate(570, 560) rotate(12) scale(1.7)">
+              <path d="M12 2L1.5 7.5L12 13L22.5 7.5L12 2Z" fill="rgba(255,255,255,0.08)" stroke="#ffffff" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M5 9.5V15.5C5 15.5 8 18 12 18C16 18 19 15.5 19 15.5V9.5" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M20 8.5V17.5M20 17.5C20 18.3 19.3 19 18.5 19C17.7 19 17 18.3 17 17.5" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" />
+            </g>
+
+            {/* 2. Polished Computer / Laptop (Top Right & Bottom Left) */}
+            <g transform="translate(560, 120) rotate(8) scale(1.6)">
+              <rect x="3" y="3" width="18" height="12" rx="2" fill="rgba(255,255,255,0.06)" stroke="#ffffff" strokeWidth="1.5" />
+              <path d="M1 18H23C23 18 22 15 20 15H4C2 15 1 18 1 18Z" stroke="#ffffff" strokeWidth="1.5" strokeLinejoin="round" fill="rgba(255,255,255,0.1)" />
+              <line x1="7" y1="7" x2="13" y2="7" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" />
+              <line x1="7" y1="10" x2="17" y2="10" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="2 2" />
+            </g>
+            <g transform="translate(130, 560) rotate(-14) scale(1.6)">
+              <rect x="3" y="3" width="18" height="12" rx="2" fill="rgba(255,255,255,0.06)" stroke="#ffffff" strokeWidth="1.5" />
+              <path d="M1 18H23C23 18 22 15 20 15H4C2 15 1 18 1 18Z" stroke="#ffffff" strokeWidth="1.5" strokeLinejoin="round" fill="rgba(255,255,255,0.1)" />
+              <line x1="7" y1="7" x2="14" y2="7" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" />
+              <line x1="7" y1="10" x2="12" y2="10" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" />
+            </g>
+
+            {/* 3. Polished Open Book (Center Left & Mid Right) */}
+            <g transform="translate(70, 350) rotate(6) scale(1.7)">
+              <path d="M12 4.5C10 3 6.5 3 3 4.5V19.5C6.5 18 10 18 12 19.5C14 18 17.5 18 21 19.5V4.5C17.5 3 14 3 12 4.5Z" fill="rgba(255,255,255,0.08)" stroke="#ffffff" strokeWidth="1.5" strokeLinejoin="round" />
+              <line x1="12" y1="4.5" x2="12" y2="19.5" stroke="#ffffff" strokeWidth="1.5" />
+              <path d="M6 8H9.5M6 11.5H9.5M14.5 8H18M14.5 11.5H18" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" opacity="0.8" />
+            </g>
+            <g transform="translate(620, 350) rotate(-8) scale(1.7)">
+              <path d="M12 4.5C10 3 6.5 3 3 4.5V19.5C6.5 18 10 18 12 19.5C14 18 17.5 18 21 19.5V4.5C17.5 3 14 3 12 4.5Z" fill="rgba(255,255,255,0.08)" stroke="#ffffff" strokeWidth="1.5" strokeLinejoin="round" />
+              <line x1="12" y1="4.5" x2="12" y2="19.5" stroke="#ffffff" strokeWidth="1.5" />
+              <path d="M6 8H9.5M6 11.5H9.5M14.5 8H18M14.5 11.5H18" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" opacity="0.8" />
+            </g>
+
+            {/* 4. Code Angular Brackets </> (Top Center & Bottom Center) */}
+            <g transform="translate(365, 55) scale(1.7)">
+              <path d="M7 6L2 12L7 18" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <line x1="14" y1="4" x2="10" y2="20" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" opacity="0.85" />
+              <path d="M17 6L22 12L17 18" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </g>
+            <g transform="translate(365, 635) scale(1.8)">
+              <path d="M7 6L2 12L7 18" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <line x1="14" y1="4" x2="10" y2="20" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" opacity="0.85" />
+              <path d="M17 6L22 12L17 18" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </g>
+          </svg>
+        </div>
+
+        {/* Centered Big & Bold "SkillUni" Text */}
+        <div className="relative z-10 text-center animate-fade-in-up">
+          <h1 className="text-white font-bold text-6xl md:text-7xl lg:text-8xl tracking-tight drop-shadow-[0_10px_35px_rgba(0,0,0,0.3)]">
+            SkillUni
+          </h1>
+          <p className="text-white/80 text-body-lg font-medium mt-4 tracking-wide">
+            Master Tech. Build the Future.
+          </p>
         </div>
       </div>
     </main>

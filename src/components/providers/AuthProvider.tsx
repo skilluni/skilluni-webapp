@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "../../lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
-import LoadingScreen from "../ui/LoadingScreen";
 
 export interface Profile {
   id: string;
@@ -119,16 +118,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, signOut, refreshProfile }}>
-      <LoadingScreen loading={loading} />
       {children}
     </AuthContext.Provider>
   );
 }
 
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  profile: null,
+  loading: false,
+  signOut: async () => {},
+  refreshProfile: async () => {},
+};
+
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  return context || defaultAuthContext;
 }

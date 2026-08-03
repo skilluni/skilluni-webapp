@@ -192,7 +192,7 @@ export default function DashboardPage() {
 
   // Loading state
   if (authLoading || !user || !profile) {
-    return null; // LoadingScreen from AuthProvider handles this
+    return null; // Wait for active user session
   }
 
   if (dataLoading) {

@@ -142,12 +142,14 @@ type TestimonialsProps = {
 
 export default function Testimonials({ initialTestimonials }: TestimonialsProps) {
   // Use DB testimonials if available and not empty, otherwise default to constant list
-  const displayList = initialTestimonials && initialTestimonials.length > 0
+  const baseList = initialTestimonials && initialTestimonials.length > 0
     ? initialTestimonials
     : TESTIMONIALS;
 
   // Duplicate items for continuous seamless horizontal marquee loop
-  const marqueeItems = [...displayList, ...displayList];
+  const marqueeItems = baseList.length < 6
+    ? [...baseList, ...baseList, ...baseList, ...baseList]
+    : [...baseList, ...baseList];
 
   return (
     <section
