@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Editor from "@monaco-editor/react";
 import type { DbCourse, DbLecture } from "../../../../../lib/db";
@@ -49,6 +49,18 @@ export default function LectureDetailsClient({
   const { user } = useAuth();
   const [completedLectures, setCompletedLectures] = useState<string[]>([]);
   const [isEnrolled, setIsEnrolled] = useState(true); // default true while checking
+
+  const activeLectureRef = useRef<HTMLAnchorElement | null>(null);
+
+  // Auto-scroll active lecture into view inside sidebar on mount / lecture change
+  useEffect(() => {
+    if (activeLectureRef.current) {
+      activeLectureRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [lecture.slug]);
 
   // 1. Fetch user progress & enrollment status
   useEffect(() => {
@@ -725,7 +737,7 @@ export default function LectureDetailsClient({
 
         {/* Right Panel - Sticky Sidebar Roadmap Outline */}
         <div
-          className={`fixed inset-y-0 right-0 z-50 lg:z-10 lg:static flex flex-col border-l border-white/5 bg-[#0b0b0b] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0 ${
+          className={`fixed inset-y-0 right-0 z-50 lg:z-10 lg:static flex flex-col border-l border-white/10 bg-[#141414] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0 ${
             sidebarOpen
               ? "translate-x-0 w-full sm:w-[320px] lg:w-[320px] xl:w-[340px] lg:h-[calc(100vh-64px)] lg:sticky lg:top-16 opacity-100"
               : "translate-x-full lg:translate-x-0 lg:w-0 lg:border-l-0 overflow-hidden opacity-0 pointer-events-none"
@@ -734,9 +746,9 @@ export default function LectureDetailsClient({
           {/* Inner wrapper to prevent content squeezing during collapse */}
           <div className="flex flex-col h-full w-full lg:w-[320px] xl:w-[340px] shrink-0">
           {/* Sidebar Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/5 h-16 shrink-0 bg-black/40">
+          <div className="flex items-center justify-between p-4 border-b border-white/10 h-16 shrink-0 bg-white/[0.03]">
             <div className="min-w-0 pr-3">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 block">Course Navigation</span>
+              <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 block">Course Navigation</span>
               <h2 className="text-xs font-extrabold text-white truncate mt-0.5 uppercase tracking-wide">{course.title}</h2>
             </div>
             {/* Close Button on mobile */}
@@ -751,12 +763,15 @@ export default function LectureDetailsClient({
           </div>
 
           {/* Chapters and Lessons Outline */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none bg-black/[0.05]">
+          <div
+            className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain p-4 space-y-4 scrollbar-none bg-white/[0.015]"
+            data-lenis-prevent
+          >
             {course.chapters.map((ch, chIdx) => {
               const isExpanded = !!expandedChapters[ch.id];
               const chSpotColor = SPOTLIGHT_COLORS[chIdx % SPOTLIGHT_COLORS.length];
               return (
-                <div key={ch.id} className="border border-white/5 rounded-xl bg-black/10 overflow-hidden">
+                <div key={ch.id} className="border border-white/10 rounded-xl bg-[#1a1a1c]/60 overflow-hidden">
                   <button
                     onClick={() => toggleChapter(ch.id)}
                     className="w-full flex items-center justify-between p-4 hover:bg-white/[0.02] transition cursor-pointer select-none text-left"
@@ -787,6 +802,7 @@ export default function LectureDetailsClient({
                         return (
                           <Link
                             key={l.id}
+                            ref={isActive ? activeLectureRef : undefined}
                             href={`/courses/${course.slug}/lectures/${l.slug}`}
                             className={`flex items-start gap-3 p-3.5 hover:bg-white/[0.04] transition-all group ${
                               isActive ? "bg-white/[0.02]" : ""
