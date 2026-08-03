@@ -35,7 +35,7 @@ function TestimonialCard({ item }: { item: ExtTestimonial }) {
   // Compute a numeric ID from string or number for gradient selection
   const numericId = typeof item.id === "number"
     ? item.id
-    : item.id.split("").reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+    : String(item.id).split("").reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
   
   // Assign avatar gradient based on testimonial ID
   const avatarBg = AVATAR_GRADIENTS[numericId % AVATAR_GRADIENTS.length];
@@ -45,7 +45,7 @@ function TestimonialCard({ item }: { item: ExtTestimonial }) {
 
   return (
     <div
-      className="card-hover p-6 flex flex-col justify-between"
+      className="w-[260px] sm:w-[300px] min-h-[300px] sm:min-h-[350px] shrink-0 p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 ease-out hover:scale-[1.02] hover:border-white/20 hover:shadow-[0_12px_35px_-10px_rgba(0,0,0,0.7)] group cursor-pointer"
       style={{
         background: "var(--color-surface-1)",
         borderRadius: "var(--radius-xl)",
@@ -58,8 +58,8 @@ function TestimonialCard({ item }: { item: ExtTestimonial }) {
           {Array.from({ length: item.rating }).map((_, i) => (
             <svg
               key={i}
-              className="w-4 h-4"
-              style={{ color: "var(--color-gradient-orange)" }}
+              className="w-4 h-4 transition-transform group-hover:scale-110"
+              style={{ color: "#facc15" }}
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
@@ -69,7 +69,7 @@ function TestimonialCard({ item }: { item: ExtTestimonial }) {
           ))}
         </div>
 
-        {/* Comment/Quote */}
+        {/* Comment/Quote - Vertical long display */}
         <p
           className="text-body italic mb-6 font-sans leading-relaxed"
           style={{ color: "rgba(255, 255, 255, 0.9)" }}
@@ -79,8 +79,8 @@ function TestimonialCard({ item }: { item: ExtTestimonial }) {
       </div>
 
       {/* User Information */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 pt-4 border-t border-white/5 mt-auto min-w-0">
+        <div className="flex items-center gap-3 min-w-0 overflow-hidden">
           {/* Avatar with spotlight gradient */}
           {resolvedAvatar ? (
             <img
@@ -102,15 +102,16 @@ function TestimonialCard({ item }: { item: ExtTestimonial }) {
           )}
 
           {/* Name and Role */}
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0 overflow-hidden">
             <span
-              className="text-body-sm font-semibold"
+              className="text-body-sm font-semibold truncate"
               style={{ color: "var(--color-ink)" }}
+              title={item.name}
             >
               {item.name}
             </span>
             <span
-              className="text-caption mt-0.5"
+              className="text-caption mt-0.5 truncate"
               style={{ color: "var(--color-ink-muted)" }}
             >
               {resolvedRole}
@@ -118,9 +119,13 @@ function TestimonialCard({ item }: { item: ExtTestimonial }) {
           </div>
         </div>
 
-        {/* YouTube icon */}
+        {/* YouTube icon in primary text color */}
         {item.source === "youtube" && (
-          <div className="text-[#ff0000] opacity-80 hover:opacity-100 transition shrink-0 select-none" title="Imported from YouTube">
+          <div
+            className="opacity-70 group-hover:opacity-100 transition shrink-0 select-none ml-2"
+            style={{ color: "var(--color-ink)" }}
+            title="Imported from YouTube"
+          >
             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
               <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
             </svg>
@@ -141,15 +146,8 @@ export default function Testimonials({ initialTestimonials }: TestimonialsProps)
     ? initialTestimonials
     : TESTIMONIALS;
 
-  // Distribute testimonials evenly into 3 separate columns
-  const col1 = displayList.filter((_, idx) => idx % 3 === 0);
-  const col2 = displayList.filter((_, idx) => idx % 3 === 1);
-  const col3 = displayList.filter((_, idx) => idx % 3 === 2);
-
-  // Duplicate items in each column to enable smooth and seamless looping
-  const col1Doubled = [...col1, ...col1];
-  const col2Doubled = [...col2, ...col2];
-  const col3Doubled = [...col3, ...col3];
+  // Duplicate items for continuous seamless horizontal marquee loop
+  const marqueeItems = [...displayList, ...displayList];
 
   return (
     <section
@@ -165,49 +163,31 @@ export default function Testimonials({ initialTestimonials }: TestimonialsProps)
           description={HOME.testimonials.description}
           align="center"
         />
+      </div>
 
-        {/* Testimonials Vertical Marquee Container */}
-        <div className="relative mt-16 w-full h-[650px] overflow-hidden mask-fade-vertical">
-          {/* Top Gradient Fade Overlay */}
-          <div
-            className="absolute top-0 left-0 right-0 h-24 z-10 pointer-events-none"
-            style={{
-              background: "linear-gradient(to bottom, var(--color-canvas) 0%, transparent 100%)",
-            }}
-          />
+      {/* Single Row Horizontal Marquee Container */}
+      <div className="relative mt-16 w-full overflow-hidden">
+        {/* Left Edge Gradient Fade Overlay */}
+        <div
+          className="absolute top-0 bottom-0 left-0 w-16 sm:w-36 z-10 pointer-events-none"
+          style={{
+            background: "linear-gradient(to right, var(--color-canvas) 0%, transparent 100%)",
+          }}
+        />
 
-          {/* Bottom Gradient Fade Overlay */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-24 z-10 pointer-events-none"
-            style={{
-              background: "linear-gradient(to top, var(--color-canvas) 0%, transparent 100%)",
-            }}
-          />
+        {/* Right Edge Gradient Fade Overlay */}
+        <div
+          className="absolute top-0 bottom-0 right-0 w-16 sm:w-36 z-10 pointer-events-none"
+          style={{
+            background: "linear-gradient(to left, var(--color-canvas) 0%, transparent 100%)",
+          }}
+        />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-full items-start">
-            
-            {/* Column 1 (Fast scroll - always visible) */}
-            <div className="flex flex-col gap-6 animate-marquee-fast hover-pause">
-              {col1Doubled.map((item, idx) => (
-                <TestimonialCard key={`col1-${item.id}-${idx}`} item={item} />
-              ))}
-            </div>
-
-            {/* Column 2 (Medium scroll - visible on tablet & desktop) */}
-            <div className="hidden md:flex flex-col gap-6 animate-marquee-medium hover-pause">
-              {col2Doubled.map((item, idx) => (
-                <TestimonialCard key={`col2-${item.id}-${idx}`} item={item} />
-              ))}
-            </div>
-
-            {/* Column 3 (Slow scroll - visible on desktop only) */}
-            <div className="hidden lg:flex flex-col gap-6 animate-marquee-slow hover-pause">
-              {col3Doubled.map((item, idx) => (
-                <TestimonialCard key={`col3-${item.id}-${idx}`} item={item} />
-              ))}
-            </div>
-
-          </div>
+        {/* Horizontal Marquee Track */}
+        <div className="flex gap-6 w-max py-4 animate-marquee-horizontal hover-pause">
+          {marqueeItems.map((item, idx) => (
+            <TestimonialCard key={`testimonial-${item.id}-${idx}`} item={item} />
+          ))}
         </div>
       </div>
     </section>

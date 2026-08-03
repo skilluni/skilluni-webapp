@@ -127,6 +127,7 @@
   --animate-marquee-fast: marquee-vertical 120s linear infinite;
   --animate-marquee-medium: marquee-vertical 150s linear infinite;
   --animate-marquee-slow: marquee-vertical 180s linear infinite;
+  --animate-marquee-horizontal: marquee-horizontal 35s linear infinite;
 
   @keyframes marquee-vertical {
     from {
@@ -134,6 +135,15 @@
     }
     to {
       transform: translateY(-50%);
+    }
+  }
+
+  @keyframes marquee-horizontal {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
     }
   }
 }
@@ -243,6 +253,14 @@ body {
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+.animate-marquee-horizontal {
+  animation: marquee-horizontal 250s linear infinite;
+}
+
+.hover-pause:hover {
+  animation-play-state: paused;
 }
 
 /* ── Atmospheric Gradient Spotlights (Signature Cards) ──────── */

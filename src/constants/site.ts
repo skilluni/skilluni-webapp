@@ -3,8 +3,10 @@ export const SITE = {
   homeHref: "/",
   tagline: "Free Tech Education. Forever.",
   description:
-    "Helping ICSE Class 10 students ace Computer Applications with Java.",
-  youtube: "https://youtube.com/@SkillUni",
+    "Founded in August 2024 with the mission to provide free, high-quality computer science education to students worldwide. SkillUni is a platform that helps students learn programming, data structures, algorithms, and other computer science concepts through interactive lessons, quizzes, and projects.",
+  youtube: "https://youtube.com/@skilluni",
+  reddit: "https://www.reddit.com/user/skilluni/",
+  email: "logiclantern313@gmail.com",
 };
 
 export const HEADER = {
@@ -15,23 +17,31 @@ export const HEADER = {
 };
 
 export const FOOTER = {
-  note: "Built for tech nerds.",
+  note: "Empowering the next generation of software engineers through free, world-class tech education.",
   columns: [
+    {
+      title: "Popular Courses",
+      links: [
+        { label: "Computer Applications Class 9 ICSE", href: "/courses/icse-java-class-9" },
+        { label: "Computer Applications Class 10 ICSE", href: "/courses/icse-java-class-10" }
+      ],
+    },
     {
       title: "Explore",
       links: [
         { label: "Home", href: "/" },
-        { label: "Courses", href: "/courses" },
+        { label: "All Roadmaps", href: "/courses" },
+        { label: "Student Reviews", href: "/#testimonials" },
+        { label: "Channel Metrics", href: "/#metrics" },
       ],
     },
     {
       title: "Resources",
       links: [
-        { label: "YouTube", href: SITE.youtube },
-        { label: "Roadmaps", href: "/courses" },
+        { label: "YouTube Channel", href: SITE.youtube }
       ],
     },
   ],
   social: [{ label: "YouTube", href: SITE.youtube }],
-  legal: "© 2026 SkillUni.",
+  legal: "© 2026 SkillUni. Built with passion for future developers.",
 };

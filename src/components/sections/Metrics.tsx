@@ -7,10 +7,10 @@ import SectionHeading from "../ui/SectionHeading";
 import { gsap, registerGsapPlugins } from "../../lib/gsap";
 
 const SPOTLIGHT_VARIANTS = [
-  '', // surface-1
   'gradient-spotlight-violet',
-  '', // surface-1
   'gradient-spotlight-magenta',
+  'gradient-spotlight-orange',
+  'gradient-spotlight-coral',
 ];
 
 type MetricItem = {
@@ -75,10 +75,51 @@ export default function Metrics({ initialMetrics }: MetricsProps) {
           title={HOME.metrics.title}
           description={HOME.metrics.description}
         />
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
           {displayMetrics.map((metric, index) => {
             const variant = SPOTLIGHT_VARIANTS[index % SPOTLIGHT_VARIANTS.length];
             const isSpotlight = !!variant;
+            const cardRatioClass = index % 4 === 0 || index % 4 === 3 ? "col-span-1 sm:col-span-2" : "col-span-1 sm:col-span-3";
+
+            const renderLabel = (label: string) => {
+              const lower = label.toLowerCase();
+              if (lower === "subscribers") {
+                return (
+                  <>
+                    <span className="sm:hidden">Subs</span>
+                    <span className="hidden sm:inline">Subscribers</span>
+                  </>
+                );
+              }
+              if (lower === "total views") {
+                return (
+                  <>
+                    <span className="hidden sm:inline">Total </span>Views
+                  </>
+                );
+              }
+              if (lower === "video lessons") {
+                return (
+                  <>
+                    <span className="hidden sm:inline">Video </span>Lessons
+                  </>
+                );
+              }
+              return label;
+            };
+
+            const renderValue = (value: string) => {
+              const match = value.match(/^(.*?)\s*(lessons)$/i);
+              if (match) {
+                return (
+                  <>
+                    {match[1]}
+                    <span className="hidden sm:inline"> {match[2]}</span>
+                  </>
+                );
+              }
+              return value;
+            };
 
             return (
               <div
@@ -86,18 +127,18 @@ export default function Metrics({ initialMetrics }: MetricsProps) {
                 data-metric-card
                 className={
                   isSpotlight
-                    ? `rounded-[20px] p-8 ${variant} text-white relative overflow-hidden flex flex-col justify-center gap-1 h-36`
-                    : "rounded-[20px] border border-hairline bg-surface-1 p-8 flex flex-col justify-center gap-1 h-36"
+                    ? `rounded-[20px] p-8 ${variant} ${cardRatioClass} text-white relative overflow-hidden flex flex-col justify-center gap-1 h-36`
+                    : `rounded-[20px] border border-hairline bg-surface-1 p-8 ${cardRatioClass} flex flex-col justify-center gap-1 h-36`
                 }
               >
                 <p
                   className="text-xs font-semibold uppercase tracking-[0.2em]"
                   style={{ color: isSpotlight ? "rgba(255, 255, 255, 0.8)" : "var(--color-ink-muted)" }}
                 >
-                  {metric.label}
+                  {renderLabel(metric.label)}
                 </p>
                 <p className="text-display-md text-ink leading-tight">
-                  {metric.value}
+                  {renderValue(metric.value)}
                 </p>
               </div>
             );
