@@ -43,12 +43,68 @@ export async function PATCH(req: Request) {
 
   const body = await req.json();
 
-  // Only allow updating specific fields
-  const allowed = ["name", "avatar_id", "institution", "board_of_study", "course", "class", "school_name", "university_name"];
+  // Validate name if provided
+  if (body.name !== undefined) {
+    if (typeof body.name !== "string" || !body.name.trim()) {
+      return NextResponse.json({ error: "Name cannot be empty" }, { status: 400 });
+    }
+  }
+
+  // Validate institution if provided
+  if (body.institution !== undefined) {
+    if (!["School", "University", "Independent"].includes(body.institution)) {
+      return NextResponse.json({ error: "Invalid institution type" }, { status: 400 });
+    }
+  }
+
+  // Fetch existing profile for fallback and institution context
+  const { data: currentProfile } = await admin
+    .from("profiles")
+    .select("institution, board_of_study, class, school_name, university_name, course")
+    .eq("id", user.id)
+    .single();
+
+  const effectiveInstitution = body.institution || currentProfile?.institution || "Independent";
+
   const update: Record<string, unknown> = {};
-  for (const key of allowed) {
-    if (body[key] !== undefined) {
-      update[key] = body[key];
+
+  if (body.name !== undefined) update.name = body.name.trim();
+  if (body.avatar_id !== undefined) update.avatar_id = body.avatar_id;
+  if (body.institution !== undefined) update.institution = body.institution;
+
+  // Cleanup & assign institution-specific fields based on effective institution
+  if (effectiveInstitution === "Independent") {
+    update.board_of_study = null;
+    update.class = null;
+    update.school_name = null;
+    update.university_name = null;
+    update.course = null;
+  } else if (effectiveInstitution === "School") {
+    update.university_name = null;
+    update.course = null;
+
+    update.board_of_study = body.board_of_study !== undefined ? body.board_of_study : (currentProfile?.board_of_study || "ICSE");
+    update.class = body.class !== undefined ? body.class : (currentProfile?.class || "Class 10");
+
+    const schoolNameVal = body.school_name !== undefined ? body.school_name : currentProfile?.school_name;
+    update.school_name = typeof schoolNameVal === "string" ? schoolNameVal.trim() : null;
+
+    if (!update.school_name) {
+      return NextResponse.json({ error: "School name is required for School status" }, { status: 400 });
+    }
+  } else if (effectiveInstitution === "University") {
+    update.board_of_study = null;
+    update.class = null;
+    update.school_name = null;
+
+    const uniNameVal = body.university_name !== undefined ? body.university_name : currentProfile?.university_name;
+    const courseVal = body.course !== undefined ? body.course : currentProfile?.course;
+
+    update.university_name = typeof uniNameVal === "string" ? uniNameVal.trim() : null;
+    update.course = typeof courseVal === "string" ? courseVal.trim() : null;
+
+    if (!update.university_name || !update.course) {
+      return NextResponse.json({ error: "University name and course are required for University status" }, { status: 400 });
     }
   }
 

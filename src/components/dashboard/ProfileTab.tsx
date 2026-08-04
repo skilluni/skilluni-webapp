@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PROFILE } from "../../constants/dashboard";
 import type { Profile } from "../../components/providers/AuthProvider";
 
@@ -21,24 +21,65 @@ export default function ProfileTab({ profile, token, onProfileUpdate, onSignOut 
   const [course, setCourse] = useState(profile.course || "");
 
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  useEffect(() => {
+    setName(profile.name || "");
+    setInstitution(profile.institution || "Independent");
+    setBoardOfStudy(profile.board_of_study || "ICSE");
+    setSchoolClass(profile.class || "Class 10");
+    setSchoolName(profile.school_name || "");
+    setUniversityName(profile.university_name || "");
+    setCourse(profile.course || "");
+  }, [profile]);
+
   const handleSave = async () => {
-    setSaveState("saving");
+    setErrorMsg(null);
+
+    const cleanName = name.trim();
+    if (!cleanName) {
+      setErrorMsg("Display name cannot be empty.");
+      return;
+    }
 
     const payload: Record<string, unknown> = {
-      name,
+      name: cleanName,
       institution,
     };
 
     if (institution === "School") {
+      const cleanSchool = schoolName.trim();
+      if (!cleanSchool) {
+        setErrorMsg("School name is required for School status.");
+        return;
+      }
       payload.board_of_study = boardOfStudy;
       payload.class = schoolClass;
-      payload.school_name = schoolName;
+      payload.school_name = cleanSchool;
+      payload.university_name = null;
+      payload.course = null;
     } else if (institution === "University") {
-      payload.university_name = universityName;
-      payload.course = course;
+      const cleanUni = universityName.trim();
+      const cleanCourse = course.trim();
+      if (!cleanUni || !cleanCourse) {
+        setErrorMsg("University name and course are required for University status.");
+        return;
+      }
+      payload.university_name = cleanUni;
+      payload.course = cleanCourse;
+      payload.board_of_study = null;
+      payload.class = null;
+      payload.school_name = null;
+    } else {
+      payload.board_of_study = null;
+      payload.class = null;
+      payload.school_name = null;
+      payload.university_name = null;
+      payload.course = null;
     }
+
+    setSaveState("saving");
 
     try {
       const res = await fetch("/api/dashboard/profile", {
@@ -56,9 +97,12 @@ export default function ProfileTab({ profile, token, onProfileUpdate, onSignOut 
         setSaveState("saved");
         setTimeout(() => setSaveState("idle"), 2000);
       } else {
+        const errData = await res.json().catch(() => ({}));
+        setErrorMsg(errData.error || "Failed to update profile.");
         setSaveState("idle");
       }
     } catch {
+      setErrorMsg("An unexpected network error occurred.");
       setSaveState("idle");
     }
   };
@@ -280,6 +324,12 @@ export default function ProfileTab({ profile, token, onProfileUpdate, onSignOut 
             </>
           )}
         </div>
+
+        {errorMsg && (
+          <div className="mt-4 p-3 text-caption text-red-500 bg-red-500/10 border border-red-500/20 rounded-md">
+            {errorMsg}
+          </div>
+        )}
 
         {/* Save Button */}
         <div className="mt-6 flex justify-end">
