@@ -29,6 +29,16 @@ export function initLenis() {
   return lenis;
 }
 
+export function getLenis() {
+  return lenisInstance;
+}
+
+export function resizeLenis() {
+  if (lenisInstance) {
+    lenisInstance.resize();
+  }
+}
+
 export function destroyLenis() {
   if (!lenisInstance || !rafHandler) {
     return;

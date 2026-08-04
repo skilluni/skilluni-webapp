@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { DbChapter } from "../../lib/db";
+import { getLenis } from "../../lib/lenis";
 
 const SPOTLIGHT_COLORS = [
   { text: "#6a4cf5", border: "rgba(106, 76, 245, 0.2)", bg: "rgba(106, 76, 245, 0.08)" },
@@ -56,8 +57,12 @@ export default function TableOfContents({ chapters, layout }: TableOfContentsPro
     e.preventDefault();
     const el = document.getElementById(id);
     if (el) {
-      // Smooth scroll using scrollIntoView
-      el.scrollIntoView({ behavior: "smooth" });
+      const lenis = getLenis();
+      if (lenis) {
+        lenis.scrollTo(el, { offset: -96 });
+      } else {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
     }
   };
 

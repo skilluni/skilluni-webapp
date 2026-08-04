@@ -515,8 +515,6 @@ body.cursor-hidden .cursor-arrow {
 }
 .scrollbar-none::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
-  width: 0;
-  height: 0;
 }
 
 /* ── Dashboard ──────────────────────────────────────────────── */

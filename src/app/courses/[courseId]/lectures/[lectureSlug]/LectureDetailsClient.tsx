@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Editor from "@monaco-editor/react";
 import type { DbCourse, DbLecture } from "../../../../../lib/db";
@@ -49,18 +49,6 @@ export default function LectureDetailsClient({
   const { user } = useAuth();
   const [completedLectures, setCompletedLectures] = useState<string[]>([]);
   const [isEnrolled, setIsEnrolled] = useState(true); // default true while checking
-
-  const activeLectureRef = useRef<HTMLAnchorElement | null>(null);
-
-  // Auto-scroll active lecture into view inside sidebar on mount / lecture change
-  useEffect(() => {
-    if (activeLectureRef.current) {
-      activeLectureRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
-    }
-  }, [lecture.slug]);
 
   // 1. Fetch user progress & enrollment status
   useEffect(() => {
@@ -296,7 +284,7 @@ export default function LectureDetailsClient({
 
   return (
     <main
-      className="flex-1 min-h-screen"
+      className="flex-1 min-h-screen overflow-x-clip"
       style={{ background: "var(--color-canvas)", color: "var(--color-ink)" }}
     >
       {/* Backdrop for mobile outline drawer */}
@@ -333,11 +321,10 @@ export default function LectureDetailsClient({
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`px-4 py-2 rounded-full border text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer select-none active:scale-[0.97] ${
-                  sidebarOpen
+                className={`px-4 py-2 rounded-full border text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer select-none active:scale-[0.97] ${sidebarOpen
                     ? "bg-white text-black border-white"
                     : "border-white/10 text-neutral-400 hover:text-white hover:bg-[#1c1c1c]"
-                }`}
+                  }`}
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -500,11 +487,10 @@ export default function LectureDetailsClient({
                         <button
                           key={idx}
                           onClick={() => setActiveFileIndex(idx)}
-                          className={`flex items-center gap-2 px-4 h-full border-b-2 text-xs font-semibold select-none cursor-pointer transition-all duration-200 ${
-                            activeFileIndex === idx
+                          className={`flex items-center gap-2 px-4 h-full border-b-2 text-xs font-semibold select-none cursor-pointer transition-all duration-200 ${activeFileIndex === idx
                               ? "bg-[#1a1a1a] text-white"
                               : "border-transparent text-neutral-500 hover:text-white hover:bg-neutral-800/40"
-                          }`}
+                            }`}
                           style={{ borderBottomColor: activeFileIndex === idx ? spotColor.text : "transparent" }}
                         >
                           {getFileIcon(file.language)}
@@ -699,11 +685,10 @@ export default function LectureDetailsClient({
                 {user && (
                   <button
                     onClick={handleToggleComplete}
-                    className={`px-3 py-1 text-[10px] uppercase tracking-widest font-bold border rounded-full select-none cursor-pointer flex items-center gap-1.5 transition-all duration-200 active:scale-[0.97] ${
-                      completedLectures.includes(lecture.id)
+                    className={`px-3 py-1 text-[10px] uppercase tracking-widest font-bold border rounded-full select-none cursor-pointer flex items-center gap-1.5 transition-all duration-200 active:scale-[0.97] ${completedLectures.includes(lecture.id)
                         ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/25"
                         : "bg-white/5 text-neutral-400 border-white/10 hover:text-white hover:bg-white/10"
-                    }`}
+                      }`}
                   >
                     {completedLectures.includes(lecture.id) ? (
                       <>
@@ -737,138 +722,135 @@ export default function LectureDetailsClient({
 
         {/* Right Panel - Sticky Sidebar Roadmap Outline */}
         <div
-          className={`fixed inset-y-0 right-0 z-50 lg:z-10 lg:static flex flex-col border-l border-white/10 bg-[#141414] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0 ${
-            sidebarOpen
+          className={`fixed inset-y-0 right-0 z-50 lg:z-10 lg:static flex flex-col border-l border-white/10 bg-[#161618] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shrink-0 ${sidebarOpen
               ? "translate-x-0 w-full sm:w-[320px] lg:w-[320px] xl:w-[340px] lg:h-[calc(100vh-64px)] lg:sticky lg:top-16 opacity-100"
               : "translate-x-full lg:translate-x-0 lg:w-0 lg:border-l-0 overflow-hidden opacity-0 pointer-events-none"
-          }`}
+            }`}
         >
           {/* Inner wrapper to prevent content squeezing during collapse */}
           <div className="flex flex-col h-full w-full lg:w-[320px] xl:w-[340px] shrink-0">
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/10 h-16 shrink-0 bg-white/[0.03]">
-            <div className="min-w-0 pr-3">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 block">Course Navigation</span>
-              <h2 className="text-xs font-extrabold text-white truncate mt-0.5 uppercase tracking-wide">{course.title}</h2>
+            {/* Sidebar Header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10 h-16 shrink-0 bg-[#1c1c20]/90 backdrop-blur-md">
+              <div className="min-w-0 pr-3">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-400 block">Course Navigation</span>
+                <h2 className="text-xs font-extrabold text-white truncate mt-0.5 uppercase tracking-wide">{course.title}</h2>
+              </div>
+              {/* Close Button on mobile */}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden p-1.5 rounded-lg border border-white/10 hover:bg-[#28282d] text-neutral-300 hover:text-white cursor-pointer select-none"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            {/* Close Button on mobile */}
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-1.5 rounded-lg border border-white/10 hover:bg-[#1c1c1c] text-neutral-400 hover:text-white cursor-pointer select-none"
+
+            {/* Chapters and Lessons Outline */}
+            <div
+              className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain p-4 space-y-4 scrollbar-none bg-[#141416]/50"
+              data-lenis-prevent
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Chapters and Lessons Outline */}
-          <div
-            className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain p-4 space-y-4 scrollbar-none bg-white/[0.015]"
-            data-lenis-prevent
-          >
-            {course.chapters.map((ch, chIdx) => {
-              const isExpanded = !!expandedChapters[ch.id];
-              const chSpotColor = SPOTLIGHT_COLORS[chIdx % SPOTLIGHT_COLORS.length];
-              return (
-                <div key={ch.id} className="border border-white/10 rounded-xl bg-[#1a1a1c]/60 overflow-hidden">
-                  <button
-                    onClick={() => toggleChapter(ch.id)}
-                    className="w-full flex items-center justify-between p-4 hover:bg-white/[0.02] transition cursor-pointer select-none text-left"
-                  >
-                    <div className="min-w-0 pr-2">
-                      <span className="text-[9px] uppercase tracking-wider font-bold" style={{ color: chSpotColor.text }}>
-                        Chapter {chIdx + 1}
-                      </span>
-                      <h3 className="text-xs font-bold text-white truncate mt-0.5">{ch.title}</h3>
-                    </div>
-                    <svg
-                      className={`w-3.5 h-3.5 text-neutral-500 transition-transform duration-200 shrink-0 ${
-                        isExpanded ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
+              {course.chapters.map((ch, chIdx) => {
+                const isExpanded = !!expandedChapters[ch.id];
+                const chSpotColor = SPOTLIGHT_COLORS[chIdx % SPOTLIGHT_COLORS.length];
+                return (
+                  <div key={ch.id} className="border border-white/10 rounded-xl bg-[#1e1e22] overflow-hidden shadow-sm">
+                    <button
+                      onClick={() => toggleChapter(ch.id)}
+                      className="w-full flex items-center justify-between p-4 hover:bg-white/[0.05] transition cursor-pointer select-none text-left"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+                      <div className="min-w-0 pr-2">
+                        <span className="text-[9px] uppercase tracking-wider font-bold" style={{ color: chSpotColor.text }}>
+                          Chapter {chIdx + 1}
+                        </span>
+                        <h3 className="text-xs font-bold text-white truncate mt-0.5">{ch.title}</h3>
+                      </div>
+                      <svg
+                        className={`w-3.5 h-3.5 text-neutral-400 transition-transform duration-200 shrink-0 ${isExpanded ? "rotate-180" : ""
+                          }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
 
-                  {isExpanded && (
-                    <div className="border-t border-white/5 divide-y divide-white/5 bg-[#141414]/20 animate-fade-in">
-                      {ch.lectures.map((l) => {
-                        const isActive = l.slug === lecture.slug;
-                        return (
-                          <Link
-                            key={l.id}
-                            ref={isActive ? activeLectureRef : undefined}
-                            href={`/courses/${course.slug}/lectures/${l.slug}`}
-                            className={`flex items-start gap-3 p-3.5 hover:bg-white/[0.04] transition-all group ${
-                              isActive ? "bg-white/[0.02]" : ""
-                            }`}
-                          >
-                            {/* Order index */}
-                            <div
-                              className={`w-5.5 h-5.5 rounded-full border text-[9px] font-bold flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300`}
-                              style={{
-                                borderColor: completedLectures.includes(l.id)
-                                  ? "var(--color-success)"
-                                  : isActive
-                                    ? "#ffffff"
-                                    : "rgba(255, 255, 255, 0.1)",
-                                backgroundColor: completedLectures.includes(l.id)
-                                  ? "var(--color-success)"
-                                  : isActive
-                                    ? "#ffffff"
-                                    : "transparent",
-                                color: completedLectures.includes(l.id)
-                                  ? "#ffffff"
-                                  : isActive
-                                    ? "#000000"
-                                    : "var(--color-ink-muted)",
-                              }}
+                    {isExpanded && (
+                      <div className="border-t border-white/10 divide-y divide-white/5 bg-[#18181c] animate-fade-in">
+                        {ch.lectures.map((l) => {
+                          const isActive = l.slug === lecture.slug;
+                          return (
+                            <Link
+                              key={l.id}
+                              href={`/courses/${course.slug}/lectures/${l.slug}`}
+                              className={`flex items-start gap-3 p-3.5 transition-all group ${isActive
+                                  ? "bg-white/10 text-white"
+                                  : "hover:bg-white/[0.06] text-neutral-300"
+                                }`}
                             >
-                              {completedLectures.includes(l.id) ? (
-                                <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                              ) : (
-                                l.order
-                              )}
-                            </div>
-                            
-                            {/* Details */}
-                            <div className="min-w-0 flex-1">
-                              <span className={`text-xs font-semibold block transition leading-tight ${
-                                isActive ? "text-white" : "text-neutral-400 group-hover:text-white"
-                              }`}>
-                                {l.title}
-                              </span>
-                              <div className="flex items-center gap-2 mt-1 text-[9px] text-neutral-500 font-medium">
-                                <span>{l.duration}</span>
-                                {l.isLocked && (
-                                  <>
-                                    <span>•</span>
-                                    <span className="text-[#ff5577] font-semibold">Premium</span>
-                                  </>
+                              {/* Order index */}
+                              <div
+                                className={`w-5.5 h-5.5 rounded-full border text-[9px] font-bold flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300`}
+                                style={{
+                                  borderColor: completedLectures.includes(l.id)
+                                    ? "var(--color-success)"
+                                    : isActive
+                                      ? "#ffffff"
+                                      : "rgba(255, 255, 255, 0.2)",
+                                  backgroundColor: completedLectures.includes(l.id)
+                                    ? "var(--color-success)"
+                                    : isActive
+                                      ? "#ffffff"
+                                      : "transparent",
+                                  color: completedLectures.includes(l.id)
+                                    ? "#ffffff"
+                                    : isActive
+                                      ? "#000000"
+                                      : "var(--color-ink-muted)",
+                                }}
+                              >
+                                {completedLectures.includes(l.id) ? (
+                                  <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                ) : (
+                                  l.order
                                 )}
                               </div>
-                            </div>
-                            
-                            {/* Indicator right */}
-                            {isActive && (
-                              <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse shrink-0 mt-2" />
-                            )}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+
+                              {/* Details */}
+                              <div className="min-w-0 flex-1">
+                                <span className={`text-xs font-semibold block transition leading-tight ${isActive ? "text-white" : "text-neutral-300 group-hover:text-white"
+                                  }`}>
+                                  {l.title}
+                                </span>
+                                <div className="flex items-center gap-2 mt-1 text-[9px] text-neutral-400 font-medium">
+                                  <span>{l.duration}</span>
+                                  {l.isLocked && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="text-[#ff5577] font-semibold">Premium</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Indicator right */}
+                              {isActive && (
+                                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse shrink-0 mt-2" />
+                              )}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
