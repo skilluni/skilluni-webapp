@@ -11,7 +11,12 @@ type CourseProgressCardProps = {
 };
 
 export default function CourseProgressCard({ data, colorIndex, onUnenroll }: CourseProgressCardProps) {
-  const { course, progressPercent, completedLectures, totalLectures } = data;
+  const { course, progressPercent, completedLectures, totalLectures, lastLecture } = data;
+
+  const targetLectureSlug = lastLecture?.slug || course.lectures[0]?.slug || course.chapters[0]?.lectures[0]?.slug;
+  const ctaHref = targetLectureSlug
+    ? `/courses/${course.slug}/lectures/${targetLectureSlug}`
+    : `/courses/${course.slug}`;
 
   return (
     <div
@@ -64,7 +69,7 @@ export default function CourseProgressCard({ data, colorIndex, onUnenroll }: Cou
       {/* CTA */}
       <div className="mt-auto flex items-center gap-2">
         <Link
-          href={`/courses/${course.slug}`}
+          href={ctaHref}
           className="flex-1 inline-flex items-center justify-center text-button transition-all duration-200 active:scale-[0.97] rounded-[100px] h-9 px-4 cursor-pointer"
           style={{
             background: progressPercent > 0 ? "var(--color-primary)" : "var(--color-surface-2)",

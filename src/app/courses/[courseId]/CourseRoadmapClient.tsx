@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ROADMAP_PAGE } from "../../../constants/roadmap";
 import LectureCard from "../../../components/ui/LectureCard";
 import SectionHeading from "../../../components/ui/SectionHeading";
@@ -32,6 +33,7 @@ export default function CourseRoadmapClient({
   const [progress, setProgress] = useState(initialProgress);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
+  const [unenrolling, setUnenrolling] = useState(false);
 
   // 1. Fetch user progress and enrollment status
   useEffect(() => {
@@ -105,6 +107,52 @@ export default function CourseRoadmapClient({
     }
   };
 
+  const handleUnenroll = async () => {
+    if (!user) return;
+    const confirmUnenroll = window.confirm(
+      "Are you sure you want to unenroll from this course? This will also clear your lesson progress."
+    );
+    if (!confirmUnenroll) return;
+
+    setUnenrolling(true);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      const token = session?.session?.access_token;
+      if (!token) return;
+
+      const res = await fetch("/api/dashboard/enrollments", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ course_id: course.id }),
+      });
+
+      if (res.ok) {
+        setIsEnrolled(false);
+        setCompletedLectures([]);
+        setProgress(0);
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to unenroll.");
+      }
+    } catch (err) {
+      console.error("Unenrollment error:", err);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setUnenrolling(false);
+    }
+  };
+
+  // Find the first incomplete lecture for "Continue Course"
+  const targetLecture =
+    course.chapters
+      .flatMap((ch) => ch.lectures)
+      .find((l) => !completedLectures.includes(l.id)) ||
+    course.lectures[0] ||
+    course.chapters[0]?.lectures[0];
+
   // Merge the dynamic completed status into the course outline/timeline
   const updatedChapters = course.chapters.map((ch) => ({
     ...ch,
@@ -152,14 +200,37 @@ export default function CourseRoadmapClient({
           </p>
 
           {/* Enrollment CTA */}
-          <div className="mt-2">
+          <div className="mt-2 flex flex-wrap items-center gap-3">
             {isEnrolled ? (
-              <span className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-full select-none w-fit">
-                <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Enrolled</span>
-              </span>
+              <>
+                {targetLecture ? (
+                  <Link
+                    href={`/courses/${course.slug}/lectures/${targetLecture.slug}`}
+                    className="group/continue px-6 py-3 text-button font-bold flex items-center gap-2 transition-all duration-200 bg-white text-black hover:bg-neutral-200 rounded-[100px] cursor-pointer active:scale-95 shadow-lg w-fit"
+                  >
+                    <span>Continue Course</span>
+                    <svg
+                      className="h-4 w-4 stroke-[2.5] transition-transform duration-200 group-hover/continue:translate-x-0.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13 5l7 7-7 7M5 5l7 7-7 7"
+                      />
+                    </svg>
+                  </Link>
+                ) : null}
+                <button
+                  onClick={handleUnenroll}
+                  disabled={unenrolling}
+                  className="px-5 py-3 text-button font-medium flex items-center gap-2 transition-all duration-200 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border border-rose-500/30 rounded-[100px] cursor-pointer disabled:opacity-55 active:scale-95 w-fit"
+                >
+                  <span>{unenrolling ? "Unenrolling..." : "Unenroll Course"}</span>
+                </button>
+              </>
             ) : (
               <button
                 onClick={handleEnroll}
