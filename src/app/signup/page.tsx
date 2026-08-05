@@ -191,21 +191,17 @@ export default function SignUp() {
         throw new Error(resData.error || "Failed to create account.");
       }
 
-      // Establish client session
+      // Handle session & email confirmation
       if (resData.session) {
         await supabase.auth.setSession(resData.session);
+        await refreshProfile();
+        setSuccessMsg("Account registered successfully! Redirecting to your dashboard...");
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 2000);
       } else {
-        await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+        setSuccessMsg("Account created! Please check your email to confirm your account before signing in.");
       }
-
-      await refreshProfile();
-      setSuccessMsg("Account registered successfully! Redirecting to your dashboard...");
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 2000);
     } catch (err: any) {
       console.error("Full signup error:", err);
       setErrorMsg(err.message || "An unexpected error occurred during signup.");

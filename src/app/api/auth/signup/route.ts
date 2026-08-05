@@ -1,11 +1,23 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { supabase } from "../../../../lib/supabase";
+import { getClientIp, incrementRateLimit } from "../../../../lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const rateLimitKey = `rate:signup:${ip}`;
+    const requestCount = await incrementRateLimit(rateLimitKey, 60);
+
+    if (requestCount > 5) {
+      return NextResponse.json(
+        { error: "Too many attempts. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const {
       email,
@@ -56,16 +68,17 @@ export async function POST(req: Request) {
       course: institution === "University" ? course?.trim() : null,
     };
 
-    // 1. Create User via Supabase Admin (bypasses email confirmation delay & RLS)
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    // 1. Create User via Supabase Auth (natively triggers email confirmation if enabled in Supabase Dashboard)
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email: cleanEmail,
       password: password,
-      email_confirm: true,
-      user_metadata: metadata,
+      options: {
+        data: metadata,
+      },
     });
 
     if (authError) {
-      console.error("Admin createUser error:", authError.message);
+      console.error("Supabase signUp error:", authError.message);
       return NextResponse.json({ error: authError.message }, { status: 400 });
     }
 
@@ -97,13 +110,7 @@ export async function POST(req: Request) {
       console.error("Admin profiles upsert error:", profileError.message);
     }
 
-    // 3. Attempt client session sign in
-    const { data: sessionData } = await supabase.auth.signInWithPassword({
-      email: cleanEmail,
-      password,
-    });
-
-    // 4. Return clean, sanitized response (no raw identity metadata arrays)
+    // 3. Return clean, sanitized response
     return NextResponse.json({
       success: true,
       user: {
@@ -112,13 +119,15 @@ export async function POST(req: Request) {
         username: cleanUsername,
         name: name.trim(),
       },
-      session: sessionData?.session
+      session: authData.session
         ? {
-            access_token: sessionData.session.access_token,
-            refresh_token: sessionData.session.refresh_token,
+            access_token: authData.session.access_token,
+            refresh_token: authData.session.refresh_token,
           }
         : null,
-      message: "Account created and profile saved successfully!",
+      message: authData.session
+        ? "Account created successfully!"
+        : "Account created! Please check your email to confirm your account.",
     });
   } catch (err: any) {
     console.error("API Signup error:", err);
