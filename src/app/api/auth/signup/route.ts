@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { supabase } from "../../../../lib/supabase";
 import { getClientIp, incrementRateLimit } from "../../../../lib/rateLimit";
+import { getAppOrigin } from "../../../../lib/getAppOrigin";
 
 export const dynamic = "force-dynamic";
 
@@ -68,12 +69,15 @@ export async function POST(req: Request) {
       course: institution === "University" ? course?.trim() : null,
     };
 
+    const appOrigin = getAppOrigin(req);
+
     // 1. Create User via Supabase Auth (natively triggers email confirmation if enabled in Supabase Dashboard)
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: cleanEmail,
       password: password,
       options: {
         data: metadata,
+        emailRedirectTo: `${appOrigin}/signin`,
       },
     });
 

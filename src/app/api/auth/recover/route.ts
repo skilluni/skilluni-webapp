@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabase } from "../../../../lib/supabase";
 import { supabaseAdmin } from "../../../../lib/supabase-admin";
 import { getClientIp, incrementRateLimit } from "../../../../lib/rateLimit";
+import { getAppOrigin } from "../../../../lib/getAppOrigin";
 
 export const dynamic = "force-dynamic";
 
@@ -13,43 +14,84 @@ export async function POST(request: Request) {
 
     if (requestCount > 5) {
       return NextResponse.json(
-        { error: "Too many attempts. Please try again in a minute." },
+        { success: false, error: "Too many attempts. Please try again in a minute." },
         { status: 429 }
       );
     }
 
     const { username } = await request.json();
 
-    if (!username) {
-      return NextResponse.json({ error: "Username is required." }, { status: 400 });
+    if (!username || !username.trim()) {
+      return NextResponse.json({ success: false, error: "Username or email is required." }, { status: 400 });
     }
 
-    // 1. Resolve email address from username server-side
-    const { data: email, error: rpcError } = await supabaseAdmin.rpc("get_email_by_username", {
-      username_input: username.trim().toLowerCase(),
-    });
+    const cleanInput = username.trim().toLowerCase();
+    let targetEmail: string | null = null;
 
-    // 2. If the user exists, trigger OTP sending
-    if (!rpcError && email) {
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: false,
-        },
-      });
+    // 1. Check if the input is directly an email address
+    if (cleanInput.includes("@")) {
+      targetEmail = cleanInput;
+    } else {
+      // 2. Try RPC function to resolve email from username
+      try {
+        const { data: rpcEmail, error: rpcError } = await supabaseAdmin.rpc("get_email_by_username", {
+          username_input: cleanInput,
+        });
 
-      if (otpError) {
-        console.error("Error triggering OTP sign-in:", otpError);
+        if (!rpcError && rpcEmail) {
+          targetEmail = rpcEmail;
+        }
+      } catch (e) {
+        console.warn("RPC get_email_by_username error, falling back to profile query:", e);
+      }
+
+      // 3. Fallback: Query profiles table directly if RPC didn't return an email
+      if (!targetEmail) {
+        const { data: profileData } = await supabaseAdmin
+          .from("profiles")
+          .select("email")
+          .ilike("username", cleanInput)
+          .maybeSingle();
+
+        if (profileData?.email) {
+          targetEmail = profileData.email;
+        }
       }
     }
 
-    // 3. Always return a generic success message to prevent user enumeration
+    // 4. If the target email was resolved, send recovery email / OTP
+    if (targetEmail) {
+      const appOrigin = getAppOrigin(request);
+      const redirectToUrl = `${appOrigin}/signin`;
+
+      // Primary: resetPasswordForEmail via supabaseAdmin (service_role)
+      const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(targetEmail, {
+        redirectTo: redirectToUrl,
+      });
+
+      if (resetError) {
+        console.warn("resetPasswordForEmail failed, falling back to signInWithOtp:", resetError.message);
+        const { error: otpError } = await supabase.auth.signInWithOtp({
+          email: targetEmail,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: redirectToUrl,
+          },
+        });
+
+        if (otpError) {
+          console.error("signInWithOtp fallback error:", otpError.message);
+        }
+      }
+    }
+
+    // 5. Always return a generic success message to prevent user enumeration
     return NextResponse.json({
       success: true,
-      message: "If an account with that username exists, an OTP has been sent to its registered email.",
+      message: "If an account with that username/email exists, a verification code has been sent to its registered email address.",
     });
   } catch (err: any) {
     console.error("Recover password proxy API error:", err);
-    return NextResponse.json({ error: "An unexpected error occurred." }, { status: 500 });
+    return NextResponse.json({ success: false, error: "An unexpected error occurred." }, { status: 500 });
   }
 }
