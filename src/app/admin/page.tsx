@@ -1178,15 +1178,6 @@ export default function AdminDashboard() {
                             Advanced
                           </span>
                         )}
-                        {course.isPremium ? (
-                          <span className="text-[9px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-full bg-rose-600 text-white shadow-sm">
-                            Premium
-                          </span>
-                        ) : (
-                          <span className="text-[9px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-full bg-sky-600 text-white shadow-sm">
-                            Free
-                          </span>
-                        )}
                       </div>
                     </div>
 
@@ -1295,15 +1286,6 @@ export default function AdminDashboard() {
                       {selectedCourse.level === "Advanced" && (
                         <span className="text-[8px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-indigo-600 text-white shadow-sm">
                           Advanced
-                        </span>
-                      )}
-                      {selectedCourse.isPremium ? (
-                        <span className="text-[8px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-rose-600 text-white shadow-sm">
-                          Premium
-                        </span>
-                      ) : (
-                        <span className="text-[8px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-sky-600 text-white shadow-sm">
-                          Free
                         </span>
                       )}
                     </div>
@@ -1495,29 +1477,6 @@ export default function AdminDashboard() {
                                               <span>Duration: {lec.duration}</span>
                                               <span>•</span>
                                               <span className="truncate max-w-[150px]">Slug: /{lec.slug}</span>
-                                              {lec.isLocked ? (
-                                                <>
-                                                  <span>•</span>
-                                                  <span className="text-[#ff5577] font-semibold flex items-center gap-1">
-                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                                                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                                    </svg>
-                                                    Locked
-                                                  </span>
-                                                </>
-                                              ) : (
-                                                <>
-                                                  <span>•</span>
-                                                  <span className="text-[#22c55e] font-semibold flex items-center gap-1">
-                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                                                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                                      <path d="M7 11V7a5 5 0 0 1 9.9-1" />
-                                                    </svg>
-                                                    Free
-                                                  </span>
-                                                </>
-                                              )}
                                             </div>
                                           </div>
                                         </div>

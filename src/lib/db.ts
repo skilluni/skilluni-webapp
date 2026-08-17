@@ -82,6 +82,7 @@ export async function getCourses(): Promise<DbCourse[]> {
       notesUrl: l.notes_url || "",
       quizUrl: l.quiz_url || "",
       duration: l.duration,
+      // Content gating is intentionally disabled site-wide (all lectures are free and unlocked)
       isLocked: false,
       codeFiles: l.code_files || [],
     });
@@ -117,6 +118,7 @@ export async function getCourses(): Promise<DbCourse[]> {
       description: c.description,
       level: c.level,
       thumbnail: c.thumbnail,
+      // Content gating is intentionally disabled site-wide (all courses are free and accessible)
       isPremium: false,
       tags: c.tags || [],
       chapters,
@@ -186,6 +188,7 @@ export async function editCourse(
   if (data.description !== undefined) update.description = data.description;
   if (data.level !== undefined) update.level = data.level;
   if (data.thumbnail !== undefined) update.thumbnail = data.thumbnail;
+  // Content gating is intentionally disabled site-wide (all courses are free)
   if (data.isPremium !== undefined) update.is_premium = false;
   if (data.tags !== undefined) update.tags = data.tags;
 
@@ -300,6 +303,7 @@ export async function addLecture(data: {
     notes_url: data.notesUrl || "",
     quiz_url: data.quizUrl || "",
     duration: data.duration || "10 min",
+    // Content gating is intentionally disabled site-wide (all lectures are unlocked)
     is_locked: false,
     code_files: data.codeFiles || [],
   });
@@ -335,6 +339,7 @@ export async function editLecture(
   if (data.videoUrl !== undefined) update.video_url = data.videoUrl;
   if (data.notesUrl !== undefined) update.notes_url = data.notesUrl;
   if (data.quizUrl !== undefined) update.quiz_url = data.quizUrl;
+  // Content gating is intentionally disabled site-wide (all lectures are unlocked)
   if (data.isLocked !== undefined) update.is_locked = false;
   if (data.codeFiles !== undefined) update.code_files = data.codeFiles;
 
