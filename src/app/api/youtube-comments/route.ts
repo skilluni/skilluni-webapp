@@ -87,13 +87,17 @@ export async function GET(request: Request) {
     // 4. Construct API URL
     let commentsUrl = "";
     if (targetVideoId) {
-      commentsUrl = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${targetVideoId}&maxResults=50&key=${apiKey}`;
+      commentsUrl = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${encodeURIComponent(
+        targetVideoId
+      )}&maxResults=50&key=${apiKey}`;
     } else {
-      commentsUrl = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&allThreadsRelatedToChannelId=${channelId}&maxResults=50&key=${apiKey}&order=time`;
+      commentsUrl = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&allThreadsRelatedToChannelId=${encodeURIComponent(
+        channelId as string
+      )}&maxResults=50&key=${apiKey}&order=time`;
     }
 
     if (pageToken) {
-      commentsUrl += `&pageToken=${pageToken}`;
+      commentsUrl += `&pageToken=${encodeURIComponent(pageToken)}`;
     }
 
     const commentsRes = await fetch(commentsUrl);
