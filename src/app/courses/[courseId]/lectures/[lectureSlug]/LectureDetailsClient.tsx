@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Editor from "@monaco-editor/react";
+import dynamic from "next/dynamic";
+
+const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 import type { DbCourse, DbLecture } from "../../../../../lib/db";
 import CustomVideoPlayer from "../../../../../components/ui/CustomVideoPlayer";
 import { useAuth } from "../../../../../components/providers/AuthProvider";
@@ -23,6 +25,7 @@ type CodeFileData = {
   content: string;
   language: string;
   error?: boolean;
+  isUnauthorized?: boolean;
   message?: string;
   url: string;
 };
@@ -166,27 +169,23 @@ export default function LectureDetailsClient({
       const fetchAllCodeFiles = async () => {
         setLoading(true);
         try {
+          const { data: session } = await supabase.auth.getSession();
+          const token = session?.session?.access_token;
+          const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+
           const promises = lecture.codeFiles!.map(async (url, idx) => {
             try {
-              const res = await fetch(`/api/fetch-code?url=${encodeURIComponent(url)}`);
-              if (!res.ok) {
+              const res = await fetch(`/api/fetch-code?url=${encodeURIComponent(url)}`, { headers });
+              const data = await res.json().catch(() => null);
+              const isUnauthorized = res.status === 401 || data?.message === "Unauthorized";
+              if (!res.ok || (data && data.error)) {
                 return {
-                  name: `File ${idx + 1}`,
+                  name: (data && data.name) || `File ${idx + 1}`,
                   content: "",
                   language: "plaintext",
                   error: true,
-                  message: `Network error (status ${res.status}).`,
-                  url,
-                };
-              }
-              const data = await res.json();
-              if (data.error) {
-                return {
-                  name: data.name || `File ${idx + 1}`,
-                  content: "",
-                  language: "plaintext",
-                  error: true,
-                  message: data.message,
+                  isUnauthorized,
+                  message: (data && data.message) || `Network error (status ${res.status}).`,
                   url,
                 };
               }
@@ -504,7 +503,7 @@ export default function LectureDetailsClient({
                   </div>
 
                   {/* Monaco utility actions */}
-                  {!loading && codeFilesData.length > 0 && (
+                  {!loading && codeFilesData.length > 0 && !codeFilesData[activeFileIndex]?.isUnauthorized && (
                     <div className="flex items-center gap-2 py-1.5 shrink-0">
                       <button
                         onClick={handleCopyCode}
@@ -522,18 +521,20 @@ export default function LectureDetailsClient({
                           </>
                         )}
                       </button>
-                      <a
-                        href={codeFilesData[activeFileIndex]?.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1.5 rounded-lg border border-white/10 hover:bg-[#1c1c1c] text-xs font-semibold text-neutral-400 hover:text-white transition flex items-center gap-1 select-none"
-                        title="Open file in Google Drive"
-                      >
-                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        <span>Open Link</span>
-                      </a>
+                      {user && (
+                        <a
+                          href={codeFilesData[activeFileIndex]?.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg border border-white/10 hover:bg-[#1c1c1c] text-xs font-semibold text-neutral-400 hover:text-white transition flex items-center gap-1 select-none"
+                          title="Open file in Google Drive"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          <span>Open Link</span>
+                        </a>
+                      )}
                     </div>
                   )}
                 </div>
@@ -550,6 +551,38 @@ export default function LectureDetailsClient({
                   ) : codeFilesData.length > 0 ? (
                     (() => {
                       const activeFile = codeFilesData[activeFileIndex];
+                      const isUnauthorized = !user || activeFile?.isUnauthorized || activeFile?.message === "Unauthorized";
+
+                      if (isUnauthorized) {
+                        return (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-[#1a1a1a] text-center">
+                            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4 text-emerald-400">
+                              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                              </svg>
+                            </div>
+                            <h4 className="text-base font-bold text-white mb-2">Sign in to Access Code Files</h4>
+                            <p className="text-xs text-neutral-400 max-w-sm mb-6 leading-relaxed">
+                              Please sign in or create an account to view code files, download resources, and track your progress.
+                            </p>
+                            <div className="flex items-center gap-3">
+                              <Link
+                                href="/signin"
+                                className="px-5 py-2.5 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold transition select-none"
+                              >
+                                Sign In
+                              </Link>
+                              <Link
+                                href="/signup"
+                                className="px-5 py-2.5 rounded-xl border border-white/20 hover:bg-white/10 text-white text-xs font-bold transition select-none"
+                              >
+                                Create Account
+                              </Link>
+                            </div>
+                          </div>
+                        );
+                      }
+
                       if (activeFile?.error) {
                         return (
                           <div className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-[#1a1a1a] text-center">
@@ -562,17 +595,19 @@ export default function LectureDetailsClient({
                             <p className="text-xs text-neutral-500 max-w-sm mb-6 leading-relaxed">
                               {activeFile.message || "Please ensure the sharing permission on Google Drive is set to 'Anyone with the link can view'."}
                             </p>
-                            <a
-                              href={activeFile.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-5 py-2.5 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold transition flex items-center gap-2 select-none"
-                            >
-                              <span>Open in Google Drive</span>
-                              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                            </a>
+                            {user && (
+                              <a
+                                href={activeFile.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-5 py-2.5 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold transition flex items-center gap-2 select-none"
+                              >
+                                <span>Open in Google Drive</span>
+                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </a>
+                            )}
                           </div>
                         );
                       }
@@ -583,50 +618,7 @@ export default function LectureDetailsClient({
                           width="100%"
                           language={activeFile?.language || "plaintext"}
                           value={activeFile?.content || ""}
-                          theme="cursor-dark"
-                          beforeMount={(monaco) => {
-                            try {
-                              monaco.editor.defineTheme("cursor-dark", {
-                                base: "vs-dark",
-                                inherit: true,
-                                rules: [],
-                                colors: {
-                                  "editor.background": "#1a1a1a",
-                                  "editor.foreground": "#D8DEE9",
-                                  "editor.lineHighlightBackground": "#292929",
-                                  "editorCursor.foreground": "#FFFFFF",
-                                  "editorLineNumber.foreground": "#505050",
-                                  "editorLineNumber.activeForeground": "#FFFFFF",
-                                  "editor.selectionBackground": "#40404099",
-                                  "editor.inactiveSelectionBackground": "#40404077",
-                                },
-                              });
-                            } catch (e) {
-                              console.error("beforeMount theme definition error:", e);
-                            }
-                          }}
-                          onMount={(editor, monaco) => {
-                            try {
-                              monaco.editor.defineTheme("cursor-dark", {
-                                base: "vs-dark",
-                                inherit: true,
-                                rules: [],
-                                colors: {
-                                  "editor.background": "#1a1a1a",
-                                  "editor.foreground": "#D8DEE9",
-                                  "editor.lineHighlightBackground": "#292929",
-                                  "editorCursor.foreground": "#FFFFFF",
-                                  "editorLineNumber.foreground": "#505050",
-                                  "editorLineNumber.activeForeground": "#FFFFFF",
-                                  "editor.selectionBackground": "#40404099",
-                                  "editor.inactiveSelectionBackground": "#40404077",
-                                },
-                              });
-                              monaco.editor.setTheme("cursor-dark");
-                            } catch (e) {
-                              console.error("onMount theme definition error:", e);
-                            }
-                          }}
+                          theme="vs-dark"
                           loading={
                             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#1a1a1a]">
                               <div className="w-6 h-6 rounded-full border-2 border-white/20 border-t-white animate-spin" />
@@ -645,9 +637,12 @@ export default function LectureDetailsClient({
                             lineNumbers: "on",
                             automaticLayout: true,
                             padding: { top: 16, bottom: 16 },
-                            domReadOnly: true,
                             contextmenu: false,
                             stickyScroll: { enabled: false },
+                            folding: true,
+                            foldingStrategy: "auto",
+                            showFoldingControls: "always",
+                            foldingHighlight: true,
                           }}
                         />
                       );

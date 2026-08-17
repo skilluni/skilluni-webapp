@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { getClientIp, incrementRateLimit } from "../../../lib/rateLimit";
 
 export const dynamic = "force-dynamic";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+function getAdmin() {
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
 
 function getLanguageFromExtension(filename: string): string {
   const ext = filename.split(".").pop()?.toLowerCase();
@@ -49,7 +59,28 @@ export async function GET(request: Request) {
     const rateLimitKey = `rate:fetch-code:${ip}`;
     const requestCount = await incrementRateLimit(rateLimitKey, 60);
 
-    if (requestCount > 30) {
+    if (requestCount > 10) {
+      return NextResponse.json(
+        { error: true, message: "Too many requests. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
+    const token = request.headers.get("authorization")?.replace("Bearer ", "");
+    if (!token) {
+      return NextResponse.json({ error: true, message: "Unauthorized" }, { status: 401 });
+    }
+
+    const admin = getAdmin();
+    const { data: { user }, error: authErr } = await admin.auth.getUser(token);
+    if (authErr || !user) {
+      return NextResponse.json({ error: true, message: "Unauthorized" }, { status: 401 });
+    }
+
+    const userRateLimitKey = `rate:fetch-code:user:${user.id}`;
+    const userRequestCount = await incrementRateLimit(userRateLimitKey, 60);
+
+    if (userRequestCount > 10) {
       return NextResponse.json(
         { error: true, message: "Too many requests. Please try again in a minute." },
         { status: 429 }
